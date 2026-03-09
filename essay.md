@@ -10,8 +10,9 @@ It will be supplemented by some code files for generating the exemplars, and eve
 
 This lecture has three parts. In the first, which has some practical examples, I attempt to explain some important aspects of what it means to program computers for science.
 
-In the second, I look at the philosophy of computer programming for science, and consider its study as a research discipline. In the third, I look at some possible futures for this field
-in the context of the development of deep learning and generative AI.
+In the second, I look at the philosophy of computer programming for science, and consider its study as a research discipline. This part doesn't have practical examples and is just thinking.
+
+In the third, I look at some possible futures for this field in the context of the development of deep learning and generative AI, again with some practical examples.
 
 ## 1.1 Pseudocode and the path to scientific understanding
 
@@ -210,9 +211,13 @@ This is our second deep lesson: **because in science we use computers to underst
 
 ## 1.3 The Third Paradigm
 
-### 1.3.1 Software as a research tool and the third paradigm. 
+### 1.3.1 Software as a research tool and the third paradigm.
+
+<write this>
 
 ### 1.3.2 Complexity science.
+
+<write this>
 
 My Dad bought a copy of a book called 'frontiers of complexity' just as I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
 
@@ -443,7 +448,14 @@ In this approach
 
 ### 2.6.3 The Tinkerer's epistemology
 
+Verifiable rewards? Tao example - feed forward to 5th paradigm.
+
 ### 2.6.4 The Service Provider's epistemology
+
+service provision by scientists to scientists is an extremely common research methodology - one that I understand well from particle physics - but it has flourished in molecular biology.
+the building of competitive data sets - challenge problems - has been vital to AI.
+
+IT departments and computational science - violence or management science?
 
 leadership lets you get interested in the bits that aren't your main bit - I'm mainly interested in the programming but, e.g. the heat distribution in liquid cooling is fascinating.
 
@@ -479,6 +491,9 @@ Humility in discipline crossing
 ### 3.2.1 Code as data and model management
 
 ### 3.2.2 VIABS and the Beacon Project
+
+- models as data
+
 
 ### 3.2.3 Models-as-diagrams and the Mathworks
 
