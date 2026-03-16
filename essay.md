@@ -133,6 +133,8 @@ The rules for the Boids:
 
 [Fill in here]
 
+<video>
+
 This also really made an impression on me - the kind of understanding-with-rules, where you aren't properly convinced you've understood something until you can get a computer to do it, works in biology and sociology, and history, as well as physics. 
 
 ### 1.1.6 - Effective
@@ -207,7 +209,11 @@ In order to get to this point of working with computers-that-share-the-work, the
 
 It's a LOT harder to write the program now. And a lot easier to make mistakes. But calculations are possible that would otherwise not be.
 
-Now, you might like it if when you're working in BBC basic - you never need to know about the engineering details of how the memory works. In computer science we call this an "abstraction stack"
+Now, you might like it if you could ignore the details of the message passing and all that.
+
+When you're working in BBC basic - you never need to know about the engineering details of how the memory works. 
+
+In computer science we call this an "abstraction stack"
 
 [diagram]
 
@@ -674,7 +680,7 @@ We can apply the fourth paradigm to the language - whether computer language or 
 
 I've always loved linguistics. As a kid I borrowed one by one every "teach yourself language" book in Kendal library, not to learn the languages, but to read about how all the different grammars work.
 
-It makes me sad, in the same way understanding free fourth paradigm science always makes us a little sad, that the engineering challenge of translation was solved by big data methods, not chomskian approaches.
+It makes me sad, in the same way understanding-free fourth paradigm science always makes us a little sad, that the engineering challenge of translation was solved by big data methods, not chomskian approaches.
 
 But at the same time, the fact that language itself has now come within the domain of engineering computational science gives us so many opportunities. In one project, where we're modelling healthcare workers
 giving each other antibiotic resistant disease moving around the hospital, language modelling makes it practical to use nurses's notes as a dataset to help us fit the model. 
