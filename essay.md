@@ -271,9 +271,17 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 
 ### 2.1.3 The Joint Biosecurity Centre
 
-<to write>
+As another example of the importance of trustworthiness in scientific code, during the covid crisis I was a senior advisor at the Joint Biosecurity Centre, building the team that did the modelling that put together
+the national R number - remember that?
 
-Length of excel file example
+One of the things that concerned me was that, at the beginning of the crisis, the models that were being used were running in the universities that built them. This was a risk, partly because university
+systems aren't designed for the kind of reliability that national crisis resilience requires. But also because of the reputational risk to the university sector of operational decision making being done through
+codes that were designed for research purposes, often without the kind of robust engineering practices I've been working to spread through academia.
+
+I'm proud that I was able to help colleagues navigate the challenge of getting these codes moved to a national shared secure resource, while still benefitting from the understanding developed within the
+higher education sector.
+
+<illustration>
 
 ### 2.2.1 The reproducibility crisis
 
@@ -589,7 +597,11 @@ data stewardship that made it possible - that curated millions <check number> of
 
 <illustration>
 
-This field - designing storage formats for scientific data, working out what data to keep, what to throw away, etc, is called research data stewardship. It's grown in importance throughout my career.
+This field - designing storage formats for scientific data, working out what data to keep, what to throw away, etc, is called research data stewardship. The data about the data is called "metadata".
+It's grown in importance throughout my career.
+
+Some of the engineering challenges faced by data stewards can be quite fun - such as losing data during a pandemic at a critical moment due to a hard limit
+on the number of lines in an out of date version of Excel being used in the NHS. Hint - excel is not a sensible scientific file format for good data stewardship.
 
 ### 3.1.3 Open science
 
@@ -619,36 +631,84 @@ But somehow, for me, it misses part of the point of science: we didn't get into 
 
 It's also sometimes the case that not using understanding-of-the-world makes these models a bit fragile. When colleagues built an epidemiology-free data model of covid, it worked really well until the virus evolved a new variant.
 
-There's a lot to be explored here - 
+There's a lot to be investigated here - with my PhD student Lewis O'Donnell we're exploring how much physics - perhaps zero - we need to put into a model of fusion reactors to reliably help colleagues at the atomic energy authority.
 
 ### 3.1.5 VIABS and the Beacon Project
 
-- models as data
+I first started working in formal data management as part of my first postdoc. This was my first foray outside physics - looking at using maths and computers and data to understand diabetes. I was lucky enough
+to have a brilliant cross-disciplinary UCL supervisory team - Anthony Finkelstein, who will do the vote of thanks today, as my computer science supervisor, and Rob Seymour, a brilliant complexity scientist as 
+my mathematical modelling supervisor, and Anne Warner - one of the founders of computational biology at UCL, and a leading physiologist, as my biology supervisor. 
+
+Anne and Rob are sadly no longer with us, but I do want to acknowledge strongly their influence on me as an interdisciplinary computational scientist. I think the vision for the challenge I'm trying to
+set out today began because of the influence of that boundary-breaking UCL team.
+
+Now, what was the data that we were building management tools - ontologies - for? This is where things get interesting, because the datasets in question weren't just numbers, but models!
+
+### 3.1.6 Models as data
+
+A computer program:
+
+``` python
+def acceleration(position):
+    r = np.sqrt(position[0]*position[0] + position[1]*position[1])
+    G = 100.0  # Gravitational constant
+    g = G / (r * r)  # Gravitational acceleration
+    return - g * (position / r) # Make it point toward origin
+```
+
+or a description of a scientific theory:
+
+"Planets orbit as ellipses, with the sun at one focus"
+
+is just data. It's a bunch of letters and words. 
+
+There's a lot of beautiful computer science theory about how models and data are interplay - you can even show that every mathematical proof is a datatype.
+
+If we're careful with our data stewardship - keep the right metadata - we can apply big data methods to the models.
+
+We can apply the fourth paradigm to the language - whether computer language or human - itself.
 
 ## 3.2 The fifth paradigm
 
-### 3.2.1 Code as data and model management
+### 3.2.1 Large language models
 
+I've always loved linguistics. As a kid I borrowed one by one every "teach yourself language" book in Kendal library, not to learn the languages, but to read about how all the different grammars work.
 
-### 3.1.5 Data science and digital humanities
+It makes me sad, in the same way understanding free fourth paradigm science always makes us a little sad, that the engineering challenge of translation was solved by big data methods, not chomskian approaches.
 
-The linguistic turn in computational science.
+But at the same time, the fact that language itself has now come within the domain of engineering computational science gives us so many opportunities. In one project, where we're modelling healthcare workers
+giving each other antibiotic resistant disease moving around the hospital, language modelling makes it practical to use nurses's notes as a dataset to help us fit the model. 
 
-Humility in discipline crossing.
+At the Turing Institute, I was able to work with a brilliant interdisciplinary team of historians and social scientists to study industrial accidents in the industrial revolution, 
+using all the British Library's books and newspapers from the 19th century - all of them! History at scale. 
 
+<illustration>
+
+This is one of the things that taught me the importance of epistemic pluralism. Bringing new areas into computational research, and then working out how to engage carefully, 
+respectful of varied epistemic cultures, across disciplines, is really interesting and requires a humble approach. There's too much 'takeover' from tech in much of digital humanities
+and colleagues and I have tried to take a different path.
+
+### 3.2.2 Research software engineering and LLM coding
+
+Now, you'll all by now have heard about LLMs and software engineering, and all the programmers losing their jobs, and thinking that all of this sounds completely moot - we had a good run with the research software
+engineers, but now we're all about to get replaced by AIs.
+
+The truth is much more interesting, and is going to be, I think, an area where getting it right, will be a fascinating research area for the rest of my career, and one where the service-provider epistemology is key.
+
+I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Idil Ozdemir <verify she accepts> we're going to be looking at how we
+might be able to know LLM-generated scientific software is reliable.
 
 ### 3.2.3 Models-as-diagrams and the Mathworks
 
+There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.
 
+It's always been part of the goal of computer science to minimise the distance between our careful description of the algorithm and the computer representation. Code like our python examples is translated into machine code by a compiler. No one (actually, some do) bewails the fact that we no longer toggle our computer programmes into the computer using binary switches. (Punch cards were a fad.)
 
-Note on visual representation of code. This will lead through to the pseudocode question.
+I began this talk with pseudocode - natural language carefully representing the steps we want to take. It's reasoning these steps out, that has always been the point of the software engineer, not the syntax of the particular language. 
 
-Pedagogical programming in a world of AI.
+Research software engineers have always been trying to reduce the distance from the maths to the computer representation - to make it as lucid as possible. While I was at the Mathworks I worked on how we represent
+models as diagrams, and automatically translate these into code, for just this reason.
 
+The fact that an LLM can take my pseudocode, and generate the python <demo> is just the latest in this chain. 
 
-
-Open source, autocomplete and the use of work-that-has-already-been-done.
-
-Pseudocode, DSLs and the chain of compilation/lucidity. In the context of AI assisted engineering.
-
-Abstraction failure of AI prompt as DSL and the role of engineers.
+What this does to the economics of being a professional research engineer, and how UCL ARC responds, I look forward to finding out. 
