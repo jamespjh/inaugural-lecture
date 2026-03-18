@@ -1,0 +1,25 @@
+# https://packaging.python.org/en/latest/guides/writing-pyproject-toml/
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "teachgrav"
+version = "0.0.1"
+authors = [
+  { name="James Hetherington", email="j.hetherington@ucl.ac.uk" },
+]
+description = "A pedagogical programming exercise based on a gravity simulation"
+readme = "Readme.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+]
+
+[project.scripts]
+teachgrav = "teachgrav.entry:entry"
+
