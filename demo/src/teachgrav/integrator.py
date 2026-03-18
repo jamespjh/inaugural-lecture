@@ -6,9 +6,9 @@ def integrate_step(system: System, method: str, dt: float) -> System:
     """Take the system state forward using the specified method."""
     if method == 'euler':
         derivatives = law(system)
-        new_positions = system.positions + derivatives[:, :2] * dt
-        new_velocities = system.velocities + derivatives[:, 2:] * dt
-        return System(new_positions, new_velocities, system.masses)
+        new_positions = system.positions + derivatives[0, :, :] * dt
+        new_velocities = system.velocities + derivatives[1, :, :] * dt
+        return system.update(new_positions, new_velocities)
     elif method == 'rk4':
         # Placeholder for RK4 implementation
         return system

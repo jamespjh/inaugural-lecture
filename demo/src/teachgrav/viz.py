@@ -6,7 +6,7 @@ def visualize(trajectory, output, mode='video', options='dot'):
     if mode == 'video':
         animate(trajectory, output, options)
     else:
-        plot(trajectory, output)
+        plot(trajectory, output, options)
 
 
 def axes(trajectory, options):
@@ -24,13 +24,23 @@ def axes(trajectory, options):
     ax.set_xlim(x_min - buffer, x_max + buffer)
     ax.set_ylim(y_min - buffer, y_max + buffer)
 
+    # One line or dot per body, with the option to show trails or just current positions
+
+    lines = []
+    num_bodies = trajectory.positions.shape[1]
+    
     if options == 'trail':
-        line, = ax.plot([], [], 'b-')
+        for _ in range(num_bodies):
+            line, = ax.plot([], [], 'b-')
+            lines.append(line)
     elif options == 'dot':
-        line, = ax.plot([], [], 'bo')
+        for _ in range(num_bodies):
+            line, = ax.plot([], [], 'bo')
+            lines.append(line)
     else:
         raise ValueError(f"Unknown animation option: {options}")
-    return [fig, ax, line]
+    
+    return [fig, ax, lines]
 
 
 def animate(trajectory, output, options):
@@ -38,20 +48,23 @@ def animate(trajectory, output, options):
     fig, _, line = axes(trajectory, options)
 
     def init():
-        line.set_data([], [])
-        return line,
+        for l in line:
+            l.set_data([], [])
+        return line
 
     if options == 'trail':
         def animate(position):
-            line.set_data(
-                trajectory.positions[:position, 0],
-                trajectory.positions[:position, 1])
-            return []
+            for i, l in enumerate(line):
+                l.set_data(
+                    trajectory.positions[:position, i, 0],
+                    trajectory.positions[:position, i, 1])
+            return line
     elif options == 'dot':
         def animate(position):
-            line.set_data([trajectory.positions[position, 0]],
-                          [trajectory.positions[position, 1]])
-            return []
+            for i, l in enumerate(line):
+                l.set_data([trajectory.positions[position, i, 0]],
+                            [trajectory.positions[position, i, 1]])
+            return line
     else:
         raise ValueError(f"Unknown animation option: {options}")
 
@@ -69,9 +82,13 @@ def animate(trajectory, output, options):
         plt.show()
 
 
-def plot(trajectory, output):
-    fig, ax, _ = axes(trajectory, options=None)
-    ax.plot(trajectory[:, 0], trajectory[:, 1], 'b-')
+def plot(trajectory, output, options):
+    fig, ax, line = axes(trajectory, options=options)
+    position = len(trajectory) - 1
+    for i, l in enumerate(line):
+        l.set_data(
+            trajectory.positions[:position, i, 0],
+            trajectory.positions[:position, i, 1])
     if output:
         plt.savefig(output)
     else:
