@@ -1,10 +1,13 @@
 import numpy as np
 
+
 class System:
     def __init__(self, positions, velocities, masses):
         self.positions = np.array(positions)  # shape (N, 2) for N bodies in 2D
-        self.velocities = np.array(velocities)  # shape (N, 2) for N bodies in 2D
+        # shape (N, 2) for N bodies in 2D
+        self.velocities = np.array(velocities)
         self.masses = np.array(masses)  # shape (N,) for N bodies
+
 
 class Trajectory:
     def __init__(self, system, steps):
@@ -13,5 +16,6 @@ class Trajectory:
         self.positions[0] = system.positions
         self.velocities[0] = system.velocities
         self.masses = system.masses
+
     def __len__(self):
         return self.positions.shape[0]
