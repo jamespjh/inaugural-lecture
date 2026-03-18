@@ -244,9 +244,9 @@ to nice chaotic fractals.
 It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
 I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
 
-### 1.3.3 Software as a research tool and the third paradigm.
+### 1.3.2 Software as a research tool and the third paradigm.
 
-These approaches to science and scholarship - using computer modelling and simulation as a research tool - is called the "third paradigm".
+These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
 
 In this model, the first paradigm is experiment, the second is mathematical analysis, and the third is modelling and simulation.
 
