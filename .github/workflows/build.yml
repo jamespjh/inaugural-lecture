@@ -1,0 +1,39 @@
+name: Prepare demos
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+
+  teachgrav:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install binary dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Build python stub
+        run: |
+          cd demo
+          python -m venv venv
+          source venv/bin/activate
+          pip install -e .
+          pip install pytest
+          pip install -r requirements.txt
+      - name: Test python stub
+        run: |
+          cd demo
+          source venv/bin/activate
+          py.test
+      - name: Lint python stub
+        run: |
+          cd demo
+          source venv/bin/activate
+          flake8
