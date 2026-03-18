@@ -3,7 +3,7 @@ import numpy as np
 
 
 def law(system: System) -> np.ndarray:
-    """Compute the derivatives of the system state according to the gravitational law."""
+    """Compute the derivatives of the state."""
     # Placeholder implementation, replace with actual physics
     d_positions = system.velocities
     # No acceleration in this placeholder

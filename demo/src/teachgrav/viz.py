@@ -44,7 +44,8 @@ def animate(trajectory, output, options):
     if options == 'trail':
         def animate(position):
             line.set_data(
-                trajectory.positions[:position, 0], trajectory.positions[:position, 1])
+                trajectory.positions[:position, 0],
+                trajectory.positions[:position, 1])
             return []
     elif options == 'dot':
         def animate(position):

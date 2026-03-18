@@ -3,7 +3,6 @@
 # Choices: - Moon orbiting Earth
 #          - A random scatter of bodies with random initial velocities
 
-from random import Random
 from typing import Any
 from .system import System
 import numpy as np
@@ -30,7 +29,8 @@ def init_moon_orbiting_earth() -> System:
     earth_position = [0.0, 0.0]
     moon_position = [1.0, 0.0]
     earth_velocity = [0.0, 0.0]
-    # Placeholder velocity for circular orbit - determine reduced mass, earth velocity, and moon velocity
+    # Placeholder velocity for circular orbit -
+    # determine reduced mass, earth velocity, and moon velocity
     moon_velocity = [0.0, 1.0]
 
     return System(

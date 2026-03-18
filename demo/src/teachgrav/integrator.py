@@ -1,10 +1,9 @@
 from .laws import law
 from .system import System, Trajectory
-import numpy as np
 
 
 def integrate_step(system: System, method: str, dt: float) -> System:
-    """Integrate the system state forward in time by dt using the specified method."""
+    """Take the system state forward using the specified method."""
     if method == 'euler':
         derivatives = law(system)
         new_positions = system.positions + derivatives[:, :2] * dt
@@ -17,7 +16,8 @@ def integrate_step(system: System, method: str, dt: float) -> System:
         raise ValueError(f"Unknown integration method: {method}")
 
 
-def integrate_trajectory(system: System, method: str, dt: float, steps: int) -> Trajectory:
+def integrate_trajectory(system: System, method: str,
+                         dt: float, steps: int) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
     trajectory = Trajectory(system, steps)
 
