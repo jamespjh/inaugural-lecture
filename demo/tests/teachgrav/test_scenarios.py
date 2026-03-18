@@ -14,10 +14,11 @@ def test_create_scenario_scatter():
     assert len(system.velocities) == 10
     assert len(system.masses) == 10
 
+
 def test_scenario_sun():
     system = create_scenario('sun')
     assert len(system.positions) == 2
     assert len(system.velocities) == 2
     assert len(system.masses) == 2
-    assert system.immobile[0] == True
-    assert system.immobile[1] == False
+    assert system.immobile[0]
+    assert not system.immobile[1]

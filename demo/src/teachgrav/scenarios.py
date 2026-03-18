@@ -38,6 +38,7 @@ def init_moon_orbiting_earth() -> System:
         masses=[earth_mass, moon_mass],
     )
 
+
 def init_earth_orbiting_sun() -> System:
     """A simple two-body system with the Earth orbiting the Sun."""
     sun_mass = 1.0
@@ -45,7 +46,9 @@ def init_earth_orbiting_sun() -> System:
     sun_position = [0.0, 0.0]
     earth_position = [1.0, 0.0]
     sun_velocity = [0.0, 0.0]
-    earth_velocity = [0.0, 1.0] # Initial velocity for a circular orbit at distance 1.0 with G=1.0 and M=1.0
+    # Initial velocity for a circular orbit at distance 1.0 with G=1.0 and
+    # M=1.0
+    earth_velocity = [0.0, 1.0]
 
     return System(
         positions=[sun_position, earth_position],
@@ -54,8 +57,9 @@ def init_earth_orbiting_sun() -> System:
         immobile=[True, False],  # Sun is immobile, i.e. fixed at the origin
     )
 
+
 def init_random_scatter(
-    n_bodies: int= 20,
+    n_bodies: int = 20,
     randomise_count: int = False,
     seed: int | None = None,
     space_radius: float = 1.0,

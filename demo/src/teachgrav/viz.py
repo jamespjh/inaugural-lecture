@@ -24,11 +24,12 @@ def axes(trajectory, options):
     ax.set_xlim(x_min - buffer, x_max + buffer)
     ax.set_ylim(y_min - buffer, y_max + buffer)
 
-    # One line or dot per body, with the option to show trails or just current positions
+    # One line or dot per body, with the option to show trails or just current
+    # positions
 
     lines = []
     num_bodies = trajectory.positions.shape[1]
-    
+
     if options == 'trail':
         for _ in range(num_bodies):
             line, = ax.plot([], [], 'b-')
@@ -39,32 +40,32 @@ def axes(trajectory, options):
             lines.append(line)
     else:
         raise ValueError(f"Unknown animation option: {options}")
-    
+
     return [fig, ax, lines]
 
 
 def animate(trajectory, output, options):
     from matplotlib.animation import FuncAnimation, FFMpegWriter
-    fig, _, line = axes(trajectory, options)
+    fig, _, lines = axes(trajectory, options)
 
     def init():
-        for l in line:
-            l.set_data([], [])
-        return line
+        for line in lines:
+            line.set_data([], [])
+        return lines
 
     if options == 'trail':
         def animate(position):
-            for i, l in enumerate(line):
-                l.set_data(
+            for i, line in enumerate(lines):
+                line.set_data(
                     trajectory.positions[:position, i, 0],
                     trajectory.positions[:position, i, 1])
-            return line
+            return lines
     elif options == 'dot':
         def animate(position):
-            for i, l in enumerate(line):
-                l.set_data([trajectory.positions[position, i, 0]],
-                            [trajectory.positions[position, i, 1]])
-            return line
+            for i, line in enumerate(lines):
+                line.set_data([trajectory.positions[position, i, 0]],
+                              [trajectory.positions[position, i, 1]])
+            return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")
 
@@ -83,10 +84,10 @@ def animate(trajectory, output, options):
 
 
 def plot(trajectory, output, options):
-    fig, ax, line = axes(trajectory, options=options)
+    fig, ax, lines = axes(trajectory, options=options)
     position = len(trajectory) - 1
-    for i, l in enumerate(line):
-        l.set_data(
+    for i, line in enumerate(lines):
+        line.set_data(
             trajectory.positions[:position, i, 0],
             trajectory.positions[:position, i, 1])
     if output:

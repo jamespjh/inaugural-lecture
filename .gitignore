@@ -11,3 +11,7 @@ demo/venv/
 .vscode
 
 *.egg-info
+
+.DS_Store
+*.log
+out.*

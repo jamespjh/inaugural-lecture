@@ -23,7 +23,7 @@ def integrate_trajectory(system: System, method: str,
 
     for step in range(0, steps):
         system = integrate_step(system, method, dt)
-        trajectory.positions[step+1] = system.positions
-        trajectory.velocities[step+1] = system.velocities
+        trajectory.positions[step + 1] = system.positions
+        trajectory.velocities[step + 1] = system.velocities
 
     return trajectory
