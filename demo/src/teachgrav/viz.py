@@ -61,14 +61,13 @@ def animate(trajectory, output, options):
         def animate(position):
             for i, line in enumerate(lines):
                 line.set_data(
-                    trajectory.positions()[:position, i, 0],
-                    trajectory.positions()[:position, i, 1])
+                    *trajectory.positions()[:position, i, :].T)
             return lines
     elif options == 'dot':
         def animate(position):
             for i, line in enumerate(lines):
-                line.set_data([trajectory.positions()[position, i, 0]],
-                              [trajectory.positions()[position, i, 1]])
+                line.set_data(*trajectory.positions()[position-1:position,
+                                                      i, :].T)
             return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")
@@ -92,8 +91,7 @@ def plot(trajectory, output, options):
     position = len(trajectory) - 1
     for i, line in enumerate(lines):
         line.set_data(
-            trajectory.positions[:position, i, 0],
-            trajectory.positions[:position, i, 1])
+            *trajectory.positions()[:position, i, :].T)
     if output:
         plt.savefig(output)
     else:

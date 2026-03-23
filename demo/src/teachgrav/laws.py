@@ -21,7 +21,7 @@ def law(system: System) -> np.ndarray:
     positions = system.positions()
     masses = system.masses
 
-    # Pairwise position differences: shape (N, N, 2)
+    # Pairwise position differences: shape (N, N, D)
     displacements = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
 
     logger.debug(f"Positions:\n{positions}")
