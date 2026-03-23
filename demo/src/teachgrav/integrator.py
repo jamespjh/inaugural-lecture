@@ -62,7 +62,7 @@ def integrate_trajectory(system: System, method: str,
                                      t_eval=mx.arange(0, dt * steps + dt, dt))
         y = mx.asarray(res.y)
         trajectory.data = y.T.reshape((steps + 1, 2,
-                                           len(system), system.D))
+                                       len(system), system.D))
     else:
         raise ValueError(f"Unknown integration method: {method}")
 

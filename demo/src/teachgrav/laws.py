@@ -3,6 +3,7 @@ import logging
 import mlx.core as mx
 logger = logging.getLogger("Teachgrav")
 
+
 def law(system) -> mx.array:
     """Compute the derivatives of the state."""
     return flat_law(system.data.flatten(), system.masses,
@@ -43,7 +44,7 @@ def flat_law(data_flat, masses, immobile) -> mx.array:
     logger.debug(f"Total Accelerations:\n{delta[1, :, :]}")
     # Mask out the derivatives for immobile bodies
     mask = (~immobile).astype(delta.dtype)   # 1 where mobile, 0 where immobile
-    mask = mask[None, :, None] 
+    mask = mask[None, :, None]
     delta = delta * mask  # Zero out derivatives for immobile bodies
 
     # Shape (2 (pos, vel), N, D (x y z), )

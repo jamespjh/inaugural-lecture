@@ -72,7 +72,7 @@ def init_random_scatter(
 ) -> System:
     """Randomly scattered bodies with random velocities."""
 
-    #rng_np = mx.random.default_rng(seed)
+    # rng_np = mx.random.default_rng(seed)
     if randomise_count:
         n_bodies = mx.random.randint(low=2, high=n_bodies+1)
     masses = mx.random.uniform(min_mass, max_mass, (n_bodies,))
