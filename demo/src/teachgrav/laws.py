@@ -8,7 +8,7 @@ logger = logging.getLogger("Teachgrav")
 def law(system: System) -> np.ndarray:
     """Compute the derivatives of the state."""
     # Placeholder implementation, replace with actual physics
-    delta = np.zeros_like(system.data)  # 2, N, 2
+    delta = np.zeros_like(system.data)  # 2, N, D
     delta[0, :, :] = system.velocities()  # Derivative of position is velocity
 
     # Each body experiences a gravitational force from
@@ -40,5 +40,5 @@ def law(system: System) -> np.ndarray:
     # Mask out the derivatives for immobile bodies
     delta[:, system.immobile, :] = 0
 
-    # Shape (2 (pos, vel), N, 2 (x and y), )
+    # Shape (2 (pos, vel), N, D (x y z), )
     return delta

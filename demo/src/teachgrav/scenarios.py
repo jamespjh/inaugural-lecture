@@ -66,15 +66,18 @@ def init_random_scatter(
     max_speed: float = 1.0,
     min_mass: float = 0.01,
     max_mass: float = 1.0,
+    dimensions: int = 2,
 ) -> System:
-    """Randomly scattered bodies with random velocities in 2D."""
+    """Randomly scattered bodies with random velocities."""
 
     rng_np = np.random.default_rng(seed)
     if randomise_count:
         n_bodies = rng_np.integers(low=2, high=n_bodies, endpoint=True).item()
     masses = rng_np.uniform(min_mass, max_mass, n_bodies)
-    positions = rng_np.uniform(-space_radius, space_radius, (n_bodies, 2))
-    velocities = rng_np.uniform(-max_speed, max_speed, (n_bodies, 2))
+    positions = rng_np.uniform(-space_radius, space_radius,
+                               (n_bodies, dimensions))
+    velocities = rng_np.uniform(-max_speed, max_speed,
+                                (n_bodies, dimensions))
 
     return System(
         [positions, velocities],

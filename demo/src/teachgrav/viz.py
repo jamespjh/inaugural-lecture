@@ -3,6 +3,10 @@ import numpy as np
 
 
 def visualize(trajectory, output, mode='video', options='dot'):
+    if trajectory.D != 2:
+        raise ValueError(
+            "Visualization only supports 2D trajectories, " +
+            f"but got D={trajectory.D}")
     if mode == 'video':
         animate(trajectory, output, options)
     else:

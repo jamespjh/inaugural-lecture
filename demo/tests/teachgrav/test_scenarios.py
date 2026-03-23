@@ -15,6 +15,13 @@ def test_create_scenario_scatter():
     assert len(system.masses) == 10
 
 
+def test_create_scenario_scatter_3D():
+    system = create_scenario('scatter', n_bodies=10, seed=42, dimensions=3)
+    assert len(system.positions()) == 10
+    assert len(system.velocities()) == 10
+    assert len(system.masses) == 10
+
+
 def test_scenario_sun():
     system = create_scenario('sun')
     assert len(system.positions()) == 2

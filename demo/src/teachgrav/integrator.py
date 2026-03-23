@@ -49,7 +49,7 @@ def integrate_trajectory(system: System, method: str,
                                      y0, method='RK45', rtol=1e-6, a_tol=1e-6,
                                      t_eval=np.arange(0, dt*steps+dt, dt))
         trajectory.data = res.y.T.reshape((steps+1, 2,
-                                           system.data.shape[1], 2))
+                                           len(system), system.D))
     else:
         raise ValueError(f"Unknown integration method: {method}")
 

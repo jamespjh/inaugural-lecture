@@ -31,3 +31,10 @@ def test_law_scatter():
     system = create_scenario('scatter', n_bodies=5, seed=42)
     derivatives = law(system)
     assert derivatives.shape == (2, 5, 2)
+
+
+def test_law_scatter_3D():
+    from teachgrav.scenarios import create_scenario
+    system = create_scenario('scatter', n_bodies=5, seed=42, dimensions=3)
+    derivatives = law(system)
+    assert derivatives.shape == (2, 5, 3)

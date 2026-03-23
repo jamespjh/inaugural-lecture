@@ -3,8 +3,10 @@ import numpy as np
 
 class System:
     def __init__(self, data, masses, immobile=None):
-        self.data = np.array(data)  # shape (2, N, 2) for N bodies in 2D
+        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        # in D dimensions
         # First slice is positions, second slice is velocities
+        self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
         self.masses = np.array(masses)  # shape (N,) for N bodies
         self.immobile = (np.array(
             immobile) if immobile is not None
@@ -23,7 +25,7 @@ class System:
     def update_flat(self, flat_data):
         """Return a new System from a flat state vector."""
         N = len(self.positions())
-        data = flat_data.reshape((2, N, 2))
+        data = flat_data.reshape((2, N, self.D))
         return self.update(data)
 
     def __sub__(self, other):
@@ -43,12 +45,16 @@ class System:
         def call(flat_data):
             return fn(self.update_flat(flat_data)).flatten()
         return call
+    
+    def __len__(self):
+        return self.data.shape[1]  # Number of bodies
 
 
 class Change:
     """ Represents the change in positions and velocities for a system."""
     def __init__(self, data):
-        self.data = np.array(data)  # shape (2, N, 2) for N bodies in 2D
+        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        # in D dimensions
         # First slice is position changes, second slice is velocity changes
 
 
@@ -58,10 +64,11 @@ class Trajectory:
             steps+1,
             2,
             system.data.shape[1],
-            2))  # shape (steps+1, 2, N, 2)
+            system.D))  # shape (steps+1, 2, N, D)
         self.data[0] = system.data
         self.masses = system.masses
         self.immobile = system.immobile
+        self.D = system.D
 
     def __len__(self):
         return self.data.shape[0]
