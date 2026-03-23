@@ -48,7 +48,8 @@ def parse_args(force_args=None):
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
     parser.add_argument('--scenario', default='moon',
                         choices=['moon', 'scatter', 'sun'])
-    parser.add_argument('--method', default='euler', choices=['euler', 'rk4'])
+    parser.add_argument('--method', default='euler', choices=['euler'] +
+                        ['RK45', 'RK23', 'LSODA', 'DOP853', 'Radau', 'BDF'])
     parser.add_argument(
         '--outfile',
         default=None,
@@ -102,6 +103,6 @@ def parse_args(force_args=None):
 
 def solve(scenario: str, method: str):
     system = create_scenario(scenario)
-    trajectory = integrate_trajectory(system, method, dt=0.01, until=7.0)
+    trajectory = integrate_trajectory(system, method, dt=0.01, until=10)
     logger.info('Simulation complete')
     return trajectory

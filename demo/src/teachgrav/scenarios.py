@@ -3,9 +3,11 @@
 # Choices: - Moon orbiting Earth
 #          - A random scatter of bodies with random initial velocities
 
+import logging
 from typing import Any
 from .system import System
 import numpy as np
+logger = logging.getLogger("Teachgrav")
 
 
 def create_scenario(name: str, **kwargs: Any) -> System:
@@ -59,13 +61,13 @@ def init_earth_orbiting_sun() -> System:
 
 
 def init_random_scatter(
-    n_bodies: int = 20,
+    n_bodies: int = 5,
     randomise_count: int = False,
     seed: int | None = None,
     space_radius: float = 1.0,
     max_speed: float = 1.0,
-    min_mass: float = 0.01,
-    max_mass: float = 1.0,
+    min_mass: float = 0.1,
+    max_mass: float = 10.0,
     dimensions: int = 2,
 ) -> System:
     """Randomly scattered bodies with random velocities."""
@@ -78,7 +80,16 @@ def init_random_scatter(
                                (n_bodies, dimensions))
     velocities = rng_np.uniform(-max_speed, max_speed,
                                 (n_bodies, dimensions))
+    # Reset the velocities so there is zero net momentum
+    momenta = masses[:, np.newaxis] * velocities
+    total_momentum = momenta.sum(axis=0)
+    velocities -= total_momentum / masses.sum()
 
+    logger.info(f"Initialized random scatter scenario with {n_bodies} bodies, "
+                f"masses [{masses}, "
+                f"positions {positions}, "
+                f"velocities {velocities}, "
+                f"seed={seed}")
     return System(
         [positions, velocities],
         masses=masses,

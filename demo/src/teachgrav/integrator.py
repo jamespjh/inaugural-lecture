@@ -2,6 +2,8 @@ from .laws import law
 from .system import System, Trajectory
 import scipy as sp
 import numpy as np
+import logging
+logger = logging.getLogger("Teachgrav")
 
 
 def rk_integrator(system: System, dt: float):
@@ -38,15 +40,20 @@ def integrate_trajectory(system: System, method: str,
 
     if method == 'euler':
         for step in range(0, steps):
+            logger.info(f"Integrating step {step * dt:.2f}/{until:.2f}")
             system = integrate_step(system, method, dt)
             trajectory.data[step + 1] = system.data
 
-    elif method == 'rk4':
+    elif method in ['RK45', 'RK23', 'LSODA', 'DOP853', 'Radau', 'BDF']:
         y0 = system.data.flatten()
 
-        res = sp.integrate.solve_ivp(lambda _, y: system.flat_helper(law)(y),
+        def fun(t, y):
+            logger.info(f"Integrating step {t:.2f}/{until:.2f}")
+            return system.flat_helper(law)(y)
+
+        res = sp.integrate.solve_ivp(fun,
                                      (0, dt*steps),
-                                     y0, method='RK45', rtol=1e-6, a_tol=1e-6,
+                                     y0, method=method, rtol=1e-6,
                                      t_eval=np.arange(0, dt*steps+dt, dt))
         trajectory.data = res.y.T.reshape((steps+1, 2,
                                            len(system), system.D))

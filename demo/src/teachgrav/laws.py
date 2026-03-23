@@ -33,7 +33,6 @@ def law(system: System) -> np.ndarray:
     # Pairwise accelerations due to gravity
     accelerations = -1.0 * G * \
         masses[np.newaxis, :, np.newaxis] * displacements / (distances ** 3)
-    logger.debug(f"Accelerations:\n{accelerations}")
     # Sum accelerations from all other bodies
     delta[1, :, :] = np.sum(accelerations, axis=1)
     logger.debug(f"Total Accelerations:\n{delta[1, :, :]}")

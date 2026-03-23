@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+import logging
+logger = logging.getLogger("Teachgrav")
 
 def visualize(trajectory, output, mode='video', options='dot'):
     if trajectory.D != 2:
@@ -69,11 +71,20 @@ def animate(trajectory, output, options):
     else:
         raise ValueError(f"Unknown animation option: {options}")
 
+    steps = len(trajectory)
+    time = 30*1000  # miliseconds
+    interval = 200  # miliseconds per frame
+    number_of_frames = time // interval
+
+    steps_for_viz = np.linspace(0, steps - 1, number_of_frames, dtype=int)
+    logger.info(f"Animating trajectory with {steps} steps, " +
+                f"visualizing {number_of_frames} frames at steps {steps_for_viz}")
+
     ani = FuncAnimation(fig,
                         animate,
                         init_func=init,
-                        frames=len(trajectory),
-                        interval=100,
+                        frames=steps_for_viz,
+                        interval=interval,
                         blit=False)
 
     if output:
