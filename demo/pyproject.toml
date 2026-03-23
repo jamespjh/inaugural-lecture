@@ -18,6 +18,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
 ]
 
 [project.scripts]

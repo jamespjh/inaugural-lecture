@@ -40,7 +40,5 @@ def law(system: System) -> np.ndarray:
     # Mask out the derivatives for immobile bodies
     delta[:, system.immobile, :] = 0
 
-    logger.debug(f"Total Accelerations after masking:\n{delta[1, :, :]}")
-    logger.debug(f"Velocities:\n{delta[0, :, :]}")
     # Shape (2 (pos, vel), N, 2 (x and y), )
     return delta
