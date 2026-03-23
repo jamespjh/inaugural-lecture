@@ -13,8 +13,7 @@ def rk_integrator(system: System, dt: float):
 
     def fun(t, y):
         logger.info(f"Integrating step {t:.2f}")
-        return flat_law(y.reshape((2, len(system), system.D)),
-                        system.masses, system.immobile).flatten()
+        return flat_law(y, system.masses, system.immobile)
 
     # Integrate for one time step
     integrator = sp.integrate.RK45(fun,
@@ -55,8 +54,7 @@ def integrate_trajectory(system: System, method: str,
 
         def fun(t, y):
             logger.info(f"Integrating step {t:.2f}/{until:.2f}")
-            return flat_law(y.reshape((2, len(system), system.D)),
-                            system.masses, system.immobile).flatten()
+            return flat_law(y, system.masses, system.immobile)
 
         res = sp.integrate.solve_ivp(fun,
                                      (0, dt * steps),

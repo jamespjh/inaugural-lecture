@@ -61,7 +61,7 @@ def init_earth_orbiting_sun() -> System:
 
 
 def init_random_scatter(
-    n_bodies: int = 5,
+    n_bodies: int = 4,
     randomise_count: int = False,
     seed: int | None = None,
     space_radius: float = 1.0,
@@ -84,6 +84,9 @@ def init_random_scatter(
     momenta = masses[:, np.newaxis] * velocities
     total_momentum = momenta.sum(axis=0)
     velocities -= total_momentum / masses.sum()
+    # Reset the positions so the center of mass is at the origin
+    com = (masses[:, np.newaxis] * positions).sum(axis=0)
+    positions -= com / masses.sum()
 
     logger.info(f"Initialized random scatter scenario with {n_bodies} bodies, "
                 f"masses [{masses}, "

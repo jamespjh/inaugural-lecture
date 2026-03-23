@@ -6,12 +6,14 @@ logger = logging.getLogger("Teachgrav")
 
 def law(system) -> np.ndarray:
     """Compute the derivatives of the state."""
-    return flat_law(system.data, system.masses, system.immobile)
+    return flat_law(system.data.flatten(), system.masses,
+                    system.immobile).reshape(system.data.shape)
 
 
-def flat_law(data, masses, immobile) -> np.ndarray:
+def flat_law(data_flat, masses, immobile) -> np.ndarray:
     """Compute the derivatives of the state."""
     # Placeholder implementation, replace with actual physics
+    data = data_flat.reshape((2, len(masses), -1))  # shape (2, N, D)
     delta = np.zeros_like(data)  # 2, N, D
     delta[0, :, :] = data[1, :, :]  # Derivative of position is velocity
 
@@ -43,4 +45,4 @@ def flat_law(data, masses, immobile) -> np.ndarray:
     delta[:, immobile, :] = 0
 
     # Shape (2 (pos, vel), N, D (x y z), )
-    return delta
+    return delta.flatten()
