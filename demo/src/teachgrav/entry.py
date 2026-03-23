@@ -102,6 +102,6 @@ def parse_args(force_args=None):
 
 def solve(scenario: str, method: str):
     system = create_scenario(scenario)
-    trajectory = integrate_trajectory(system, method, dt=0.01, steps=1000)
+    trajectory = integrate_trajectory(system, method, dt=0.01, until=7.0)
     logger.info('Simulation complete')
     return trajectory

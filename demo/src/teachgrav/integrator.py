@@ -31,8 +31,9 @@ def integrate_step(system: System, method: str, dt: float) -> System:
 
 
 def integrate_trajectory(system: System, method: str,
-                         dt: float, steps: int) -> Trajectory:
+                         dt: float, until: float) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
+    steps = int(until / dt)
     trajectory = Trajectory(system, steps)
 
     if method == 'euler':
