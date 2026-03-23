@@ -1,21 +1,23 @@
-import numpy as np
+
+import mlx.core as mx
+mx.set_default_device(mx.cpu)
 
 
 class System:
     def __init__(self, data, masses, immobile=None):
-        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        self.data = mx.array(data)  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is positions, second slice is velocities
         self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
-        self.masses = np.array(masses)  # shape (N,) for N bodies
-        self.immobile = (np.array(
+        self.masses = mx.array(masses)  # shape (N,) for N bodies
+        self.immobile = (mx.array(
             immobile) if immobile is not None
-            else np.zeros_like(masses, dtype=bool))
+            else mx.zeros(self.masses.shape, dtype=mx.bool_))
 
-    def positions(self) -> np.ndarray:
+    def positions(self) -> mx.array:
         return self.data[0]
 
-    def velocities(self) -> np.ndarray:
+    def velocities(self) -> mx.array:
         return self.data[1]
 
     def update(self, data):
@@ -48,14 +50,14 @@ class Change:
     """ Represents the change in positions and velocities for a system."""
 
     def __init__(self, data):
-        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        self.data = mx.array(data)  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is position changes, second slice is velocity changes
 
 
 class Trajectory:
     def __init__(self, system, steps):
-        self.data = np.zeros((
+        self.data = mx.zeros((
             steps + 1,
             2,
             system.data.shape[1],
@@ -77,8 +79,9 @@ class Trajectory:
     def write(self, stream, format='csv'):
         """Write the trajectory data to a stream in the specified format."""
         if format == 'csv':
-            np.savetxt(stream, fmt='%10.5f', X=self.data.reshape(
-                len(self), -1), delimiter=',')
+            import numpy as np
+            np.savetxt(stream, fmt='%10.5f', X=np.array(self.data.reshape(
+                len(self), -1)), delimiter=',')
         else:
             # TODO:: Write to HDF5
             raise ValueError(f"Unsupported format: {format}")

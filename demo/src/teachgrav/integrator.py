@@ -1,8 +1,8 @@
 from .laws import law, flat_law
-from .system import System, Trajectory
+from .system import System, Trajectory, Change
 import scipy as sp
-import numpy as np
 import logging
+import mlx.core as mx
 logger = logging.getLogger("Teachgrav")
 
 
@@ -24,7 +24,7 @@ def rk_integrator(system: System, dt: float):
 def integrate_step(system: System, method: str, dt: float) -> System:
     """Take the system state forward using the specified method."""
     if method == 'euler':
-        return system + law(system) * dt
+        return system + Change(law(system) * dt)
     elif method == 'rk4':
         # Placeholder for RK4 implementation
         # Get RK integrator from scipy
@@ -57,10 +57,11 @@ def integrate_trajectory(system: System, method: str,
             return flat_law(y, system.masses, system.immobile)
 
         res = sp.integrate.solve_ivp(fun,
-                                     (0, dt * steps),
+                                     (0, dt * steps+dt),
                                      y0, method=method, rtol=1e-6,
-                                     t_eval=np.arange(0, dt * steps + dt, dt))
-        trajectory.data = res.y.T.reshape((steps + 1, 2,
+                                     t_eval=mx.arange(0, dt * steps + dt, dt))
+        y = mx.asarray(res.y)
+        trajectory.data = y.T.reshape((steps + 1, 2,
                                            len(system), system.D))
     else:
         raise ValueError(f"Unknown integration method: {method}")

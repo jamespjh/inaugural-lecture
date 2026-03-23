@@ -1,5 +1,5 @@
 from teachgrav.system import System, Trajectory
-import numpy as np
+import mlx.core as mx
 
 fixture_system = System([[[0, 0], [1, 0]], [
                         [0, 0], [0, 1]]], masses=[1, 1])
@@ -27,10 +27,10 @@ def test_update():
     new_positions = system.positions() + 1
     new_velocities = system.velocities() + 1
     new_system = system.update([new_positions, new_velocities])
-    assert np.array_equal(new_system.positions(), new_positions)
-    assert np.array_equal(new_system.velocities(), new_velocities)
-    assert np.array_equal(new_system.masses, system.masses)
-    assert np.array_equal(new_system.immobile, system.immobile)
+    assert mx.array_equal(new_system.positions(), new_positions)
+    assert mx.array_equal(new_system.velocities(), new_velocities)
+    assert mx.array_equal(new_system.masses, system.masses)
+    assert mx.array_equal(new_system.immobile, system.immobile)
 
 
 def test_trajectory_write_csv():

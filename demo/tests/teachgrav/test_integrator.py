@@ -1,5 +1,7 @@
 from teachgrav.integrator import integrate_trajectory
-import numpy as np
+import mlx.core as mx
+import logging
+logger = logging.getLogger("Teachgrav")
 
 
 def test_integrate_trajectory():
@@ -30,11 +32,13 @@ def test_close_to_start_after_one_orbit():
     from teachgrav.scenarios import create_scenario
     system = create_scenario('sun')
     trajectory = integrate_trajectory(
-        system, method='RK45', dt=0.01, until=2.0*np.pi)
+        system, method='RK45', dt=0.01, until=2.0*mx.pi)
     # After one orbit, should be close to the starting position
     start_pos = trajectory.positions()[0]
     end_pos = trajectory.positions()[-1]
-    np.testing.assert_allclose(start_pos, end_pos, atol=0.01)
+    logger.info(f"Start position:\n{start_pos}")
+    logger.info(f"End position:\n{end_pos}")
+    assert mx.allclose(start_pos, end_pos, atol=0.01)
 
 
 def test_integrate_trajectory_scatter_3D():
