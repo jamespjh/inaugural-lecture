@@ -1,15 +1,19 @@
 import logging
 
-from .system import System
 import numpy as np
 logger = logging.getLogger("Teachgrav")
 
 
-def law(system: System) -> np.ndarray:
+def law(system) -> np.ndarray:
+    """Compute the derivatives of the state."""
+    return flat_law(system.data, system.masses, system.immobile)
+
+
+def flat_law(data, masses, immobile) -> np.ndarray:
     """Compute the derivatives of the state."""
     # Placeholder implementation, replace with actual physics
-    delta = np.zeros_like(system.data)  # 2, N, D
-    delta[0, :, :] = system.velocities()  # Derivative of position is velocity
+    delta = np.zeros_like(data)  # 2, N, D
+    delta[0, :, :] = data[1, :, :]  # Derivative of position is velocity
 
     # Each body experiences a gravitational force from
     # every other body, leading to acceleration
@@ -18,8 +22,7 @@ def law(system: System) -> np.ndarray:
     # Which we sum over the second axis to get the total acceleration on each
     # body
     G = 1.0  # Gravitational constant (arbitrary units)
-    positions = system.positions()
-    masses = system.masses
+    positions = data[0, :, :]  # shape (N, D)
 
     # Pairwise position differences: shape (N, N, D)
     displacements = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
@@ -37,7 +40,7 @@ def law(system: System) -> np.ndarray:
     delta[1, :, :] = np.sum(accelerations, axis=1)
     logger.debug(f"Total Accelerations:\n{delta[1, :, :]}")
     # Mask out the derivatives for immobile bodies
-    delta[:, system.immobile, :] = 0
+    delta[:, immobile, :] = 0
 
     # Shape (2 (pos, vel), N, D (x y z), )
     return delta

@@ -40,18 +40,13 @@ class System:
         """Return a new System displaced by the change from another system."""
         return self.update(self.data + other.data)
 
-    def flat_helper(self, fn):
-        """Helper to apply a function to a flat state vector."""
-        def call(flat_data):
-            return fn(self.update_flat(flat_data)).flatten()
-        return call
-    
     def __len__(self):
         return self.data.shape[1]  # Number of bodies
 
 
 class Change:
     """ Represents the change in positions and velocities for a system."""
+
     def __init__(self, data):
         self.data = np.array(data)  # shape (2, N, D) for N bodies
         # in D dimensions
@@ -61,7 +56,7 @@ class Change:
 class Trajectory:
     def __init__(self, system, steps):
         self.data = np.zeros((
-            steps+1,
+            steps + 1,
             2,
             system.data.shape[1],
             system.D))  # shape (steps+1, 2, N, D)

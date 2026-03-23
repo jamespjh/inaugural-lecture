@@ -3,10 +3,10 @@ from teachgrav.entry import parse_args
 
 def test_parse_args():
     args = parse_args(
-        '--scenario scatter --method rk4 --outfile output.mp4 ' +
+        '--scenario scatter --method RK45 --outfile output.mp4 ' +
         '--visualise dot --video')
     assert args.scenario == 'scatter'
-    assert args.method == 'rk4'
+    assert args.method == 'RK45'
     assert args.outfile == 'output.mp4'
     assert args.visualise == 'dot'
     assert args.video
