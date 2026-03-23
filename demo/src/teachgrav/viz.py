@@ -14,10 +14,10 @@ def axes(trajectory, options):
     fig, ax = plt.subplots()
 
     # Get the limits of the plot based on the trajectory data
-    x_min, x_max = np.min(trajectory.positions[:, :, 0]), np.max(
-        trajectory.positions[:, :, 0])
-    y_min, y_max = np.min(trajectory.positions[:, :, 1]), np.max(
-        trajectory.positions[:, :, 1])
+    x_min, x_max = np.min(trajectory.positions()[:, :, 0]), np.max(
+        trajectory.positions()[:, :, 0])
+    y_min, y_max = np.min(trajectory.positions()[:, :, 1]), np.max(
+        trajectory.positions()[:, :, 1])
 
     buffer = 1.0
 
@@ -28,7 +28,7 @@ def axes(trajectory, options):
     # positions
 
     lines = []
-    num_bodies = trajectory.positions.shape[1]
+    num_bodies = trajectory.positions().shape[1]
 
     if options == 'trail':
         for _ in range(num_bodies):
@@ -57,14 +57,14 @@ def animate(trajectory, output, options):
         def animate(position):
             for i, line in enumerate(lines):
                 line.set_data(
-                    trajectory.positions[:position, i, 0],
-                    trajectory.positions[:position, i, 1])
+                    trajectory.positions()[:position, i, 0],
+                    trajectory.positions()[:position, i, 1])
             return lines
     elif options == 'dot':
         def animate(position):
             for i, line in enumerate(lines):
-                line.set_data([trajectory.positions[position, i, 0]],
-                              [trajectory.positions[position, i, 1]])
+                line.set_data([trajectory.positions()[position, i, 0]],
+                              [trajectory.positions()[position, i, 1]])
             return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")

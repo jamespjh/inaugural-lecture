@@ -33,8 +33,8 @@ def init_moon_orbiting_earth() -> System:
     moon_velocity = [0.0, 1.0]
 
     return System(
-        positions=[earth_position, moon_position],
-        velocities=[earth_velocity, moon_velocity],
+        [[earth_position, moon_position],
+         [earth_velocity, moon_velocity]],
         masses=[earth_mass, moon_mass],
     )
 
@@ -51,8 +51,8 @@ def init_earth_orbiting_sun() -> System:
     earth_velocity = [0.0, 1.0]
 
     return System(
-        positions=[sun_position, earth_position],
-        velocities=[sun_velocity, earth_velocity],
+        [[sun_position, earth_position],
+         [sun_velocity, earth_velocity]],
         masses=[sun_mass, earth_mass],
         immobile=[True, False],  # Sun is immobile, i.e. fixed at the origin
     )
@@ -77,7 +77,6 @@ def init_random_scatter(
     velocities = rng_np.uniform(-max_speed, max_speed, (n_bodies, 2))
 
     return System(
-        positions=positions,
-        velocities=velocities,
+        [positions, velocities],
         masses=masses,
     )

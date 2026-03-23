@@ -8,7 +8,8 @@ logger = logging.getLogger("Teachgrav")
 def law(system: System) -> np.ndarray:
     """Compute the derivatives of the state."""
     # Placeholder implementation, replace with actual physics
-    d_positions = system.velocities
+    delta = np.zeros_like(system.data)  # 2, N, 2
+    delta[0, :, :] = system.velocities()  # Derivative of position is velocity
 
     # Each body experiences a gravitational force from
     # every other body, leading to acceleration
@@ -17,7 +18,7 @@ def law(system: System) -> np.ndarray:
     # Which we sum over the second axis to get the total acceleration on each
     # body
     G = 1.0  # Gravitational constant (arbitrary units)
-    positions = system.positions
+    positions = system.positions()
     masses = system.masses
 
     # Pairwise position differences: shape (N, N, 2)
@@ -34,13 +35,12 @@ def law(system: System) -> np.ndarray:
         masses[np.newaxis, :, np.newaxis] * displacements / (distances ** 3)
     logger.debug(f"Accelerations:\n{accelerations}")
     # Sum accelerations from all other bodies
-    d_velocities = np.sum(accelerations, axis=1)
-    logger.debug(f"Total Accelerations:\n{d_velocities}")
+    delta[1, :, :] = np.sum(accelerations, axis=1)
+    logger.debug(f"Total Accelerations:\n{delta[1, :, :]}")
     # Mask out the derivatives for immobile bodies
-    d_positions[system.immobile] = 0
-    d_velocities[system.immobile] = 0
+    delta[:, system.immobile, :] = 0
 
-    logger.debug(f"Total Accelerations after masking:\n{d_velocities}")
-    logger.debug(f"Velocities:\n{d_positions}")
+    logger.debug(f"Total Accelerations after masking:\n{delta[1, :, :]}")
+    logger.debug(f"Velocities:\n{delta[0, :, :]}")
     # Shape (2 (pos, vel), N, 2 (x and y), )
-    return np.stack([d_positions, d_velocities])
+    return delta
