@@ -19,7 +19,7 @@ class System:
     def update(self, data):
         """Return a new System with updated positions and velocities."""
         return System(data, self.masses, self.immobile)
-    
+
     def update_flat(self, flat_data):
         """Return a new System from a flat state vector."""
         N = len(self.positions())
@@ -37,7 +37,7 @@ class System:
     def displace(self, other):
         """Return a new System displaced by the change from another system."""
         return self.update(self.data + other.data)
-    
+
     def flat_helper(self, fn):
         """Helper to apply a function to a flat state vector."""
         def call(flat_data):

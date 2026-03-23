@@ -9,7 +9,7 @@ def rk_integrator(system: System, dt: float):
     # Initial state: positions and velocities flattened
     y0 = system.data.flatten()
     # Integrate for one time step
-    integrator = sp.integrate.RK45(lambda _, y: system.flat_helper(law)(y), 
+    integrator = sp.integrate.RK45(lambda _, y: system.flat_helper(law)(y),
                                    t0=0, y0=y0, t_bound=dt)
     return integrator
 
