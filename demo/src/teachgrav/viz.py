@@ -17,16 +17,13 @@ def axes(trajectory, options):
     # Animate the trajectory
     fig, ax = plt.subplots()
 
-    # Get the limits of the plot based on the trajectory data
-    x_min, x_max = np.min(trajectory.positions()[:, :, 0]), np.max(
-        trajectory.positions()[:, :, 0])
-    y_min, y_max = np.min(trajectory.positions()[:, :, 1]), np.max(
-        trajectory.positions()[:, :, 1])
+    mins = np.min(trajectory.positions(), axis=(0, 1))
+    maxs = np.max(trajectory.positions(), axis=(0, 1))
 
     buffer = 1.0
 
-    ax.set_xlim(x_min - buffer, x_max + buffer)
-    ax.set_ylim(y_min - buffer, y_max + buffer)
+    ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
+    ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
 
     # One line or dot per body, with the option to show trails or just current
     # positions
