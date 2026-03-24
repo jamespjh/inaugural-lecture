@@ -6,6 +6,8 @@ logger = logging.getLogger("Teachgrav")
 
 
 def visualize(trajectory, output, mode='video', options='dot'):
+    trajectory.data = np.array(trajectory.data)
+    # Convert to numpy for visualization
     if trajectory.D != 2:
         raise ValueError(
             "Visualization only supports 2D trajectories, " +
