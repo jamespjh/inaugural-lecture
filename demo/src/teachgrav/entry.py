@@ -4,6 +4,7 @@ import logging
 from .scenarios import create_scenario
 from .integrator import integrate_trajectory
 from .viz import visualize
+from .benchmark import benchmark
 logger = logging.getLogger("Teachgrav")
 
 
@@ -20,6 +21,14 @@ def entry():
     else:
         logging.basicConfig(level=args.loglevel)
     logger.info(f'Loglevel set to {args.loglevel}')
+
+    if args.benchmark:
+        logger.info('Running in benchmark mode')
+        print(f'Benchmarking scenario: {args.scenario}' +
+              f"with method: {args.method}")
+        time = benchmark(solve, args.scenario, args.method, 0.01, 0.05)
+        print(f'Benchmark time: {time:.5f} seconds')
+        return
 
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method}')
@@ -60,6 +69,8 @@ def parse_args(force_args=None):
                         help='Logging level (e.g. DEBUG, INFO, WARNING)')
     parser.add_argument('--log-file', default=None,
                         help='File to save log output')
+    parser.add_argument('--benchmark', action='store_true',
+                        help='Whether to run in benchmark mode')
     parser.add_argument(
         '--video',
         action='store_true',
@@ -101,8 +112,8 @@ def parse_args(force_args=None):
     return args
 
 
-def solve(scenario: str, method: str):
+def solve(scenario: str, method: str, dt: float = 0.01, until: float = 10):
     system = create_scenario(scenario)
-    trajectory = integrate_trajectory(system, method, dt=0.01, until=10)
+    trajectory = integrate_trajectory(system, method, dt=dt, until=until)
     logger.info('Simulation complete')
     return trajectory
