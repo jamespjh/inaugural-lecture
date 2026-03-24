@@ -1,5 +1,5 @@
 from .system import System
-import numpy as np
+import jax.numpy as np
 
 
 def gp_law(system: System, pars) -> np.ndarray:

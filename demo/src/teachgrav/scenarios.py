@@ -6,8 +6,17 @@
 import logging
 from typing import Any
 from .system import System
-import mlx.core as mx
+import jax.numpy as np
+import jax.random as jrandom
 logger = logging.getLogger("Teachgrav")
+
+key = jrandom.key(0)
+
+
+def jax_random_matrix(size, min, max):
+    global key
+    key, subkey = jrandom.split(key)
+    return jrandom.uniform(subkey, size, minval=min, maxval=max)
 
 
 def create_scenario(name: str, **kwargs: Any) -> System:
@@ -72,20 +81,20 @@ def init_random_scatter(
 ) -> System:
     """Randomly scattered bodies with random velocities."""
 
-    # rng_np = mx.random.default_rng(seed)
+    # rng_np = np.random.default_rng(seed)
     if randomise_count:
-        n_bodies = mx.random.randint(low=2, high=n_bodies+1)
-    masses = mx.random.uniform(min_mass, max_mass, (n_bodies,))
-    positions = mx.random.uniform(-space_radius, space_radius,
-                                  (n_bodies, dimensions))
-    velocities = mx.random.uniform(-max_speed, max_speed,
-                                   (n_bodies, dimensions))
+        n_bodies = jax_random_matrix(1, 2, n_bodies + 1).item()
+    masses = jax_random_matrix(n_bodies, min_mass, max_mass)
+    positions = jax_random_matrix((n_bodies, dimensions), -space_radius,
+                                  space_radius)
+    velocities = jax_random_matrix((n_bodies, dimensions), -max_speed,
+                                   max_speed)
     # Reset the velocities so there is zero net momentum
-    momenta = masses[:, mx.newaxis] * velocities
+    momenta = masses[:, np.newaxis] * velocities
     total_momentum = momenta.sum(axis=0)
     velocities -= total_momentum / masses.sum()
     # Reset the positions so the center of mass is at the origin
-    com = (masses[:, mx.newaxis] * positions).sum(axis=0)
+    com = (masses[:, np.newaxis] * positions).sum(axis=0)
     positions -= com / masses.sum()
 
     logger.info(f"Initialized random scatter scenario with {n_bodies} bodies, "

@@ -1,23 +1,21 @@
-
-import mlx.core as mx
-mx.set_default_device(mx.cpu)
+import jax.numpy as np
 
 
 class System:
     def __init__(self, data, masses, immobile=None):
-        self.data = mx.array(data)  # shape (2, N, D) for N bodies
+        self.data = np.array(data)  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is positions, second slice is velocities
         self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
-        self.masses = mx.array(masses)  # shape (N,) for N bodies
-        self.immobile = (mx.array(
+        self.masses = np.array(masses)  # shape (N,) for N bodies
+        self.immobile = (np.array(
             immobile) if immobile is not None
-            else mx.zeros(self.masses.shape, dtype=mx.bool_))
+            else np.zeros(self.masses.shape, dtype=bool))
 
-    def positions(self) -> mx.array:
+    def positions(self) -> np.ndarray:
         return self.data[0]
 
-    def velocities(self) -> mx.array:
+    def velocities(self) -> np.ndarray:
         return self.data[1]
 
     def update(self, data):
@@ -50,22 +48,22 @@ class Change:
     """ Represents the change in positions and velocities for a system."""
 
     def __init__(self, data):
-        self.data = mx.array(data)  # shape (2, N, D) for N bodies
+        self.data = np.array(data)  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is position changes, second slice is velocity changes
 
 
 class Trajectory:
-    def __init__(self, system, steps):
-        self.data = mx.zeros((
-            steps + 1,
-            2,
-            system.data.shape[1],
-            system.D))  # shape (steps+1, 2, N, D)
-        self.data[0] = system.data
+    def __init__(self, system):
+        self.data = system.data[np.newaxis, :]  # shape (steps+1, 2, N, D)
         self.masses = system.masses
         self.immobile = system.immobile
         self.D = system.D
+
+    def append(self, data):
+        """Append a new system state to the trajectory."""
+        self.data = np.concatenate([self.data, data[np.newaxis, :]],
+                                   axis=0)
 
     def __len__(self):
         return self.data.shape[0]
