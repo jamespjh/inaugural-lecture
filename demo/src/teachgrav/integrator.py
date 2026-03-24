@@ -1,5 +1,6 @@
 from .laws import law, flat_law
 from .system import System, Trajectory
+from .gp import gp_law
 import scipy as sp
 import numpy as np
 import logging
@@ -21,8 +22,11 @@ def rk_integrator(system: System, dt: float):
     return integrator
 
 
-def integrate_step(system: System, method: str, dt: float) -> System:
+def integrate_step(system: System, method: str, dt: float,
+                   pars = None) -> System:
     """Take the system state forward using the specified method."""
+    if method == 'gp':
+        return system + gp_law(system, pars) * dt
     if method == 'euler':
         return system + law(system) * dt
     elif method == 'rk4':
