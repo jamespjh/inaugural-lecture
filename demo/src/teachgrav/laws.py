@@ -29,7 +29,7 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
     # Pairwise position differences: shape (N, N, D)
     displacements = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
 
-    # logger.debug(f"Positions:\n{positions}")
+    logger.debug("Positions:\n%s", positions)
     distances = np.linalg.norm(displacements, axis=2, keepdims=True)
 
     # Avoid division by zero, also avoids self-interaction
@@ -40,7 +40,7 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
         masses[np.newaxis, :, np.newaxis] * displacements / (distances ** 3)
     # Sum accelerations from all other bodies
     delta[1, :, :] = np.sum(accelerations, axis=1)
-    # logger.debug(f"Total Accelerations:\n{delta[1, :, :]}")
+    logger.debug("Total Accelerations:\n%s", delta[1, :, :])
     # Mask out the derivatives for immobile bodies
     delta[:, immobile, :] = 0
 
