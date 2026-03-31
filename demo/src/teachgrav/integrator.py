@@ -8,6 +8,7 @@ from diffrax import diffeqsolve, ODETerm, PIDController
 import diffrax
 import logging
 import equinox as eqx
+from functools import partial
 logger = logging.getLogger("Teachgrav")
 jax.config.update("jax_platforms", 'cpu')
 
@@ -36,19 +37,18 @@ def integrate_step(system: System, method: str, dt: float,
     else:
         raise ValueError(f"Unknown integration method: {method}")
 
-@jit
+@partial(jit, static_argnames=['method'])
 @eqx.debug.assert_max_traces(max_traces=3)
-def diffrax_solve(t1, dt, y0, saveat, args):
+def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
     def fun(t, y, args):
         return flat_law(y, args[0], args[1])
 
     term = ODETerm(fun)
-    solver = diffrax.Tsit5
+    solver = getattr(diffrax, method)
     steps = (t1 / dt).astype(int)
-    solve = diffeqsolve(term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=args, 
+    solve = diffeqsolve(term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=(masses, immobile), 
                             saveat = diffrax.SaveAt(ts=saveat),
                             stepsize_controller = PIDController(rtol=1e-6, atol =1e-6))
-    jax.debug.print("Diffrax solve: {} steps", solve.stats['num_steps'])
     return solve
 
 def integrate_trajectory(system: System, method: str,
@@ -63,10 +63,13 @@ def integrate_trajectory(system: System, method: str,
             system = integrate_step(system, method, dt)
             trajectory.append(system.data)
 
-    elif method in ['Tsit5', 'Dopri5']:
+    elif method in ['Tsit5', 'Dopri5', 'Kvaerno5']:
         y0 = system.data.flatten()
-        solver = getattr(diffrax, method)
-        solve = diffrax_solve(until, dt, y0, np.arange(0, dt * steps + dt, dt), args = [system.masses, system.immobile])
+        system.to_cpu()  # Ensure data is on CPU for diffrax
+        cpu = jax.devices("cpu")[0]
+        with jax.default_device(cpu):
+            solve = diffrax_solve(method, until, dt, y0, 
+                np.arange(0, dt * steps + dt, dt), system.masses, system.immobile)
         y = solve.ys
         trajectory.data = y.reshape((steps + 1, 2,
                                        len(system), system.D))

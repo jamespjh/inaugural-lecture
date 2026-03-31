@@ -1,5 +1,5 @@
 import jax.numpy as np
-
+import jax
 
 class System:
     def __init__(self, data, masses, immobile=None):
@@ -42,6 +42,18 @@ class System:
 
     def __len__(self):
         return self.data.shape[1]  # Number of bodies
+
+    def to_cpu(self):
+        """Update the system with data moved to CPU."""
+        self.data = jax.device_put(self.data, jax.devices('cpu')[0])
+        self.masses = jax.device_put(self.masses, jax.devices('cpu')[0])
+        self.immobile = jax.device_put(self.immobile, jax.devices('cpu')[0])
+
+    def to_gpu(self):
+        """Update the system with data moved to GPU."""
+        self.data = jax.device_put(self.data, jax.devices('gpu')[0])
+        self.masses = jax.device_put(self.masses, jax.devices('gpu')[0])
+        self.immobile = jax.device_put(self.immobile, jax.devices('gpu')[0])
 
 
 class Change:

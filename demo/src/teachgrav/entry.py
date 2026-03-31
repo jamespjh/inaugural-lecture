@@ -22,17 +22,18 @@ def entry():
         logging.basicConfig(level=args.loglevel)
     logger.info(f'Loglevel set to {args.loglevel}')
 
+    system = create_scenario(args.scenario)
     if args.benchmark:
         logger.info('Running in benchmark mode')
         print(f'Benchmarking scenario: {args.scenario}' +
               f"with method: {args.method}")
-        time = benchmark(solve, args.scenario, args.method, 0.01, 0.05)
+        time = benchmark(solve, system, args.method, 0.01, 0.05)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method}')
-    trajectory = solve(args.scenario, args.method)
+    trajectory = solve(system, args.method)
 
     if args.visualise:
         logger.info(f'Visualizing results with options: {args.visualise}')
@@ -58,7 +59,7 @@ def parse_args(force_args=None):
     parser.add_argument('--scenario', default='moon',
                         choices=['moon', 'scatter', 'sun'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
-                        ['Tsit5', 'Dopri5'])
+                        ['Tsit5', 'Dopri5', 'Kvaerno5'])
     parser.add_argument(
         '--outfile',
         default=None,
@@ -112,8 +113,7 @@ def parse_args(force_args=None):
     return args
 
 
-def solve(scenario: str, method: str, dt: float = 0.01, until: float = 10):
-    system = create_scenario(scenario)
+def solve(system, method: str, dt: float = 0.01, until: float = 10):
     trajectory = integrate_trajectory(system, method, dt=dt, until=until)
     logger.info('Simulation complete')
     return trajectory
