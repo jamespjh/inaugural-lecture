@@ -1,6 +1,9 @@
 import logging
+from jax import jit
 import jax.numpy as np
+from functools import partial
 logger = logging.getLogger("Teachgrav")
+
 
 
 def law(system) -> np.ndarray:
@@ -8,7 +11,7 @@ def law(system) -> np.ndarray:
     return flat_law(system.data.flatten(), system.masses,
                     system.immobile).reshape(system.data.shape)
 
-
+@jit
 def flat_law(data_flat, masses, immobile) -> np.ndarray:
     """Compute the derivatives of the state."""
     data_flat = np.asarray(data_flat)
@@ -33,7 +36,7 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
 
     # Avoid division by zero, also avoids self-interaction
     # Jax requires immutable arrays, so we use .at[].set()
-    distances = distances.at[distances == 0].set(np.inf)
+    distances = np.where(distances == 0, np.inf, distances)
 
     # Pairwise accelerations due to gravity
     accelerations = -1.0 * G * \

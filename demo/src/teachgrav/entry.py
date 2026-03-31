@@ -58,7 +58,7 @@ def parse_args(force_args=None):
     parser.add_argument('--scenario', default='moon',
                         choices=['moon', 'scatter', 'sun'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
-                        ['RK45', 'RK23', 'LSODA', 'DOP853', 'Radau', 'BDF'])
+                        ['Tsit5', 'Dopri5'])
     parser.add_argument(
         '--outfile',
         default=None,
