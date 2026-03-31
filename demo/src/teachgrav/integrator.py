@@ -2,15 +2,14 @@ from .laws import law, flat_law
 from .gp import gp_law
 from .system import System, Trajectory, Change
 import jax.numpy as np
+from jax import jit
+import jax
 from diffrax import diffeqsolve, ODETerm, PIDController
 import diffrax
 import logging
+import equinox as eqx
 logger = logging.getLogger("Teachgrav")
-
-def fun(t, y, args):
-    return flat_law(y, args[0], args[1])
-
-term = ODETerm(fun)
+jax.config.update("jax_platforms", 'cpu')
 
 def step_integrator(system: System, method: str, dt: float):
     """Integrate the system forward by one time step using RK4."""
@@ -37,6 +36,20 @@ def integrate_step(system: System, method: str, dt: float,
     else:
         raise ValueError(f"Unknown integration method: {method}")
 
+@jit
+@eqx.debug.assert_max_traces(max_traces=3)
+def diffrax_solve(t1, dt, y0, saveat, args):
+    def fun(t, y, args):
+        return flat_law(y, args[0], args[1])
+
+    term = ODETerm(fun)
+    solver = diffrax.Tsit5
+    steps = (t1 / dt).astype(int)
+    solve = diffeqsolve(term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=args, 
+                            saveat = diffrax.SaveAt(ts=saveat),
+                            stepsize_controller = PIDController(rtol=1e-6, atol =1e-6))
+    jax.debug.print("Diffrax solve: {} steps", solve.stats['num_steps'])
+    return solve
 
 def integrate_trajectory(system: System, method: str,
                          dt: float, until: float) -> Trajectory:
@@ -53,9 +66,7 @@ def integrate_trajectory(system: System, method: str,
     elif method in ['Tsit5', 'Dopri5']:
         y0 = system.data.flatten()
         solver = getattr(diffrax, method)
-        solve = diffeqsolve(term, solver(), t0=0, t1=dt+steps*dt, dt0=dt, y0=y0, args = [system.masses, system.immobile], 
-                            saveat = diffrax.SaveAt(ts=np.arange(0, dt * steps + dt, dt)),
-                            stepsize_controller = PIDController(rtol=1e-6, atol =1e-9))
+        solve = diffrax_solve(until, dt, y0, np.arange(0, dt * steps + dt, dt), args = [system.masses, system.immobile])
         y = solve.ys
         trajectory.data = y.reshape((steps + 1, 2,
                                        len(system), system.D))

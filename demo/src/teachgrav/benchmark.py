@@ -1,5 +1,7 @@
 import time
-
+import logging
+logger = logging.getLogger("Teachgrav")
+import jax
 
 class Timer:
     def __init__(self, warmup=10, repeat=100):
@@ -17,5 +19,9 @@ class Timer:
 
 
 def benchmark(fn, *args):
-    timer = Timer(warmup=3, repeat=5)
-    return timer.timeit(fn, *args)
+    timer = Timer(warmup=5, repeat=5)
+    def ffn(*args):
+        result = fn(*args)
+        jax.block_until_ready(result)
+    fn(*args) # Compile
+    return timer.timeit(ffn, *args)
