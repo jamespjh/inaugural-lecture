@@ -1,29 +1,32 @@
-from teachgrav.scenarios import create_scenario
+from teachgrav.scenarios import ScenarioFactory
+
+factory = ScenarioFactory()
+jax_factory = ScenarioFactory(engine='jax')
 
 
 def test_create_scenario_moon():
-    system = create_scenario('moon')
+    system = factory.create_scenario('moon')
     assert len(system.positions()) == 2
     assert len(system.velocities()) == 2
     assert len(system.masses) == 2
 
 
 def test_create_scenario_scatter():
-    system = create_scenario('scatter', n_bodies=10)
+    system = factory.create_scenario('scatter', n_bodies=10)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
 
 
 def test_create_scenario_scatter_3D():
-    system = create_scenario('scatter', n_bodies=10,dimensions=3)
+    system = factory.create_scenario('scatter', n_bodies=10,dimensions=3)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
 
 
 def test_scenario_sun():
-    system = create_scenario('sun')
+    system = factory.create_scenario('sun')
     assert len(system.positions()) == 2
     assert len(system.velocities()) == 2
     assert len(system.masses) == 2

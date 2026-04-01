@@ -1,9 +1,12 @@
 from teachgrav.system import System, Trajectory
-import jax.numpy as np
 
-fixture_system = System([[[0, 0], [1, 0]], [
-                        [0, 0], [0, 1]]], masses=[1, 1])
+from teachgrav.array_abstraction import ArrayAbstraction
 
+ar = ArrayAbstraction('numpy')
+np = ar.np
+
+fixture_system = System(ar.np.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]), 
+                        masses=ar.np.array([1, 1]))
 
 def test_system():
     system = fixture_system
@@ -28,7 +31,7 @@ def test_update():
     system = fixture_system
     new_positions = system.positions() + 1
     new_velocities = system.velocities() + 1
-    new_system = system.update([new_positions, new_velocities])
+    new_system = system.update(np.array([new_positions, new_velocities]))
     assert np.array_equal(new_system.positions(), new_positions)
     assert np.array_equal(new_system.velocities(), new_velocities)
     assert np.array_equal(new_system.masses, system.masses)

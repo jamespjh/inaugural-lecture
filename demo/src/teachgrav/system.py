@@ -1,21 +1,17 @@
-import jax.numpy as np
-import jax
-
 class System:
     def __init__(self, data, masses, immobile=None):
-        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        self.data = data  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is positions, second slice is velocities
         self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
-        self.masses = np.array(masses)  # shape (N,) for N bodies
-        self.immobile = (np.array(
-            immobile) if immobile is not None
-            else np.zeros(self.masses.shape, dtype=bool))
+        self.masses = masses  # shape (N,) for N bodies
+        self.immobile = (immobile if immobile is not None
+            else self.data.__array_namespace__().zeros(self.masses.shape, dtype=bool))
 
-    def positions(self) -> np.ndarray:
+    def positions(self):
         return self.data[0]
 
-    def velocities(self) -> np.ndarray:
+    def velocities(self):
         return self.data[1]
 
     def update(self, data):
@@ -45,12 +41,14 @@ class System:
 
     def to_cpu(self):
         """Update the system with data moved to CPU."""
+        if not hasattr(self.data, 'device_put'): return
         self.data = jax.device_put(self.data, jax.devices('cpu')[0])
         self.masses = jax.device_put(self.masses, jax.devices('cpu')[0])
         self.immobile = jax.device_put(self.immobile, jax.devices('cpu')[0])
 
     def to_gpu(self):
         """Update the system with data moved to GPU."""
+        if not hasattr(self.data, 'device_put'): return
         self.data = jax.device_put(self.data, jax.devices('gpu')[0])
         self.masses = jax.device_put(self.masses, jax.devices('gpu')[0])
         self.immobile = jax.device_put(self.immobile, jax.devices('gpu')[0])
@@ -60,21 +58,22 @@ class Change:
     """ Represents the change in positions and velocities for a system."""
 
     def __init__(self, data):
-        self.data = np.array(data)  # shape (2, N, D) for N bodies
+        self.data = data  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is position changes, second slice is velocity changes
 
 
 class Trajectory:
     def __init__(self, system):
-        self.data = system.data[np.newaxis, :]  # shape (steps+1, 2, N, D)
+        self.data = system.data[None, :]  # shape (steps+1, 2, N, D)
         self.masses = system.masses
         self.immobile = system.immobile
         self.D = system.D
 
     def append(self, data):
         """Append a new system state to the trajectory."""
-        self.data = np.concatenate([self.data, data[np.newaxis, :]],
+        ar = data.__array_namespace__()  # Get the array namespace (e.g., numpy or jax.numpy)
+        self.data = ar.concatenate([self.data, data[None, :]],
                                    axis=0)
 
     def __len__(self):

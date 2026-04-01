@@ -1,14 +1,14 @@
 import sys
 import argparse
 import logging
-from .scenarios import create_scenario
-from .integrator import integrate_trajectory
+from .scenarios import ScenarioFactory
+from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .viz import visualize
 from .benchmark import benchmark
-import jax
 logger = logging.getLogger("Teachgrav")
 
-#jax.config.update('jax_enable_x64', True)
+factory = ScenarioFactory() # Default to numpy on cpu. 
+create_scenario = factory.create_scenario
 
 def entry():
     args = parse_args()
@@ -61,7 +61,7 @@ def parse_args(force_args=None):
     parser.add_argument('--scenario', default='moon',
                         choices=['moon', 'scatter', 'sun'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
-                        ['Tsit5', 'Dopri5', 'Kvaerno5'])
+                        diffrax_methods + scipy_methods)
     parser.add_argument(
         '--outfile',
         default=None,

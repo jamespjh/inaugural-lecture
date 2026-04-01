@@ -1,18 +1,13 @@
 import logging
-from jax import jit
-import jax.numpy as np
-from functools import partial
 logger = logging.getLogger("Teachgrav")
 
-
-
-def law(system) -> np.ndarray:
+def law(system):
     """Compute the derivatives of the state."""
     return flat_law(system.data.flatten(), system.masses,
                     system.immobile).reshape(system.data.shape)
 
 # Vectorised over C multiple initial conditions in a batch
-def flat_law(data_flat, masses, immobile) -> np.ndarray:
+def flat_law(data_flat, masses, immobile):
     """Compute the derivatives of the state."""
     # Incoming data shape 2D, size (C, 2 N D)
     if data_flat.ndim > 1:
@@ -21,7 +16,7 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
         num_vec = 1
     data = data_flat.reshape((num_vec, 2, len(masses), -1))  # shape (C, 2, N, D)
     dpositions = data[:, 1, :, :]  # Derivative of position is velocity
-
+    np = data.__array_namespace__()  # Get the array namespace (e.g., numpy or jax.numpy)
     # Each body experiences a gravitational force from
     # every other body, leading to acceleration
     # So we have an N*N*2 matrix of pairwise position differences
@@ -52,4 +47,4 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
 
     # Shape (2 (pos, vel), N, D (x y z), )
     # Output shape: (C 2 N D)
-    return delta.reshape(num_vec, -1)
+    return delta.flatten()

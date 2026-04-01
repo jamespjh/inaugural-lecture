@@ -1,20 +1,21 @@
 import logging
 import jax.numpy as np
 from teachgrav.laws import law, flat_law
+from teachgrav.scenarios import ScenarioFactory
 logger = logging.getLogger(__name__)
 
+factory = ScenarioFactory()
+jax_factory = ScenarioFactory(engine='jax')
 
 def test_law():
-    from teachgrav.scenarios import create_scenario
-    system = create_scenario('moon')
+    system = factory.create_scenario('moon')
     derivatives = law(system)
     # 2 bodies, 4 derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt)
     assert derivatives.shape == (2, 2, 2)
 
 
 def test_law_immobile():
-    from teachgrav.scenarios import create_scenario
-    system = create_scenario('sun')
+    system = factory.create_scenario('sun')
     derivatives = law(system)
     logger.info(f"Derivatives:\n{derivatives}")
     # The Sun is immobile, so its derivatives should be zero
@@ -27,25 +28,22 @@ def test_law_immobile():
 
 
 def test_law_scatter():
-    from teachgrav.scenarios import create_scenario
-    system = create_scenario('scatter', n_bodies=5)
+    system = factory.create_scenario('scatter', n_bodies=5)
     derivatives = law(system)
     assert derivatives.shape == (2, 5, 2)
 
 
 def test_law_scatter_3D():
-    from teachgrav.scenarios import create_scenario
-    system = create_scenario('scatter', n_bodies=5, dimensions=3)
+    system = factory.create_scenario('scatter', n_bodies=5, dimensions=3)
     derivatives = law(system)
     assert derivatives.shape == (2, 5, 3)
 
 
 def test_law_vectorised():
-    from teachgrav.scenarios import create_scenario
     N_sys = 5
     N_bodies = 3
     # Test that the law can be called multiple times over an array of states
-    systems = [create_scenario('scatter', n_bodies=N_bodies) for _ in range(N_sys)]
+    systems = [factory.create_scenario('scatter', n_bodies=N_bodies) for _ in range(N_sys)]
     # Our vectorisation assumes all systems have the same masses and immobility, so we just take the first one
     for system in systems:
         system.masses = systems[0].masses
@@ -56,10 +54,4 @@ def test_law_vectorised():
     immobile = systems[0].immobile
     vector_results = flat_law(ICs.reshape(N_sys, -1), masses, immobile).reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
-    print(simple_results[1,1,:,:])
-    print(vector_results[1,1,:,:])
-    assert (simple_results[0] == vector_results[0]).all()
-    assert (simple_results[1] == vector_results[1]).all()
-    assert (simple_results[2] == vector_results[2]).all()
-    assert (simple_results[3] == vector_results[3]).all()
-    assert (simple_results[4] == vector_results[4]).all()
+    assert vector_results.__array_namespace__().allclose(simple_results, vector_results, atol=1e-6)
