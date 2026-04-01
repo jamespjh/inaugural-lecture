@@ -62,7 +62,8 @@ def parse_args(force_args=None):
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
     parser.add_argument('--engine', choices=['numpy',
-                        'jax-gpu', 'jax-cpu', 'jax-metal'],
+                                             'jax-gpu', 'jax-cpu', 'jax-metal',
+                                             'mlx-cpu', 'mlx-gpu'],
                         help='Computation engine to use')
     # Add CUPY, Torch and MLX later.
     parser.add_argument(

@@ -1,12 +1,9 @@
 import logging
-import jax.numpy as np
 from teachgrav.laws import law, flat_law
 from teachgrav.scenarios import ScenarioFactory
 logger = logging.getLogger(__name__)
 
 factory = ScenarioFactory()
-jax_factory = ScenarioFactory(engine='jax-cpu')
-
 
 def test_law():
     system = factory.create_scenario('moon')
@@ -40,7 +37,21 @@ def test_law_scatter_3D():
     assert derivatives.shape == (2, 5, 3)
 
 
-def test_law_vectorised():
+def test_law_scatter_3D_jax():
+    jax_factory = ScenarioFactory(engine='jax-cpu')
+    system = jax_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
+    derivatives = law(system)
+    assert derivatives.shape == (2, 5, 3)
+
+
+def test_law_scatter_3D_metal():
+    metal_factory = ScenarioFactory(engine='mlx-gpu')
+    system = metal_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
+    derivatives = law(system)
+    assert derivatives.shape == (2, 5, 3)
+
+
+def t_law_vectorised(factory):
     N_sys = 5
     N_bodies = 3
     # Test that the law can be called multiple times over an array of states
@@ -53,8 +64,8 @@ def test_law_vectorised():
     for system in systems:
         system.masses = systems[0].masses
         system.immobile = systems[0].immobile
-    simple_results = np.array([law(system) for system in systems])
-    ICs = np.array([system.data.flatten() for system in systems])
+    simple_results = factory.engine.array([law(system) for system in systems])
+    ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
     vector_results = flat_law(ICs.reshape(
@@ -62,3 +73,15 @@ def test_law_vectorised():
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
+
+
+def test_law_vectorised():
+    t_law_vectorised(factory)
+
+
+def test_law_vectorised_jax():
+    t_law_vectorised(ScenarioFactory(engine='jax-cpu'))
+
+
+def test_law_vectorised_metal():
+    t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))

@@ -8,7 +8,7 @@ class System:
         self.immobile = (
             immobile if immobile is not None else
             self.data.__array_namespace__().zeros(
-                self.masses.shape, dtype=bool))
+                self.masses.shape, dtype=self.data.__array_namespace__().bool_))
 
     def positions(self):
         return self.data[0]

@@ -20,6 +20,16 @@ class ArrayAbstraction:
                 self.jax_device = jax.devices("gpu")[0]
             else:
                 self.jax_device = jax.devices("cpu")[0]
+        elif engine == 'mlx-cpu':
+            import mlx.core as mx
+            mx.set_default_device(mx.cpu)
+            self.np = mx
+            self.random = mx.random
+        elif engine == 'mlx-gpu':
+            import mlx.core as mx
+            mx.set_default_device(mx.gpu)
+            self.np = mx
+            self.random = mx.random
         else:
             raise ValueError(
                 f"Unknown engine '{engine}'. Valid engines "
@@ -42,6 +52,9 @@ class ArrayAbstraction:
                                            minval=min, 
                                            maxval=max)
             res = jax.device_put(res, self.jax_device)
+            return res
+        elif self.engine in ['mlx-cpu', 'mlx-gpu']:
+            res = self.random.uniform(shape=shape)
             return res
         else:
             raise ValueError(
