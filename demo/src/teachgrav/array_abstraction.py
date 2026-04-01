@@ -12,7 +12,7 @@ class ArrayAbstraction:
             import jax.numpy as jnp
             import jax.random as jrandom
             self.np = jnp
-            self.random=jrandom
+            self.random = jrandom
             self.key = jrandom.key(0)
         else:
             raise ValueError(
@@ -25,3 +25,7 @@ class ArrayAbstraction:
         elif self.engine == 'jax':
             self.key, subkey = self.random.split(self.key)
             return self.random.uniform(subkey, shape, minval=min, maxval=max)
+        else:
+            raise ValueError(
+                f"Unknown engine '{self.engine}'."
+                f"Valid engines: 'numpy', 'jax'")
