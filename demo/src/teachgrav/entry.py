@@ -7,9 +7,6 @@ from .viz import visualize
 from .benchmark import benchmark
 logger = logging.getLogger("Teachgrav")
 
-factory = ScenarioFactory() # Default to numpy on cpu. 
-create_scenario = factory.create_scenario
-
 def entry():
     args = parse_args()
     logger.setLevel(args.loglevel)
@@ -24,6 +21,11 @@ def entry():
         logging.basicConfig(level=args.loglevel)
     logger.info(f'Loglevel set to {args.loglevel}')
 
+    if args.method in diffrax_methods:
+        factory = ScenarioFactory('jax') 
+    else:
+        factory = ScenarioFactory()
+    create_scenario = factory.create_scenario
     system = create_scenario(args.scenario)
     if args.benchmark:
         logger.info('Running in benchmark mode')

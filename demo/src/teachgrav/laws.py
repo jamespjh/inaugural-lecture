@@ -27,7 +27,6 @@ def flat_law(data_flat, masses, immobile):
     positions = data[:, 0, :, :]  # shape (C, N, D)
     # Pairwise position differences: shape (C, N, N, D)
     displacements = positions[:, :, np.newaxis, :] - positions[:, np.newaxis, :, :]
-    #logger.debug("Positions:\n%s", positions)
     distances = np.linalg.norm(displacements, axis=-1, keepdims=True)
 
     # Avoid division by zero, also avoids self-interaction
