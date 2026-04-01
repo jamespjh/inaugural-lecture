@@ -1,8 +1,8 @@
 import numpy as np
-import jax.numpy as jnp
-import jax.random as jrandom
+#import jax.numpy as jnp
+#import jax.random as jrandom
 
-key = jrandom.key(0)
+#key = jrandom.key(0)
 
 class ArrayAbstraction:
     """A simple class to demonstrate array abstraction."""
