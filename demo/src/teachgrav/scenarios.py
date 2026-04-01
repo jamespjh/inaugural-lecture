@@ -72,7 +72,6 @@ def init_earth_orbiting_sun() -> System:
 def init_random_scatter(
     n_bodies: int = 4,
     randomise_count: int = False,
-    seed: int | None = None,
     space_radius: float = 1.0,
     max_speed: float = 1.0,
     min_mass: float = 0.1,
@@ -81,7 +80,6 @@ def init_random_scatter(
 ) -> System:
     """Randomly scattered bodies with random velocities."""
 
-    # rng_np = np.random.default_rng(seed)
     if randomise_count:
         n_bodies = jax_random_matrix(1, 2, n_bodies + 1).item()
     masses = jax_random_matrix(n_bodies, min_mass, max_mass)
@@ -100,8 +98,7 @@ def init_random_scatter(
     logger.info(f"Initialized random scatter scenario with {n_bodies} bodies, "
                 f"masses [{masses}, "
                 f"positions {positions}, "
-                f"velocities {velocities}, "
-                f"seed={seed}")
+                f"velocities {velocities}, ")
     return System(
         [positions, velocities],
         masses=masses,

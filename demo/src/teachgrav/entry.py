@@ -5,8 +5,10 @@ from .scenarios import create_scenario
 from .integrator import integrate_trajectory
 from .viz import visualize
 from .benchmark import benchmark
+import jax
 logger = logging.getLogger("Teachgrav")
 
+#jax.config.update('jax_enable_x64', True)
 
 def entry():
     args = parse_args()

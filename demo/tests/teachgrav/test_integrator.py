@@ -43,7 +43,7 @@ def test_close_to_start_after_one_orbit():
 
 def test_integrate_trajectory_scatter_3D():
     from teachgrav.scenarios import create_scenario
-    system = create_scenario('scatter', n_bodies=5, seed=42, dimensions=3)
+    system = create_scenario('scatter', n_bodies=5, dimensions=3)
     trajectory = integrate_trajectory(
         system, method='Tsit5', dt=0.01, until=1.0)
     # 101 time steps, 5 bodies, 3D positions

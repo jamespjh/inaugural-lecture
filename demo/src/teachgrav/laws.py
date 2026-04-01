@@ -11,11 +11,16 @@ def law(system) -> np.ndarray:
     return flat_law(system.data.flatten(), system.masses,
                     system.immobile).reshape(system.data.shape)
 
+# Vectorised over C multiple initial conditions in a batch
 def flat_law(data_flat, masses, immobile) -> np.ndarray:
     """Compute the derivatives of the state."""
-    # Placeholder implementation, replace with actual physics
-    data = data_flat.reshape((2, len(masses), -1))  # shape (2, N, D)
-    dpositions = data[1, :, :]  # Derivative of position is velocity
+    # Incoming data shape 2D, size (C, 2 N D)
+    if data_flat.ndim > 1:
+        num_vec = data_flat.shape[0]
+    else:
+        num_vec = 1
+    data = data_flat.reshape((num_vec, 2, len(masses), -1))  # shape (C, 2, N, D)
+    dpositions = data[:, 1, :, :]  # Derivative of position is velocity
 
     # Each body experiences a gravitational force from
     # every other body, leading to acceleration
@@ -24,29 +29,27 @@ def flat_law(data_flat, masses, immobile) -> np.ndarray:
     # Which we sum over the second axis to get the total acceleration on each
     # body
     G = 1.0  # Gravitational constant (arbitrary units)
-    positions = data[0, :, :]  # shape (N, D)
-
-    # Pairwise position differences: shape (N, N, D)
-    displacements = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
-
+    positions = data[:, 0, :, :]  # shape (C, N, D)
+    # Pairwise position differences: shape (C, N, N, D)
+    displacements = positions[:, :, np.newaxis, :] - positions[:, np.newaxis, :, :]
     #logger.debug("Positions:\n%s", positions)
-    distances = np.linalg.norm(displacements, axis=2, keepdims=True)
+    distances = np.linalg.norm(displacements, axis=-1, keepdims=True)
 
     # Avoid division by zero, also avoids self-interaction
     # Jax requires immutable arrays, so we use .at[].set()
     distances = np.where(distances == 0, np.inf, distances)
-
     # Pairwise accelerations due to gravity
     accelerations = -1.0 * G * \
-        masses[np.newaxis, :, np.newaxis] * displacements / (distances ** 3)
+        masses[np.newaxis, np.newaxis, :, np.newaxis] * displacements / (distances ** 3)
     # Sum accelerations from all other bodies
-    dvelocities = np.sum(accelerations, axis=1)
+    dvelocities = np.sum(accelerations, axis=2)
     #logger.debug("Total Accelerations:\n%s", dvelocities)
-    delta = np.stack([dpositions, dvelocities])  # shape (2, N, D)
+    delta = np.stack([dpositions, dvelocities], axis=1)  # shape (C, 2, N, D)
     # Mask out the derivatives for immobile bodies
     mask = (~immobile).astype(delta.dtype)   # 1 where mobile, 0 where immobile
-    mask = mask[None, :, None]
+    mask = mask[np.newaxis, np.newaxis, :, np.newaxis]
     delta = delta * mask  # Zero out derivatives for immobile bodies
 
     # Shape (2 (pos, vel), N, D (x y z), )
-    return delta.flatten()
+    # Output shape: (C 2 N D)
+    return delta.reshape(num_vec, -1)

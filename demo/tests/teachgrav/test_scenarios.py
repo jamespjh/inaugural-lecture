@@ -9,14 +9,14 @@ def test_create_scenario_moon():
 
 
 def test_create_scenario_scatter():
-    system = create_scenario('scatter', n_bodies=10, seed=42)
+    system = create_scenario('scatter', n_bodies=10)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
 
 
 def test_create_scenario_scatter_3D():
-    system = create_scenario('scatter', n_bodies=10, seed=42, dimensions=3)
+    system = create_scenario('scatter', n_bodies=10,dimensions=3)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
