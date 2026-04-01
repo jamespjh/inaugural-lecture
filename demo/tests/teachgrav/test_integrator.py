@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger("Teachgrav")
 
 factory = ScenarioFactory()
-jax_factory = ScenarioFactory(engine='jax')
+jax_factory = ScenarioFactory(engine='jax-cpu')
 
 
 def test_integrate_trajectory():

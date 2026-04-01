@@ -38,9 +38,9 @@ class ScenarioFactory:
         moon_velocity = [0.0, 1.0]
 
         return System(
-            self.engine.np.array([[earth_position, moon_position],
-                                  [earth_velocity, moon_velocity]]),
-            masses=self.engine.np.array([earth_mass, moon_mass]),
+            self.engine.array([[earth_position, moon_position],
+                              [earth_velocity, moon_velocity]]),
+            masses=self.engine.array([earth_mass, moon_mass]),
         )
 
     def init_earth_orbiting_sun(self) -> System:
@@ -55,11 +55,11 @@ class ScenarioFactory:
         earth_velocity = [0.0, 1.0]
 
         return System(
-            self.engine.np.array([[sun_position, earth_position],
-                                  [sun_velocity, earth_velocity]]),
-            masses=self.engine.np.array([sun_mass, earth_mass]),
+            self.engine.array([[sun_position, earth_position],
+                               [sun_velocity, earth_velocity]]),
+            masses=self.engine.array([sun_mass, earth_mass]),
             # Sun is immobile, i.e. fixed at the origin
-            immobile=self.engine.np.array([True, False]),
+            immobile=self.engine.array([True, False]),
         )
 
     def init_random_scatter(
@@ -89,12 +89,7 @@ class ScenarioFactory:
         com = (masses[:, None] * positions).sum(axis=0)
         positions -= com / masses.sum()
 
-        logger.info(f"Initialized random scatter scenario with"
-                    f" {n_bodies} bodies, "
-                    f"masses [{masses}, "
-                    f"positions {positions}, "
-                    f"velocities {velocities}, ")
         return System(
-            self.engine.np.array([positions, velocities]),
-            masses=self.engine.np.array(masses),
+            self.engine.array([positions, velocities]),
+            masses=self.engine.array(masses),
         )

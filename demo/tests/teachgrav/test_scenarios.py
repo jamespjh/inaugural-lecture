@@ -1,7 +1,7 @@
 from teachgrav.scenarios import ScenarioFactory
 
 factory = ScenarioFactory()
-jax_factory = ScenarioFactory(engine='jax')
+jax_factory = ScenarioFactory(engine='jax-cpu')
 
 
 def test_create_scenario_moon():

@@ -21,11 +21,7 @@ def entry():
     else:
         logging.basicConfig(level=args.loglevel)
     logger.info(f'Loglevel set to {args.loglevel}')
-
-    if args.method in diffrax_methods:
-        factory = ScenarioFactory('jax')
-    else:
-        factory = ScenarioFactory()
+    factory = ScenarioFactory(args.engine)
     create_scenario = factory.create_scenario
     system = create_scenario(args.scenario)
     if args.benchmark:
@@ -65,6 +61,10 @@ def parse_args(force_args=None):
                         choices=['moon', 'scatter', 'sun'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
+    parser.add_argument('--engine', choices=['numpy',
+                        'jax-gpu', 'jax-cpu', 'jax-metal'],
+                        help='Computation engine to use')
+    # Add CUPY, Torch and MLX later.
     parser.add_argument(
         '--outfile',
         default=None,
@@ -91,6 +91,21 @@ def parse_args(force_args=None):
         help='Output format for trajectory data (e.g. csv, json, png).' +
              'Inferred from outfile extension if not specified.')
     args = parser.parse_args(force_args.split() if force_args else None)
+    if args.method in diffrax_methods and not args.engine:
+        args.engine = 'jax-cpu'
+        logger.info(
+            f"Method {args.method} requires a JAX engine."
+            f"Defaulting to {args.engine}.")
+    else:
+        args.engine = args.engine or 'numpy'
+        logger.info(f"Using engine: {args.engine}")
+    if args.method in diffrax_methods and args.engine == 'numpy':
+        logger.error(
+            f"Method {args.method} is not compatible"
+            f"with engine {args.engine}")
+        raise ValueError(
+            f"Method {args.method} is not compatible"
+            f"with engine {args.engine}")
     if args.outfile and not args.format:
         logger.info(
             f"Selecting output format based on file extension: {args.outfile}")

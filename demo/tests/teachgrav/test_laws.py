@@ -5,7 +5,7 @@ from teachgrav.scenarios import ScenarioFactory
 logger = logging.getLogger(__name__)
 
 factory = ScenarioFactory()
-jax_factory = ScenarioFactory(engine='jax')
+jax_factory = ScenarioFactory(engine='jax-cpu')
 
 
 def test_law():
