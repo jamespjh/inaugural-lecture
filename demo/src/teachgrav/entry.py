@@ -7,6 +7,7 @@ from .viz import visualize
 from .benchmark import benchmark
 logger = logging.getLogger("Teachgrav")
 
+
 def entry():
     args = parse_args()
     logger.setLevel(args.loglevel)
@@ -22,7 +23,7 @@ def entry():
     logger.info(f'Loglevel set to {args.loglevel}')
 
     if args.method in diffrax_methods:
-        factory = ScenarioFactory('jax') 
+        factory = ScenarioFactory('jax')
     else:
         factory = ScenarioFactory()
     create_scenario = factory.create_scenario

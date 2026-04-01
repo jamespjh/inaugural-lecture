@@ -5,8 +5,9 @@ from teachgrav.array_abstraction import ArrayAbstraction
 ar = ArrayAbstraction('numpy')
 np = ar.np
 
-fixture_system = System(ar.np.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]), 
+fixture_system = System(ar.np.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]),
                         masses=ar.np.array([1, 1]))
+
 
 def test_system():
     system = fixture_system
@@ -18,8 +19,10 @@ def test_system():
 def test_trajectory():
     system = fixture_system
     trajectory = Trajectory(system)
-    trajectory.append(system.data)  # Append the initial state again for testing
-    trajectory.append(system.data)  # Append the initial state again for testing
+    # Append the initial state again for testing
+    trajectory.append(system.data)
+    # Append the initial state again for testing
+    trajectory.append(system.data)
     # 101 time steps, 2 bodies, 2D positions
     assert trajectory.positions().shape == (3, 2, 2)
     # 101 time steps, 2 bodies, 2D velocities

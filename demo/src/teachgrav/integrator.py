@@ -26,24 +26,31 @@ def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
     term = ODETerm(fun)
     solver = getattr(diffrax, method)
     with jax.transfer_guard('allow'):
-        solve = diffeqsolve(term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=(masses, immobile), 
-                                saveat = diffrax.SaveAt(ts=saveat),
-                                stepsize_controller = PIDController(rtol=1e-6, atol =1e-6))
+        solve = diffeqsolve(
+            term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=(
+                masses, immobile), saveat=diffrax.SaveAt(
+                ts=saveat), stepsize_controller=PIDController(
+                rtol=1e-6, atol=1e-6))
     return solve
+
 
 def solve_diffrax(method, t1, dt, y0, saveat, masses, immobile):
     cpu = jax.devices("cpu")[0]
     with jax.default_device(cpu):
-        solve = diffrax_solve(method, t1, dt, y0, 
-            saveat, masses, immobile)
+        solve = diffrax_solve(method, t1, dt, y0,
+                              saveat, masses, immobile)
     return solve.ys
+
 
 def solve_numpy(method, t1, dt, y0, saveat, masses, immobile):
     from scipy.integrate import solve_ivp
+
     def fun(t, y):
         return flat_law(y, masses, immobile)
-    solve = solve_ivp(fun, (0, t1), y0, method=method, t_eval=saveat, rtol=1e-6)
+    solve = solve_ivp(fun, (0, t1), y0, method=method,
+                      t_eval=saveat, rtol=1e-6)
     return solve.y.T
+
 
 def integrate_trajectory(system: System, method: str,
                          dt: float, until: float, pars=None) -> Trajectory:
@@ -69,14 +76,16 @@ def integrate_trajectory(system: System, method: str,
         np = system.data.__array_namespace__()
 
         if method in diffrax_methods:
-            res = solve_diffrax(method, until, dt, y0, np.arange(0, dt * steps + dt, dt), system.masses, system.immobile)
+            res = solve_diffrax(method, until, dt, y0, np.arange(
+                0, dt * steps + dt, dt), system.masses, system.immobile)
 
         elif method in scipy_methods:
-            res = solve_numpy(method, until, dt, y0, np.arange(0, dt * steps + dt, dt), system.masses, system.immobile)
+            res = solve_numpy(method, until, dt, y0, np.arange(
+                0, dt * steps + dt, dt), system.masses, system.immobile)
 
         else:
             raise ValueError(f"Unknown integration method: {method}")
-        
+
         trajectory.data = res.reshape((steps + 1, 2, len(system), system.D))
 
     return trajectory

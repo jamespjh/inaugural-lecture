@@ -19,7 +19,7 @@ def test_create_scenario_scatter():
 
 
 def test_create_scenario_scatter_3D():
-    system = factory.create_scenario('scatter', n_bodies=10,dimensions=3)
+    system = factory.create_scenario('scatter', n_bodies=10, dimensions=3)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10

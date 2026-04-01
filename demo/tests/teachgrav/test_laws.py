@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 factory = ScenarioFactory()
 jax_factory = ScenarioFactory(engine='jax')
 
+
 def test_law():
     system = factory.create_scenario('moon')
     derivatives = law(system)
@@ -43,8 +44,12 @@ def test_law_vectorised():
     N_sys = 5
     N_bodies = 3
     # Test that the law can be called multiple times over an array of states
-    systems = [factory.create_scenario('scatter', n_bodies=N_bodies) for _ in range(N_sys)]
-    # Our vectorisation assumes all systems have the same masses and immobility, so we just take the first one
+    systems = [
+        factory.create_scenario(
+            'scatter',
+            n_bodies=N_bodies) for _ in range(N_sys)]
+    # Our vectorisation assumes all systems have the same masses and
+    # immobility, so we just take the first one
     for system in systems:
         system.masses = systems[0].masses
         system.immobile = systems[0].immobile
@@ -52,6 +57,8 @@ def test_law_vectorised():
     ICs = np.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
-    vector_results = flat_law(ICs.reshape(N_sys, -1), masses, immobile).reshape((N_sys, 2, N_bodies, -1))
+    vector_results = flat_law(ICs.reshape(
+        N_sys, -1), masses, immobile).reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
-    assert vector_results.__array_namespace__().allclose(simple_results, vector_results, atol=1e-6)
+    assert vector_results.__array_namespace__().allclose(
+        simple_results, vector_results, atol=1e-6)

@@ -5,8 +5,10 @@ class System:
         # First slice is positions, second slice is velocities
         self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
         self.masses = masses  # shape (N,) for N bodies
-        self.immobile = (immobile if immobile is not None
-            else self.data.__array_namespace__().zeros(self.masses.shape, dtype=bool))
+        self.immobile = (
+            immobile if immobile is not None else
+            self.data.__array_namespace__().zeros(
+                self.masses.shape, dtype=bool))
 
     def positions(self):
         return self.data[0]
@@ -41,17 +43,21 @@ class System:
 
     def to_cpu(self):
         """Update the system with data moved to CPU."""
-        if not hasattr(self.data, 'device_put'): return
-        self.data = jax.device_put(self.data, jax.devices('cpu')[0])
-        self.masses = jax.device_put(self.masses, jax.devices('cpu')[0])
-        self.immobile = jax.device_put(self.immobile, jax.devices('cpu')[0])
+        if self.data.__array_namespace__().__name__ == 'numpy':
+            return
+        import jax
+        self.data = self.data.to_device(jax.devices('cpu')[0])
+        self.masses = self.masses.to_device(jax.devices('cpu')[0])
+        self.immobile = self.immobile.to_device(jax.devices('cpu')[0])
 
     def to_gpu(self):
         """Update the system with data moved to GPU."""
-        if not hasattr(self.data, 'device_put'): return
-        self.data = jax.device_put(self.data, jax.devices('gpu')[0])
-        self.masses = jax.device_put(self.masses, jax.devices('gpu')[0])
-        self.immobile = jax.device_put(self.immobile, jax.devices('gpu')[0])
+        if self.data.__array_namespace__.__name__ == 'numpy':
+            return
+        import jax
+        self.data = self.data.to_device(jax.devices('gpu')[0])
+        self.masses = self.masses.to_device(jax.devices('gpu')[0])
+        self.immobile = self.immobile.to_device(jax.devices('gpu')[0])
 
 
 class Change:
@@ -72,7 +78,7 @@ class Trajectory:
 
     def append(self, data):
         """Append a new system state to the trajectory."""
-        ar = data.__array_namespace__()  # Get the array namespace (e.g., numpy or jax.numpy)
+        ar = data.__array_namespace__()  # Get the array namespace
         self.data = ar.concatenate([self.data, data[None, :]],
                                    axis=0)
 

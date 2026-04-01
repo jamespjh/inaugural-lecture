@@ -4,8 +4,10 @@ import jax.random as jrandom
 
 key = jrandom.key(0)
 
+
 class ArrayAbstraction:
     """A simple class to demonstrate array abstraction."""
+
     def __init__(self, engine):
         self.engine = engine
         if engine == 'numpy':
@@ -13,8 +15,9 @@ class ArrayAbstraction:
         elif engine == 'jax':
             self.np = jnp
         else:
-            raise ValueError(f"Unknown engine '{engine}'. Valid engines: 'numpy', 'jax'.")
-    
+            raise ValueError(
+                f"Unknown engine '{engine}'. Valid engines: 'numpy', 'jax'.")
+
     def random_array(self, shape, min=0.0, max=1.0):
         """Generate a random array of the given shape."""
         if self.engine == 'numpy':
