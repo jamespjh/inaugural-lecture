@@ -1,8 +1,4 @@
 import numpy as np
-import jax.numpy as jnp
-import jax.random as jrandom
-
-key = jrandom.key(0)
 
 
 class ArrayAbstraction:
@@ -13,7 +9,11 @@ class ArrayAbstraction:
         if engine == 'numpy':
             self.np = np
         elif engine == 'jax':
+            import jax.numpy as jnp
+            import jax.random as jrandom
             self.np = jnp
+            self.random=jrandom
+            self.key = jrandom.key(0)
         else:
             raise ValueError(
                 f"Unknown engine '{engine}'. Valid engines: 'numpy', 'jax'.")
@@ -23,5 +23,5 @@ class ArrayAbstraction:
         if self.engine == 'numpy':
             return np.random.uniform(min, max, size=shape)
         elif self.engine == 'jax':
-            key = jrandom.PRNGKey(0)
-            return jrandom.uniform(key, shape, minval=min, maxval=max)
+            self.key, subkey = self.random.split(self.key)
+            return self.random.uniform(subkey, shape, minval=min, maxval=max)

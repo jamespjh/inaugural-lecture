@@ -25,7 +25,7 @@ def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
 
     term = ODETerm(fun)
     solver = getattr(diffrax, method)
-    with jax.transfer_guard('allow'):
+    with jax.transfer_guard('log'):
         solve = diffeqsolve(
             term, solver(), t0=0, t1=t1, dt0=dt, y0=y0, args=(
                 masses, immobile), saveat=diffrax.SaveAt(

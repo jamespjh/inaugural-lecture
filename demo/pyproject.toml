@@ -22,17 +22,20 @@ dependencies = [
     "scipy",
     "matplotlib",
     "jax==0.5.0;platform_system == 'Darwin'", "jax-metal==0.1.1;platform_system == 'Darwin'", # if on Apple Silicon
-    "jax;platform_system != 'Darwin'", "jax[cpu];platform_system != 'Darwin'", "jax[cuda13];platform_system != 'Darwin'", # if not on Apple Silicon, just JAX
-    "equinox;platform_system != 'Darwin'", # if not on Apple Silicon, Equinox
+    "jax;platform_system != 'Darwin'", "jax[cpu];platform_system != 'Darwin'", 
+    "equinox", # if not on Apple Silicon, Equinox
     "diffrax;platform_system != 'Darwin'", # if not on Apple Silicon, Diffrax
     "diffrax==0.7.2;platform_system == 'Darwin'", # if on Apple Silicon might need an older diffrax
-    "cupy;platform_system != 'Darwin'", # if not on Apple Silicon,  CuPy
     "mlx;platform_system == 'Darwin'", # if on Apple Silicon, MLX
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest"
+]
+cuda = [
+    "cupy",
+    "jax[cuda13]"
 ]
 
 
