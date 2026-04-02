@@ -71,6 +71,7 @@ class ScenarioFactory:
         min_mass: float = 0.1,
         max_mass: float = 10.0,
         dimensions: int = 2,
+        fixed_masses=None
     ) -> System:
         """Randomly scattered bodies with random velocities."""
 
@@ -79,7 +80,14 @@ class ScenarioFactory:
                                                 2,
                                                 n_bodies + 1).item(
                                                 )  # type: ignore
-        masses = self.engine.random_array((n_bodies,), min_mass, max_mass)
+        if fixed_masses is not None:
+            if len(fixed_masses) != n_bodies:
+                raise ValueError(
+                    f"Length of fixed_masses ({len(fixed_masses)}) must "
+                    f"match n_bodies ({n_bodies}).")
+            masses = self.engine.array(fixed_masses)
+        else:
+            masses = self.engine.random_array((n_bodies,), min_mass, max_mass)
         positions = self.engine.random_array(
             (n_bodies, dimensions), -space_radius, space_radius)
         velocities = self.engine.random_array(

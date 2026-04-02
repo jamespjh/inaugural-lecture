@@ -58,18 +58,18 @@ def t_law_vectorised(factory):
     systems = [
         factory.create_scenario(
             'scatter',
-            n_bodies=N_bodies) for _ in range(N_sys)]
-    # Our vectorisation assumes all systems have the same masses and
-    # immobility, so we just take the first one
-    for system in systems:
-        system.masses = systems[0].masses
-        system.immobile = systems[0].immobile
+            n_bodies=N_bodies,
+            fixed_masses=[1.0, 1.0, 1.0],
+        )
+        for _ in range(N_sys)
+    ]
     simple_results = factory.engine.array([law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
-    vector_results = flat_law(ICs.reshape(
-        N_sys, -1), masses, immobile).reshape((N_sys, 2, N_bodies, -1))
+    ICs_flat = ICs.reshape((N_sys, -1))
+    results = flat_law(ICs_flat, masses, immobile)
+    vector_results = results.reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
@@ -85,3 +85,4 @@ def test_law_vectorised_jax():
 
 def test_law_vectorised_metal():
     t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
+    assert False

@@ -18,7 +18,7 @@ def flat_law(data_flat, masses, immobile):
     else:
         num_vec = 1
     data = data_flat.reshape(
-        (num_vec, 2, len(masses), -1))  # shape (C, 2, N, D)
+        (num_vec, 2, len(immobile), -1))  # shape (C, 2, N, D)
     dpositions = data[:, 1, :, :]  # Derivative of position is velocity
     # Get the array namespace (e.g., numpy or jax.numpy)
     np = data.__array_namespace__()
