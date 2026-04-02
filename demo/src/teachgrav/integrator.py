@@ -1,4 +1,4 @@
-from .laws import law, flat_law
+from .laws.true_law import TrueLawModel
 from .system import System, Trajectory, Change
 
 import logging
@@ -10,33 +10,30 @@ diffrax_methods = ['Tsit5', 'Dopri5', 'Kvaerno5']
 scipy_methods = ['RK45', 'LSODA']
 
 
-def solve_numpy(method, t1, dt, y0, saveat, masses, immobile):
+def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
     from scipy.integrate import solve_ivp
 
-    def fun(t, y):
-        return flat_law(y, masses, immobile)
+    def fun(_, y):
+        return model.flat_law(y, masses, immobile)
     solve = solve_ivp(fun, (0, t1), y0, method=method,
                       t_eval=saveat, rtol=1e-6)
     return solve.y.T
 
 
-def integrate_trajectory(system: System, method: str,
-                         dt: float, until: float, model=None) -> Trajectory:
+def integrate_trajectory(
+        system: System,
+        method: str,
+        dt: float,
+        until: float,
+        model=TrueLawModel()) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
     steps = int(until / dt)
     trajectory = Trajectory(system)
 
-    if method == 'gp':
-        assert model is not None, "GP method requires a trained model"
-        for step in range(0, steps):
-            logger.info(f"Integrating step {step * dt:.2f}/{until:.2f}")
-            system = system + Change(model.gp_law(system) * dt)
-            trajectory.append(system.data)
-
     if method == 'euler':
         for step in range(0, steps):
             logger.info(f"Integrating step {step * dt:.2f}/{until:.2f}")
-            system = system + Change(law(system) * dt)
+            system = system + Change(model.law(system) * dt)
             trajectory.append(system.data)
 
     else:
@@ -50,7 +47,7 @@ def integrate_trajectory(system: System, method: str,
 
         elif method in scipy_methods:
             res = solve_numpy(method, until, dt, y0, np.arange(
-                0, dt * steps + dt, dt), system.masses, system.immobile)
+                0, dt * steps + dt, dt), system.masses, system.immobile, model)
 
         else:
             raise ValueError(f"Unknown integration method: {method}")

@@ -1,9 +1,13 @@
 import logging
-from teachgrav.laws import law, flat_law
+from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
 logger = logging.getLogger(__name__)
 
 factory = ScenarioFactory()
+model = TrueLawModel()
+law = model.law
+flat_law = model.flat_law
+
 
 def test_law():
     system = factory.create_scenario('moon')

@@ -1,25 +1,29 @@
-from teachgrav.laws import law
 from teachgrav.scenarios import ScenarioFactory
-from teachgrav.pl import PLModel
+from teachgrav.laws.pl import PLModel
+from teachgrav.laws.true_law import TrueLawModel
+
 
 def test_pl_train():
     factory = ScenarioFactory('numpy')
     model = PLModel(factory)
     model.train(256, n_bodies=3)
 
+
 def test_pl_predict():
     factory = ScenarioFactory('numpy')
     model = PLModel(factory)
+    truth = TrueLawModel()
     model.train(256, n_bodies=2, fixed_masses=[1.0, 1.0])
 
     scenario = factory.create_scenario('scatter', n_bodies=2,
                                        fixed_masses=[1.0, 1.0])
     pl_res = model.law(scenario)
-    res = law(scenario)
+    res = truth.law(scenario)
     print("PL result:\n", pl_res)
     print("True result:\n", res)
     assert pl_res.shape == res.shape
     assert factory.engine.np.allclose(pl_res, res, atol=0.2)
+
 
 def t_law_vectorised(factory):
     N_sys = 5
@@ -36,7 +40,8 @@ def t_law_vectorised(factory):
     ]
     model = PLModel(factory)
     model.train(256, n_bodies=N_bodies, fixed_masses=masses)
-    simple_results = factory.engine.array([model.law(system) for system in systems])
+    simple_results = factory.engine.array(
+        [model.law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile

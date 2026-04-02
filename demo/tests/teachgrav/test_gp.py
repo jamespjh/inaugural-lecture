@@ -1,11 +1,13 @@
-from teachgrav.laws import law
+from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
-from teachgrav.gp import GPModel
+from teachgrav.laws.gp import GPModel
+
 
 def test_gp_train():
     factory = ScenarioFactory('numpy')
     model = GPModel(factory)
     model.train(256, n_bodies=3)
+
 
 def test_gp_predict():
     factory = ScenarioFactory('numpy')
@@ -15,11 +17,12 @@ def test_gp_predict():
     scenario = factory.create_scenario('scatter', n_bodies=2,
                                        fixed_masses=[1.0, 1.0])
     gp_res = model.law(scenario)
-    res = law(scenario)
+    res = TrueLawModel().law(scenario)
     print("GP result:\n", gp_res)
     print("True result:\n", res)
     assert gp_res.shape == res.shape
     assert factory.engine.np.allclose(gp_res, res, atol=0.2)
+
 
 def t_law_vectorised(factory):
     N_sys = 5
@@ -36,7 +39,8 @@ def t_law_vectorised(factory):
     ]
     model = GPModel(factory)
     model.train(256, n_bodies=N_bodies, fixed_masses=masses)
-    simple_results = factory.engine.array([model.law(system) for system in systems])
+    simple_results = factory.engine.array(
+        [model.law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
@@ -63,7 +67,7 @@ def test_gp_law_vectorised_metal():
 
 
 def test_normalise_denormalise():
-    from teachgrav.gp import GPModel
+    from teachgrav.laws.gp import GPModel
     from teachgrav.scenarios import ScenarioFactory
     factory = ScenarioFactory('numpy')
     model = GPModel(factory)
@@ -73,7 +77,8 @@ def test_normalise_denormalise():
     denormed = model.denormaliseX(normed)
     assert factory.engine.np.allclose(X, denormed, atol=1e-6)
 
-    # Now make a single new data, and check that normalising and denormalising gives the same result
+    # Now make a single new data, and check that normalising and denormalising
+    # gives the same result
     new_X = factory.engine.random_array((5,))
     normed_new_X = model.renormaliseX(new_X)
     denormed_new_X = model.denormaliseX(normed_new_X)

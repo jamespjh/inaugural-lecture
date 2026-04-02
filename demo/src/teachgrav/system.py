@@ -8,7 +8,7 @@ class System:
         self.immobile = (
             immobile if immobile is not None else
             self.data.__array_namespace__().zeros(
-                self.masses.shape, 
+                self.masses.shape,
                 dtype=self.data.__array_namespace__().bool_))
 
     def positions(self):
@@ -101,3 +101,18 @@ class Trajectory:
         else:
             # TODO:: Write to HDF5
             raise ValueError(f"Unsupported format: {format}")
+
+# Helper functions for working with system data, reshaping and restacking
+
+
+def to_shaped(data, num_vec, num_bodies):
+    """Reshape the flat data into a shaped format."""
+    data = data.reshape(
+        (num_vec, 2, num_bodies, -1))  # shape (C, 2, N, D)
+    return data
+
+
+def restack_va(velocities, accelerations):
+    """Restack velocities and accelerations into the shape (C, 2, N, D)."""
+    np = velocities.__array_namespace__()
+    return np.stack([velocities, accelerations], axis=1)

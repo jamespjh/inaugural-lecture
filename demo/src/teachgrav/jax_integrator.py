@@ -4,14 +4,14 @@ from diffrax import diffeqsolve, ODETerm, PIDController
 import diffrax
 import equinox as eqx
 from functools import partial
-from .laws import flat_law
+from .laws.true_law import TrueLawModel
 
 
 @partial(jit, static_argnames=['method'])
 @eqx.debug.assert_max_traces(max_traces=3)
 def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
     def fun(t, y, args):
-        return flat_law(y, args[0], args[1])
+        return TrueLawModel().flat_law(y, args[0], args[1])
 
     term = ODETerm(fun)
     solver = getattr(diffrax, method)

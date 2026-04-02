@@ -4,7 +4,8 @@
 #          - A random scatter of bodies with random initial velocities
 
 import logging
-from .system import System
+
+from .system import System, to_shaped
 from .array_abstraction import ArrayAbstraction
 logger = logging.getLogger("Teachgrav")
 
@@ -79,7 +80,7 @@ class ScenarioFactory:
             n_bodies = self.engine.random_array((1,),
                                                 2,
                                                 n_bodies + 1).item(
-                                                )  # type: ignore
+            )  # type: ignore
         if fixed_masses is not None:
             if len(fixed_masses) != n_bodies:
                 raise ValueError(
@@ -104,3 +105,21 @@ class ScenarioFactory:
             self.engine.array([positions, velocities]),
             masses=self.engine.array(masses),
         )
+
+    def create_training_data(self, N_sys, **kwargs):
+        """Create training data for learned models."""
+        scenarios = [self.create_scenario('scatter', **kwargs)
+                     for _ in range(N_sys)]
+
+        ICs = self.engine.np.array([system.data.flatten()
+                                    for system in scenarios])
+        flatICs = ICs.reshape((N_sys, -1))
+        masses = scenarios[0].masses
+        immobile = scenarios[0].immobile
+        from teachgrav.laws.true_law import TrueLawModel
+        results = TrueLawModel().flat_law(flatICs, masses, immobile)
+
+        vector_results = to_shaped(results, N_sys, len(masses))
+        accelerations = vector_results[:, 1, :, :]
+        flat_accelerations = accelerations.reshape((N_sys, -1))
+        return flatICs, flat_accelerations, masses, immobile
