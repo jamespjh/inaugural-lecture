@@ -1,25 +1,25 @@
 from teachgrav.laws import law
 from teachgrav.scenarios import ScenarioFactory
-from teachgrav.gp import GPModel
+from teachgrav.pl import PLModel
 
-def test_gp_train():
+def test_pl_train():
     factory = ScenarioFactory('numpy')
-    model = GPModel(factory)
+    model = PLModel(factory)
     model.train(256, n_bodies=3)
 
-def test_gp_predict():
+def test_pl_predict():
     factory = ScenarioFactory('numpy')
-    model = GPModel(factory)
+    model = PLModel(factory)
     model.train(256, n_bodies=2, fixed_masses=[1.0, 1.0])
 
     scenario = factory.create_scenario('scatter', n_bodies=2,
                                        fixed_masses=[1.0, 1.0])
-    gp_res = model.law(scenario)
+    pl_res = model.law(scenario)
     res = law(scenario)
-    print("GP result:\n", gp_res)
+    print("PL result:\n", pl_res)
     print("True result:\n", res)
-    assert gp_res.shape == res.shape
-    assert factory.engine.np.allclose(gp_res, res, atol=0.2)
+    assert pl_res.shape == res.shape
+    assert factory.engine.np.allclose(pl_res, res, atol=0.2)
 
 def t_law_vectorised(factory):
     N_sys = 5
@@ -34,7 +34,7 @@ def t_law_vectorised(factory):
         )
         for _ in range(N_sys)
     ]
-    model = GPModel(factory)
+    model = PLModel(factory)
     model.train(256, n_bodies=N_bodies, fixed_masses=masses)
     simple_results = factory.engine.array([model.law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
@@ -43,38 +43,18 @@ def t_law_vectorised(factory):
     ICs_flat = ICs.reshape((N_sys, -1))
     results = model.flat_law(ICs_flat, masses, immobile)
     vector_results = results.reshape((N_sys, 2, N_bodies, -1))
-    print("Vector results:\n", vector_results)
-    print("Simple results:\n", simple_results)
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
 
 
-def test_gp_law_vectorised():
+def test_pl_law_vectorised():
     t_law_vectorised(ScenarioFactory(engine='numpy'))
 
 
-def test_gp_law_vectorised_jax():
+def test_pl_law_vectorised_jax():
     t_law_vectorised(ScenarioFactory(engine='jax-cpu'))
 
 
-def test_gp_law_vectorised_metal():
+def test_pl_law_vectorised_metal():
     t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
-
-
-def test_normalise_denormalise():
-    from teachgrav.gp import GPModel
-    from teachgrav.scenarios import ScenarioFactory
-    factory = ScenarioFactory('numpy')
-    model = GPModel(factory)
-
-    X = factory.engine.random_array((10, 5))
-    normed = model.normaliseX(X)
-    denormed = model.denormaliseX(normed)
-    assert factory.engine.np.allclose(X, denormed, atol=1e-6)
-
-    # Now make a single new data, and check that normalising and denormalising gives the same result
-    new_X = factory.engine.random_array((5,))
-    normed_new_X = model.renormaliseX(new_X)
-    denormed_new_X = model.denormaliseX(normed_new_X)
-    assert factory.engine.np.allclose(new_X, denormed_new_X, atol=1e-6)

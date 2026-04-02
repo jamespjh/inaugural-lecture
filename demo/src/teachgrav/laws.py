@@ -10,7 +10,7 @@ def law(system):
 # Vectorised over C multiple initial conditions in a batch
 
 
-def flat_law(data_flat, masses, immobile):
+def flat_law(data_flat, masses, immobile, G=1.0, power=2.0):
     """Compute the derivatives of the state."""
     # Incoming data shape 2D, size (C, 2 N D)
     if data_flat.ndim > 1:
@@ -19,6 +19,8 @@ def flat_law(data_flat, masses, immobile):
         num_vec = 1
     data = data_flat.reshape(
         (num_vec, 2, len(immobile), -1))  # shape (C, 2, N, D)
+    G = data.__array_namespace__().array(G)
+    power = data.__array_namespace__().array(power)
     dpositions = data[:, 1, :, :]  # Derivative of position is velocity
     # Get the array namespace (e.g., numpy or jax.numpy)
     np = data.__array_namespace__()
@@ -28,7 +30,6 @@ def flat_law(data_flat, masses, immobile):
     # ... and thus an N*N*2 matrix of pairwise accelerations
     # Which we sum over the second axis to get the total acceleration on each
     # body
-    G = 1.0  # Gravitational constant (arbitrary units)
     positions = data[:, 0, :, :]  # shape (C, N, D)
     # Pairwise position differences: shape (C, N, N, D)
     displacements = positions[:, :, np.newaxis, :] - \
@@ -41,7 +42,7 @@ def flat_law(data_flat, masses, immobile):
     # Pairwise accelerations due to gravity
     accelerations = -1.0 * G * \
         masses[np.newaxis, np.newaxis, :, np.newaxis] * \
-        displacements / (distances ** 3)
+        displacements / (distances ** (power + 1))
     # Sum accelerations from all other bodies
     dvelocities = np.sum(accelerations, axis=2)
     # logger.debug("Total Accelerations:\n%s", dvelocities)

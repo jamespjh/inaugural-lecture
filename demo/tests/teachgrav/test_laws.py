@@ -85,4 +85,3 @@ def test_law_vectorised_jax():
 
 def test_law_vectorised_metal():
     t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
-    assert False

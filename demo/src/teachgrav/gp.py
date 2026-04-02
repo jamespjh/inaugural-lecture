@@ -1,7 +1,7 @@
 from .system import System
-from .laws import flat_law
+from teachgrav import laws
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF
+from sklearn.gaussian_process.kernels import Matern
 
 import logging
 logger = logging.getLogger("Teachgrav")
@@ -10,7 +10,7 @@ logger = logging.getLogger("Teachgrav")
 class GPModel:
     def __init__(self, factory, **kwargs):
         self.factory = factory
-        self.kernel = 1 * RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2))    
+        self.kernel = 1 * Matern(length_scale=1.0, length_scale_bounds=(1e-2, 1e2))    
         self.gaussian_process = GaussianProcessRegressor(
             kernel=self.kernel,
             n_restarts_optimizer=9)
@@ -55,7 +55,7 @@ class GPModel:
         # We are only asking it to learn the accelerations
         # As a function of the positions and velocities
         # At fixed masses and immobilities
-        results = flat_law(flatICs, masses, immobile)
+        results = laws.flat_law(flatICs, masses, immobile)
 
         vector_results = results.reshape((N_sys, 2, len(masses), -1))
         accelerations = vector_results[:, 1, :, :]
@@ -68,7 +68,7 @@ class GPModel:
         logger.info(f"Trained GP model with kernel: "
                     f"{self.gaussian_process.kernel_}")
         
-    def gp_flat_law(self, flatICs, masses, immobile):
+    def flat_law(self, flatICs, masses, immobile):
         """Compute the derivatives of the state using a learned GP model."""
         # Might be given multiple ICs in a batch, shape (C, 2 N D)
         if flatICs.ndim == 1:
@@ -83,17 +83,7 @@ class GPModel:
             [velocities, acc], axis=1)  # Shape N_sys, 2, N_bodies * D
         return derivatives
 
-    def gp_law(self, system: System):
+    def law(self, system: System):
         """Compute the derivatives of the state using a learned GP model."""
-        ICs = system.data.flatten().reshape(1, -1)
-        means = self.gaussian_process.predict(self.renormaliseX(ICs))
-        acc = self.factory.engine.array(means)[0]  # Accelerations
-        acc = self.denormaliseY(acc)
-        velocities = system.data[1].flatten()
-        print("Scales: X mean:", self.X_mean, "X std:", self.X_std)
-        print("Scales: Y mean:", self.Y_mean, "Y std:", self.Y_std)
-        print("GP predicted accelerations:", acc)
-        print("Current velocities:", velocities)
-        derivatives = self.factory.engine.np.stack(
-            [velocities, acc], axis=0)  # Shape 2, N_bodies * D
-        return derivatives.reshape(system.data.shape)
+        return self.flat_law(system.data.flatten(), system.masses,
+                    system.immobile).reshape(system.data.shape)
