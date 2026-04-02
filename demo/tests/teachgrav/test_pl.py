@@ -9,20 +9,33 @@ def test_pl_train():
     model.train(256, n_bodies=3)
 
 
-def test_pl_predict():
+def t_pl_predict(n_bodies=2):
     factory = ScenarioFactory('numpy')
     model = PLModel(factory)
     truth = TrueLawModel()
-    model.train(256, n_bodies=2, fixed_masses=[1.0, 1.0])
+    masses = [1.0] * n_bodies
+    model.train(256, n_bodies=n_bodies, fixed_masses=masses)
 
-    scenario = factory.create_scenario('scatter', n_bodies=2,
-                                       fixed_masses=[1.0, 1.0])
+    scenario = factory.create_scenario('scatter', n_bodies=n_bodies,
+                                       fixed_masses=masses)
     pl_res = model.law(scenario)
     res = truth.law(scenario)
     print("PL result:\n", pl_res)
     print("True result:\n", res)
     assert pl_res.shape == res.shape
     assert factory.engine.np.allclose(pl_res, res, atol=0.2)
+
+
+def test_pl_predict_2():
+    t_pl_predict(n_bodies=2)
+
+
+def test_pl_predict_3():
+    t_pl_predict(n_bodies=3)
+
+
+def test_pl_predict_10():
+    t_pl_predict(n_bodies=10)
 
 
 def t_law_vectorised(factory):
