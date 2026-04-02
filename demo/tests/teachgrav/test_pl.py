@@ -23,7 +23,7 @@ def t_pl_predict(n_bodies=2):
     print("PL result:\n", pl_res)
     print("True result:\n", res)
     assert pl_res.shape == res.shape
-    assert factory.engine.np.allclose(pl_res, res, atol=0.2)
+    assert factory.engine.np.allclose(pl_res, res, atol=0.01)
 
 
 def test_pl_predict_2():
