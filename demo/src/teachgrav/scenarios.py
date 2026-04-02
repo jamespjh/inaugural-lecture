@@ -75,7 +75,10 @@ class ScenarioFactory:
         """Randomly scattered bodies with random velocities."""
 
         if randomise_count:
-            n_bodies = self.engine.random_array((1,), 2, n_bodies + 1).item()
+            n_bodies = self.engine.random_array((1,),
+                                                2,
+                                                n_bodies + 1).item(
+                                                )  # type: ignore
         masses = self.engine.random_array((n_bodies,), min_mass, max_mass)
         positions = self.engine.random_array(
             (n_bodies, dimensions), -space_radius, space_radius)

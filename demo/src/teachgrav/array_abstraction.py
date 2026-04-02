@@ -1,8 +1,8 @@
 import numpy as np
 import jax
 
+
 class ArrayAbstraction:
-    """A simple class to demonstrate array abstraction."""
 
     def __init__(self, engine):
         self.engine = engine
@@ -22,19 +22,19 @@ class ArrayAbstraction:
                 self.jax_device = jax.devices("cpu")[0]
         elif engine == 'mlx-cpu':
             import mlx.core as mx
-            mx.set_default_device(mx.cpu)
+            mx.set_default_device(mx.cpu)  # # type: ignore
             self.np = mx
             self.random = mx.random
         elif engine == 'mlx-gpu':
             import mlx.core as mx
-            mx.set_default_device(mx.gpu)
+            mx.set_default_device(mx.gpu)  # type: ignore
             self.np = mx
             self.random = mx.random
         else:
             raise ValueError(
                 f"Unknown engine '{engine}'. Valid engines "
                 f"'numpy', 'jax-cpu', 'jax-gpu', 'jax-metal'.")
-        
+
     def array(self, data):
         """Create an array in the appropriate engine."""
         res = self.np.array(data)
@@ -47,14 +47,14 @@ class ArrayAbstraction:
         if self.engine == 'numpy':
             return np.random.uniform(min, max, size=shape)
         elif self.engine in ['jax-cpu', 'jax-gpu', 'jax-metal']:
-            self.key, subkey = self.random.split(self.key)
-            res = self.random.uniform(subkey, shape,
-                                           minval=min, 
-                                           maxval=max)
+            self.key, subkey = self.random.split(self.key)  # type: ignore
+            res = self.random.uniform(subkey, shape,  # type: ignore
+                                      minval=min,  # type: ignore
+                                      maxval=max)  # type: ignore
             res = jax.device_put(res, self.jax_device)
             return res
         elif self.engine in ['mlx-cpu', 'mlx-gpu']:
-            res = self.random.uniform(shape=shape)
+            res = self.random.uniform(shape=shape)  # type: ignore
             return res
         else:
             raise ValueError(

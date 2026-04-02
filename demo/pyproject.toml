@@ -21,6 +21,7 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
+    "scikit-learn",
     "jax==0.5.0;platform_system == 'Darwin'", "jax-metal==0.1.1;platform_system == 'Darwin'", # if on Apple Silicon
     "jax;platform_system != 'Darwin'", "jax[cpu];platform_system != 'Darwin'", 
     "equinox", # if not on Apple Silicon, Equinox

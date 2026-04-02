@@ -1,5 +1,4 @@
 from .laws import law, flat_law
-from .gp import gp_law
 from .system import System, Trajectory, Change
 
 import logging
@@ -22,15 +21,16 @@ def solve_numpy(method, t1, dt, y0, saveat, masses, immobile):
 
 
 def integrate_trajectory(system: System, method: str,
-                         dt: float, until: float, pars=None) -> Trajectory:
+                         dt: float, until: float, model=None) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
     steps = int(until / dt)
     trajectory = Trajectory(system)
 
     if method == 'gp':
+        assert model is not None, "GP method requires a trained model"
         for step in range(0, steps):
             logger.info(f"Integrating step {step * dt:.2f}/{until:.2f}")
-            system = system + Change(gp_law(system, pars) * dt)
+            system = system + Change(model.gp_law(system) * dt)
             trajectory.append(system.data)
 
     if method == 'euler':
