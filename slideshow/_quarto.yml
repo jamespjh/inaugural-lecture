@@ -1,5 +1,6 @@
 project:
   title: "Inaugural Lecture Slides"
+  output-dir: ../_site/
 
 format:
   revealjs:

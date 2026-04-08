@@ -24,6 +24,9 @@ slideshow/part1.html
 slideshow/part1_files/
 slideshow/render.log
 
+# Quarto build output for GitHub Pages
+_site/
+
 # Frequently used manual test files
 demo/log.txt
 demo/results.txt
