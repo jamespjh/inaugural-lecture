@@ -50,13 +50,20 @@ Run commands from `demo/` unless task explicitly targets docs/slides only.
 - Lecture manuscript: `essay.md`
 
 ## Commit Message Structure
-All commits made with AI assistance must include a structured trailer after the subject line:
+**Before running any `git commit`, always show the user in chat:**
+1. The full proposed commit message (in a code block)
+2. The list of files to be staged
+
+Then wait for the user to confirm before executing the commit. Do not commit without explicit user approval.
+
+All commits made with AI assistance must include a structured trailer after the subject line, and a summary of the prompt.
+
 
 ```
 <imperative summary of change>
 
 AI-assisted <Model name and harness/tool>.
-Prompt: "<short summary of the user's instruction>"
+Prompt summary: "<short summary of the user's instruction>"
 
 AI-Tool: VS Code Copilot agent
 AI-Model: <e.g. claude-sonnet-4-5>
@@ -67,4 +74,5 @@ AI-Reviewed-By: jamespjh
 - `AI-Tool` is always `VS Code Copilot agent` for changes made in this environment.
 - `AI-Model` should name the model actually used (e.g. `claude-sonnet-4-5`).
 - `AI-Reviewed-By` is always `jamespjh`.
-- The `Prompt:` field is a concise plain-English summary of what was asked, not a verbatim quote.
+
+- The 'Prompt Summary:' field should be a concise plain-English description of the instruction given to the AI. Neither a verbatim quote nor a copy of the commit message subject line.
