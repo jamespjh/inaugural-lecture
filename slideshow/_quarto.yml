@@ -4,6 +4,7 @@ project:
 
 format:
   revealjs:
+    output-file: index.html
     theme: dark
     css: styles.css
     slide-number: true
