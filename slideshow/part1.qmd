@@ -25,16 +25,14 @@ In the third, I look at some possible futures for this field in the context of t
 
 ## 1.1.2 - The rules of gravity
 
-```default
-Change your velocity toward anything heavy:
-    The heavier it is → the more you accelerate
-        twice as heavy → twice as much (proportional)
-    The further away → the less you accelerate
-        falls off with the square of the distance
-    "Toward" means a vector:
-        velocity has a speed and a direction
-        the change points toward the heavy thing
-```
+- Change your velocity toward anything heavy:
+  - The heavier it is → the more you accelerate
+    - twice as heavy → twice as much (proportional)
+    - The further away → the less you accelerate
+  - Falls off with the square of the distance
+  - "Toward" means a vector:
+    - velocity has a speed and a direction
+    - the change points toward the heavy thing
 
 <!--
 It's the mid-1980s. A BBC micro starts - Beep Boop!. I'm an early teenager, and I've just been reading some stuff about gravity. The explanation sort of makes sense, but I like programming
