@@ -1,3 +1,26 @@
+/* Greenscreen-inspired palette on top of revealjs dark theme. */
+:root,
+.reveal-viewport {
+  --ucl-light-purple: #a433ff;
+  --ucl-dark-purple: #3c1657;
+  --code-green: #9ef7b1;
+  --ucl-white: #f5f5f5;
+
+  --r-background-color: var(--ucl-dark-purple);
+}
+
+.reveal {
+  --r-main-color: var(--ucl-light-purple);
+  --r-heading-color: var(--ucl-white);
+  --r-link-color: var(--ucl-light-purple);
+  --r-link-color-hover: var(--ucl-white);
+}
+
+/* Keep reveal navigation controls aligned with link palette. */
+.reveal .controls {
+  color: var(--ucl-light-purple);
+}
+
 /* Tighten pseudocode blocks so ~80 cols fit in one content column on slides. */
 .reveal pre code.language-default,
 .reveal pre.default code,
@@ -10,9 +33,42 @@
   tab-size: 4;
 }
 
+/* Override dark theme token rule: pre > code.sourceCode > span { color: ... } */
+.reveal pre > code.sourceCode.default > span,
+.reveal pre.sourceCode.default > code.sourceCode.default > span,
+.reveal pre.default > code.sourceCode.default > span {
+  color: var(--code-green) !important;
+}
+
 /* Keep block chrome compact so useful line width is not wasted. */
 .reveal pre.default,
 .reveal .sourceCode.default {
   margin: 0.25em 0;
   padding: 0.4em 0.5em;
+}
+
+/* Place a small UCL logo at the bottom-right of every slide viewport. */
+.reveal-viewport::after {
+  content: "";
+  position: fixed;
+  right: 14px;
+  bottom: 12px;
+  width: 184px;
+  height: 60px;
+  background-image: url("assets/ucl-logo.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: right bottom;
+  pointer-events: none;
+  opacity: 0.95;
+  z-index: 20;
+}
+
+/* Move the reveal page number from bottom-right to top-right. */
+.reveal .slide-number {
+  top: 10px;
+  right: 14px;
+  bottom: auto;
+  left: auto;
+  z-index: 30;
 }

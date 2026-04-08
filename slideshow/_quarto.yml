@@ -3,6 +3,7 @@ project:
 
 format:
   revealjs:
+    theme: dark
     css: styles.css
     slide-number: true
     controls: true
