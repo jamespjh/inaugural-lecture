@@ -1,2 +1,14 @@
 project:
   title: "Inaugural Lecture Slides"
+
+format:
+  revealjs:
+    slide-number: true
+    controls: true
+    progress: true
+    history: true
+    navigation-mode: grid
+    transition: none
+    incremental: false
+    center: false
+    slide-level: 2

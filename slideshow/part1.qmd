@@ -1,0 +1,255 @@
+# Part one: An exploration of scientific programming
+<!--
+This lecture has three parts. In the first, which has some practical examples, I attempt to explain some important aspects of what it means to program computers for science.
+
+In the second, I look at the philosophy of computer programming for science, and consider its study as a research discipline. This part doesn't have practical examples and is just thinking.
+
+In the third, I look at some possible futures for this field in the context of the development of deep learning and generative AI, again with some practical examples.
+-->
+
+## 1.1 Pseudocode and the path to scientific understanding
+## 1.1.1 A young person's guide to programming gravity
+<!--
+It's the mid-1980s. A BBC micro starts - Beep Boop!. I'm an early teenager, and I've just been reading some stuff about gravity. The explanation sort of makes sense, but I like programming
+on my new-ish home computer, and I feel like there's bits of it I haven't understood.
+
+[Picture of BBC micro]
+[image - a young person's guide to bbc basic]
+
+I start trying to programme the computer to run a gravity simulation. 
+
+So, kid-me has been told the rules of gravity work like this:
+
+* Accelerate - change your velocity - toward anything heavy
+  * How much? Well, the heavier it is, the more you change your speed
+    * And it's 'proportional' - so twice as heavy means twice as much change
+    * And it goes down with how far away from the 'sun' you are, 
+        * proportional to how big the surface of the sphere is between you and the sun (square of radius) 
+        * (does this mean the gravity is 'spreading out' so there's the same amount over the sphere?!?)
+  * What does it mean 'toward' anything heavy?
+    * Well, it's a vector - your velocity is a speed in a particular direction
+    * And the change is in the direction of the sun or whatever.
+
+How do we make that in code?
+
+We need to start by examining 'change your velocity'.
+
+We'll work in 2-d, with x and y coordinates. 
+
+Suppose there's no gravity, and we have some speed, and the current speed is vx metres per second in the x direction, and vy metres per second in the y direction.
+-->
+
+## 1.1.2 An introduction to pseudocode
+<!--
+Now, this is supposed to be a public lecture about computer programming. How are we going to do this? 
+
+During this lecture, there will be some actual programmable demos I've built, but the code on the screen won't be real code - it'll be text designed to pull out the key aspects I'm trying to explain, that looks a bit like code. (We call it "pseudocode"). Pay attention to this idea of pseudocode - it'll be important!
+
+The demos are all generated using real code - and are available online for those who would like to look at them later - not in BBC basic but in Python so there's some utility for a modern audience.
+
+Then our code looks like:
+
+```
+Let's have a time step dt, and make it small, so dt = 0.1
+Each time step:
+    x = x + vx * dt
+    y = y + vy * dt
+    Draw it
+And that's the end of the time step, so go round and do it again.
+```
+
+If we show this animation, we get a dot, moving in a straight line! [Demo]
+
+In order to type this in, we have to have started developing understandings of scalar and vector quantities, and child-me has made, based on the bit of calculus that he's starting to know, some kind of guess at
+how small time steps should enable us to implement velocity as change in position - how many metres do you go in a given amount of time.
+
+Note the "loop", a bit  we do the "each time step" bit over and over again, and we indent to show the bit that's looped.
+
+Now we can put in a sun at `(x=0, y=0)`, and add gravity:
+
+```
+dt = 0.1
+loop:
+    distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
+    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+    x_share_of_acceleration = x / distance_to_sun
+    y_share_of_acceleration = y / distance_to_sun
+    vx = vx + amount_to_accelerate * x_share_of_acceleration
+    vy = vy + amount_to_acceerlate * y_share_of_acceleration
+    x = x + vx * dt
+    y = y + vy * dt
+end of loop
+```
+
+We type this in, and watch the video, and it looks like it's working! [Demo]
+-->
+
+## 1.1.3 Pseudocode as an intuition pump
+<!--
+The lesson here that I really want to get across here is that for me, and for many of us, the process of building the code, is a really useful way of making sure **there's none of the science you don't understand**.
+I definitely didn't understand this properly as a kid, but the point of doing this WASN'T to build a gravity simulation. It was to **use the process of programming as a tool to explore whether you've really understood the thing you're trying to put in the computer**. We call this "modelling" - the computer contains a 'model' of the earth going round the sun. The process of writing the code *even pseudocode* - especially pseudocode - has really forced us to tighten up our thinking.
+
+We don't gain that much more tight thinking from the real code than the pseudocode - but there's a lot more "noise" - this might be the only ACTUAL CODE you see in this lecture:
+
+``` python
+def acceleration(position):
+    r = np.sqrt(position[0]*position[0] + position[1]*position[1])
+    G = 100.0  # Gravitational constant
+    g = G / (r * r)  # Gravitational acceleration
+    return - g * (position / r) # Make it point toward origin
+```
+
+Now, let's think through this a little carefully:
+
+* pseudocode isn't enough - we need a working model to be confident there isn't something we missed
+* but once we've gone through that process and it's working, the steps of careful thinking, the rigor that the modelling process has forced us to, isn't in the language syntax
+* we're seeing that the process of coding forces us to build scientific intuition - coding is an 'intuition pump'.
+* but that the power of this really resides in the pseudocode
+* a real programme is necessary for verification we've done the work, but pseudocode is a sufficient embodiment of the intuition
+
+This will be important.
+-->
+
+## 1.1.4 Simple isn't always correct
+<!--
+But then we draw the trajectory over time - and instead of being a circle, it doesn't quite meet up! Something is wrong! Oh no, did we misunderstand gravity!?!?! [Figure]
+
+Now, probably quite a few of you in this audience will know that the problem here is the *approach to implementing the calculus* - the small timestep approach we took is called "Forward Euler Integration", and it works quite badly. After asking some annoying questions, this really blew me away as a kid. We followed the 'obvious' approach to implementing the meaning of velocities and accelerations, and it sort of worked, but sort of didn't. A quick trip to Kendal library and an implementation of Runge-Kutte helped sort that out.
+
+So this is another aspect of our lesson about what we learn by programming in science: effectively implementing computer programmes to model the world introduces us to interesting new challenges, in ways that we didn't expect.
+-->
+
+## 1.1.5 - Birds and sheep are particles too
+<!--
+Another thing tenage me really liked a few years later - I think I saw this in one of my Dad's books but then did an implentation on Archimedes - is that pretty similar code to this can be used - with a different rule for acceleration - to simulate behaviour of flocking sheep. (Remember I'm from Cumbria.) Or indeed flocking birds - with really beautiful videos. 
+
+You can code in rules for formation flying, avoiding predators etc. [Demo should show the Boids]
+
+The rules for the Boids:
+
+[Fill in here]
+
+<video>
+
+This also really made an impression on me - the kind of understanding-with-rules, where you aren't properly convinced you've understood something until you can get a computer to do it, works in biology and sociology, and history, as well as physics. 
+-->
+
+## 1.1.6 - Effective
+<!--
+My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
+
+There was a particular calculation in theoretical particle physics - which you would do as a combination of mathematical work with pen and paper and a numerical calculation.
+The end result of which determines whether some candidate theory or other - new particles and suchlike - would be detectable at the then-being-built-LHC. 
+
+I wanted to try to write something which generalised this, so you could specify the theory idea and the systematisable parts of the work - the algebra and the numerics and the interaction between them
+- was done by a computer. Even though there were lots of problems with the result - and the candidate theories never did show up at the LHC - I'm still proud of the principle. We'll come back to this in a moment.
+-->
+
+## 1.2 Speed - readability tradeoffs
+## 1.2.1 Avoiding an unnecessary square root
+<!--
+Some of you will have noticed that the gravity programme is inefficient:
+
+```
+    distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
+    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+```
+
+could be:
+
+```
+    amount_to_accelerate = gravity_strength_constant / (x^2 + y^2)
+```
+
+...we've saved ourself doing a square root and then a square. Do we want to make that change? The new programme will be faster, but it will be harder to understand. Does that matter?
+Well, what if we want to change the programme, or give it to someone else to make changes? My grandad was also into this kind of thing, and it was nice to be able to show him the code.
+-->
+
+## 1.2.2 Sharing the load
+<!--
+Let's take this a step further - we're way beyond my teenage example now - but it's another useful bit of the exploration. Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
+and we have to use lots of computers together to solve it.
+
+They need to pass messages between each other, like this:
+
+```
+On each computer:
+   Loop:
+      Do-the-gravity-thing
+        And take into account the particles on the other computers, but 'smudged up' rather than one by one.
+      For any particles getting to the edge of "my bit":
+        Pass them to the computer responsible for the part of the world it's going to.
+      Receive from the other computers:
+        Any particles getting to me I need to take care of
+        And the information about the 'smudged up' mass
+```
+
+(In doing this, there's some nice maths about how to do the 'smudging up' about why it's safe, but we're focusing on the computing here.)
+
+[Demo should show a particle being passed over between two simulation domains, and some pretty results for a big system - I might steal something rather than code from scratch depending on time.]
+
+We got a big speed-up from using a supercomputer, but there's LOTS AND LOTS of new complexity. Do our networks work for passing all that information around? How do we do the book keeping of who takes charge of which particle? How do we divide up space between the computers? Does everyone need to talk to everyone? Or can I get away with only talking to my neighbours? Otherwise once I have enough computers, the programme will spend *all it's effort in conversations and no time actually doing gravity maths*. 
+
+This will always happen - anything that doesn't go down as fast as the bit you can properly "parallelise" - i.e. spread across N computers so each takes one Nth of the time - will end up taking all the time! This is called Amdahl's law.
+-->
+
+## 1.2.3 Warehouse scale computers as toys and tools
+<!--
+We call these 'compute clusters' or 'supercomputers' or 'warehouse scale computers'.
+
+[Illustration - dragonfly network]
+[illustration - our datacentre]
+
+Even getting them built is a serious challenge, there's physical complexity in things like getting the heat out of the computer - these things now have fluid pipes that run through them - computer blood - for managing heat! 
+
+In order to get to this point of working with computers-that-share-the-work, there's a lot of complexity that needs to be understood. The interesting part for me is that the complexity of how you structure the machine feeds through into the kind of code you have to write, and vice versa.
+-->
+
+## 1.2.4 The abstraction stack
+<!--
+It's a LOT harder to write the program now. And a lot easier to make mistakes. But calculations are possible that would otherwise not be.
+
+Now, you might like it if you could ignore the details of the message passing and all that.
+
+When you're working in BBC basic - you never need to know about the engineering details of how the memory works. 
+
+In computer science we call this an "abstraction stack"
+
+[diagram]
+
+... and whenever the concerns of the layer below leak through into the layer above, we call that an "abstraction failure". We're often trying to prevent such failures, by clever forms of 'encapsulating' that complexity. But it never fully works - you can only drive down the rate and signficance - and that's part of why this work is fun and challenging.
+
+This is our second deep lesson: **because in science we use computers to understand the world, but the calculations are expensive, and the stack is deep, the trade off between lucidity and speed really matters**. (We usually say 'complexity and performance'.)
+-->
+
+## 1.3 The Third Paradigm
+## 1.3.2 Simulation and Modelling
+<!--
+When we describe the rules of a system and work out the consequences with a computer, we might be doing "the software is expected to precisely describe the real world, to the point where we could use it to build and
+manage an aircraft" - a simulation or 'digital twin' - to "the software is expected to display some interesting characteristics of the real world" - a model. This is not an either-or - there's a spectrum of options in between.
+
+The more toward the simulation end of things we are, the more the objective is to be able to use it as a tool, but also, the way in which we verify our science is by comparison with experiment.
+
+The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations - the "intuition pump" again.
+-->
+
+## 1.3.1 Complexity Science
+<!--
+The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
+understand the resulting behaviour by exploring the modelling process and observing the results of the model - is an important part of the background that got me into this. Ecological systems modelling leading
+to nice chaotic fractals. 
+
+<illustration>
+
+It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
+I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
+-->
+
+## 1.3.2 Software as a research tool and the third paradigm.
+<!--
+These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
+
+In this model, the first paradigm is experiment, the second is mathematical analysis, and the third is modelling and simulation.
+
+We'll hear about the fourth and fifth later in the lecture.
+-->
