@@ -9,6 +9,31 @@ In the third, I look at some possible futures for this field in the context of t
 
 ## 1.1 Pseudocode and the path to scientific understanding
 ## 1.1.1 A young person's guide to programming gravity
+
+:::: {.columns}
+::: {.column width="55%"}
+- It's about 1989
+- A BBC-micro starts, "beep-boop"
+- A teenager has been reading about gravity.
+:::
+::: {.column width="45%"}
+![A BBC Micro home computer](assets/placeholder.png)
+:::
+::::
+
+## 1.1.2 - The rules of gravity
+
+```default
+Change your velocity toward anything heavy:
+    The heavier it is → the more you accelerate
+        twice as heavy → twice as much (proportional)
+    The further away → the less you accelerate
+        falls off with the square of the distance
+    "Toward" means a vector:
+        velocity has a speed and a direction
+        the change points toward the heavy thing
+```
+
 <!--
 It's the mid-1980s. A BBC micro starts - Beep Boop!. I'm an early teenager, and I've just been reading some stuff about gravity. The explanation sort of makes sense, but I like programming
 on my new-ish home computer, and I feel like there's bits of it I haven't understood.
@@ -39,7 +64,7 @@ We'll work in 2-d, with x and y coordinates.
 Suppose there's no gravity, and we have some speed, and the current speed is vx metres per second in the x direction, and vy metres per second in the y direction.
 -->
 
-## 1.1.2 An introduction to pseudocode
+## 1.1.3 An introduction to pseudocode
 <!--
 Now, this is supposed to be a public lecture about computer programming. How are we going to do this? 
 
@@ -84,7 +109,7 @@ end of loop
 We type this in, and watch the video, and it looks like it's working! [Demo]
 -->
 
-## 1.1.3 Pseudocode as an intuition pump
+## 1.1.4 Pseudocode as an intuition pump
 <!--
 The lesson here that I really want to get across here is that for me, and for many of us, the process of building the code, is a really useful way of making sure **there's none of the science you don't understand**.
 I definitely didn't understand this properly as a kid, but the point of doing this WASN'T to build a gravity simulation. It was to **use the process of programming as a tool to explore whether you've really understood the thing you're trying to put in the computer**. We call this "modelling" - the computer contains a 'model' of the earth going round the sun. The process of writing the code *even pseudocode* - especially pseudocode - has really forced us to tighten up our thinking.
@@ -110,7 +135,7 @@ Now, let's think through this a little carefully:
 This will be important.
 -->
 
-## 1.1.4 Simple isn't always correct
+## 1.1.5 Simple isn't always correct
 <!--
 But then we draw the trajectory over time - and instead of being a circle, it doesn't quite meet up! Something is wrong! Oh no, did we misunderstand gravity!?!?! [Figure]
 
@@ -119,7 +144,7 @@ Now, probably quite a few of you in this audience will know that the problem her
 So this is another aspect of our lesson about what we learn by programming in science: effectively implementing computer programmes to model the world introduces us to interesting new challenges, in ways that we didn't expect.
 -->
 
-## 1.1.5 - Birds and sheep are particles too
+## 1.1.6 - Birds and sheep are particles too
 <!--
 Another thing tenage me really liked a few years later - I think I saw this in one of my Dad's books but then did an implentation on Archimedes - is that pretty similar code to this can be used - with a different rule for acceleration - to simulate behaviour of flocking sheep. (Remember I'm from Cumbria.) Or indeed flocking birds - with really beautiful videos. 
 
@@ -134,7 +159,7 @@ The rules for the Boids:
 This also really made an impression on me - the kind of understanding-with-rules, where you aren't properly convinced you've understood something until you can get a computer to do it, works in biology and sociology, and history, as well as physics. 
 -->
 
-## 1.1.6 - Effective
+## 1.1.7 - Effective
 <!--
 My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
 
