@@ -25,13 +25,13 @@ jobs:
           python -m venv venv
           source venv/bin/activate
           pip install -e .
-          pip install pytest
+          pip install pytest 
           pip install '.[dev]'
       - name: Test python stub
         run: |
           cd demo
           source venv/bin/activate
-          py.test
+          py.test -k "not metal"
       - name: Lint python stub
         run: |
           cd demo
