@@ -105,3 +105,12 @@
   color: var(--code-green);
   font-family: Menlo, Consolas, "Liberation Mono", monospace;
 }
+
+.reveal .image-credit {
+  display: block;
+  margin-top: 0.35em;
+  font-size: 0.62em;
+  line-height: 1.2;
+  color: var(--ucl-white);
+  opacity: 0.88;
+}

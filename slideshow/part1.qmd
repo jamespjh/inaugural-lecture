@@ -13,11 +13,13 @@ In the third, I look at some possible futures for this field in the context of t
 ::: {.columns}
 ::: {.column width="55%"}
 - It's about 1989
-- A BBC-micro starts, "beep-boop"
+- A BBC Micro starts, "beeep-boop"
 - A teenager has been reading about gravity.
 :::
 ::: {.column width="45%"}
-![A BBC Micro home computer](assets/placeholder.png)
+![A BBC Micro home computer](https://images.squarespace-cdn.com/content/v1/5bf28ad6b98a7888bf3cdce5/1604526890451-LSGI786ZL2ST1CVLKO3B/BBC+Micro.png?format=1500w)
+
+<span class="image-credit">Image credit: <a href="https://www.tnmoc.org/adopt-artefacts/adopt-a-bbc-micro">The National Museum of Computing</a>.</span>
 :::
 :::
 
