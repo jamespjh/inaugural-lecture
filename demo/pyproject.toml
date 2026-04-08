@@ -32,7 +32,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest"
+    "pytest",
+    "flake8"
 ]
 cuda = [
     "cupy",
