@@ -21,6 +21,13 @@
   color: var(--ucl-light-purple);
 }
 
+/* Quarto menu plugin injects a white SVG data URI for the burger icon.
+   Override that URI directly so the icon uses UCL light purple. */
+.reveal .slide-menu-button .fas::before,
+.reveal .slide-menu-button .fa::before {
+  background-image: url("assets/menu-icon-purple.svg") !important;
+}
+
 /* Tighten pseudocode blocks so ~80 cols fit in one content column on slides. */
 .reveal pre code.language-default,
 .reveal pre.default code,
