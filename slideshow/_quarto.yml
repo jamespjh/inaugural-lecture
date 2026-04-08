@@ -3,6 +3,7 @@ project:
 
 format:
   revealjs:
+    css: styles.css
     slide-number: true
     controls: true
     progress: true

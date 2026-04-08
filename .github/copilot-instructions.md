@@ -29,6 +29,11 @@ Run commands from `demo/` unless task explicitly targets docs/slides only.
 
 ## Slide Generation
 1. Fill in here
+2. In slideshow `.qmd` files, wrap raw HTML (for example `<video>` blocks) inside Pandoc raw blocks using fenced syntax:
+  - ` ```{=html}`
+  - `<video ...>...</video>`
+  - ` ``` `
+  This prevents literal HTML text from appearing in rendered slides.
 
 ## Conventions
 - Use `ScenarioFactory` instead of ad hoc system construction when adding scenario-facing behavior.

@@ -1,0 +1,18 @@
+/* Tighten pseudocode blocks so ~80 cols fit in one content column on slides. */
+.reveal pre code.language-default,
+.reveal pre.default code,
+.reveal .sourceCode.default code {
+  font-size: 0.62em;
+  line-height: 1.1;
+  font-family: Menlo, Consolas, "Liberation Mono", monospace;
+  white-space: pre;
+  overflow-x: auto;
+  tab-size: 4;
+}
+
+/* Keep block chrome compact so useful line width is not wasted. */
+.reveal pre.default,
+.reveal .sourceCode.default {
+  margin: 0.25em 0;
+  padding: 0.4em 0.5em;
+}

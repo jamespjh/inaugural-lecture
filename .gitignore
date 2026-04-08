@@ -16,5 +16,17 @@ demo/venv/
 *.log
 out.*
 
+# Slideshow files
+
 slideshow/slides_files
 slideshow/slides.html
+slideshow/part1.html
+slideshow/part1_files/
+slideshow/render.log
+
+# Frequently used manual test files
+demo/log.txt
+demo/results.txt
+demo/test.png
+demo/test.mp4
+test.mp4
