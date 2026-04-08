@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger("Teachgrav")
 
 
-def visualize(trajectory, output, mode='video', options='dot'):
+def visualize(trajectory, output, mode='video', options='dot', duration=30):
     trajectory.data = np.array(trajectory.data)
     # Convert to numpy for visualization
     if trajectory.D != 2:
@@ -13,7 +13,7 @@ def visualize(trajectory, output, mode='video', options='dot'):
             "Visualization only supports 2D trajectories, " +
             f"but got D={trajectory.D}")
     if mode == 'video':
-        animate(trajectory, output, options)
+        animate(trajectory, output, options, duration)
     else:
         plot(trajectory, output, options)
 
@@ -50,7 +50,7 @@ def axes(trajectory, options):
     return [fig, ax, lines]
 
 
-def animate(trajectory, output, options):
+def animate(trajectory, output, options, duration=30):
     from matplotlib.animation import FuncAnimation, FFMpegWriter
     fig, _, lines = axes(trajectory, options)
 
@@ -75,11 +75,11 @@ def animate(trajectory, output, options):
         raise ValueError(f"Unknown animation option: {options}")
 
     steps = len(trajectory)
-    time = 30 * 1000  # miliseconds
-    interval = 200  # miliseconds per frame
-    number_of_frames = time // interval
+    fps = 20
+    interval = int(1000 / fps)  # milliseconds per frame
+    number_of_frames = max(1, int(duration * fps))
 
-    steps_for_viz = np.linspace(0, steps - 1, number_of_frames, dtype=int)
+    steps_for_viz = np.linspace(1, steps, number_of_frames, dtype=int)
     logger.info(
         f"Animating trajectory with {steps} steps, " +
         f"visualizing {number_of_frames} frames at steps {steps_for_viz}")
@@ -92,7 +92,7 @@ def animate(trajectory, output, options):
                         blit=False)
 
     if output:
-        writer = FFMpegWriter()
+        writer = FFMpegWriter(fps=fps)
         ani.save(filename=output, writer=writer)
     else:
         plt.show()

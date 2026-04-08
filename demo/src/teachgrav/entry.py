@@ -45,7 +45,8 @@ def entry():
             trajectory,
             output=args.outfile,
             mode='video' if args.video else 'plot',
-            options=args.visualise)
+            options=args.visualise,
+            duration=args.duration)
     else:
         logger.info(
             "Outputting trajectory data to " +
@@ -82,6 +83,11 @@ def parse_args(force_args=None):
         '--video',
         action='store_true',
         help='Whether to create a video output (implies --visualise)')
+    parser.add_argument(
+        '--duration',
+        type=int,
+        default=None,
+        help='Video duration in seconds (default: 30).')
     parser.add_argument(
         '--format',
         default=None,
@@ -131,6 +137,11 @@ def parse_args(force_args=None):
         logger.info("No output file specified. Defaulting to stdout text.")
         args.visualise = None
         args.format = 'csv'
+    if args.duration is not None and not args.video:
+        raise ValueError(
+            "Option --duration can only be used with video output")
+    # Default to 30 seconds for video duration.
+    args.duration = args.duration or 30
     return args
 
 
