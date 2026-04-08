@@ -4,6 +4,8 @@ import numpy as np
 import logging
 logger = logging.getLogger("Teachgrav")
 
+plt.style.use('dark_background')
+
 
 def visualize(trajectory, output, mode='video', options='dot', duration=30):
     trajectory.data = np.array(trajectory.data)
@@ -18,6 +20,27 @@ def visualize(trajectory, output, mode='video', options='dot', duration=30):
         plot(trajectory, output, options)
 
 
+def marker_sizes_from_masses(masses, fig_width_points):
+    masses = np.array(masses, dtype=float)
+    if np.any(masses <= 0):
+        raise ValueError("Masses must be strictly positive for log scaling")
+
+    width_to_min_marker_divisor = 500.0
+    width_to_max_marker_divisor = 50.0
+    min_marker_size = fig_width_points / width_to_min_marker_divisor
+    max_marker_size = fig_width_points / width_to_max_marker_divisor
+
+    log_masses = np.log(masses)
+    log_min = np.min(log_masses)
+    log_max = np.max(log_masses)
+
+    if np.isclose(log_min, log_max):
+        return np.full(masses.shape, min_marker_size)
+
+    normalized = (log_masses - log_min) / (log_max - log_min)
+    return min_marker_size + normalized * (max_marker_size - min_marker_size)
+
+
 def axes(trajectory, options):
     # Animate the trajectory
     fig, ax = plt.subplots()
@@ -30,6 +53,15 @@ def axes(trajectory, options):
     ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
     ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
 
+    ax.spines['left'].set_position('zero')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_color('dimgrey')
+    ax.spines['bottom'].set_color('dimgrey')
+
+    ax.tick_params(labelsize=8, colors='dimgrey')
+
     # One line or dot per body, with the option to show trails or just current
     # positions
 
@@ -38,11 +70,17 @@ def axes(trajectory, options):
 
     if options == 'trail':
         for _ in range(num_bodies):
-            line, = ax.plot([], [], 'b-')
+            line, = ax.plot([], [], color='lemonchiffon')
             lines.append(line)
     elif options == 'dot':
-        for _ in range(num_bodies):
-            line, = ax.plot([], [], 'bo')
+        points_per_inch = 72.0
+        fig_width_points = fig.get_figwidth() * points_per_inch
+        marker_sizes = marker_sizes_from_masses(
+            trajectory.masses,
+            fig_width_points)
+        for i in range(num_bodies):
+            line, = ax.plot([], [], 'o', color='lemonchiffon',
+                            markersize=marker_sizes[i])
             lines.append(line)
     else:
         raise ValueError(f"Unknown animation option: {options}")

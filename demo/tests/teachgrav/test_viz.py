@@ -1,6 +1,10 @@
-from teachgrav.viz import visualize
 import tempfile
 import os
+
+import numpy as np
+import pytest
+
+from teachgrav.viz import marker_sizes_from_masses, visualize
 
 from teachgrav.scenarios import ScenarioFactory
 factory = ScenarioFactory()
@@ -17,3 +21,22 @@ def test_visualize():
         output_file = f"{tmpdir}/trajectory.mp4"
         visualize(trajectory, output=output_file)
         assert os.path.exists(output_file)
+
+
+def test_marker_sizes_from_masses_log_linear_mapping():
+    masses = np.array([1.0, 100.0, 10000.0])
+    fig_width_points = 720.0
+
+    marker_sizes = marker_sizes_from_masses(masses, fig_width_points)
+
+    expected_min = fig_width_points / 500.0
+    expected_max = fig_width_points / 50.0
+
+    assert np.isclose(marker_sizes[0], expected_min)
+    assert np.isclose(marker_sizes[-1], expected_max)
+    assert np.isclose(marker_sizes[1], 0.5 * (expected_min + expected_max))
+
+
+def test_marker_sizes_from_masses_rejects_non_positive():
+    with pytest.raises(ValueError, match='strictly positive'):
+        marker_sizes_from_masses(np.array([1.0, 0.0, 10.0]), 720.0)
