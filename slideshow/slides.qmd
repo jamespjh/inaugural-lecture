@@ -1,6 +1,22 @@
 ---
-title: "Engineering Computational Science, or Data and Computers and Code and People"
+title: "Engineering Computational Science"
+author: "Professor James Hetherington"
+date: "Inaugural Lecture, 2024-04-30"
 ---
+
+# Or... {.title-slide-alt}
+
+::: {.alt-terminal-box}
+
+Data &
+
+Computers &
+
+Code &
+
+People
+
+:::
 
 {{< include part1.qmd >}}
 

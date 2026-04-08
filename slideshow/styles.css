@@ -79,3 +79,27 @@
   left: auto;
   z-index: 30;
 }
+
+/* Alternative title slide: monitor-style box for content only. */
+.reveal .slides section.title-slide-alt {
+  text-align: center;
+}
+
+.reveal .slides section.title-slide-alt .alt-terminal-box {
+  display: inline-block;
+  background: #000000;
+  color: var(--code-green);
+  font-family: Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82em;
+  line-height: 1.35;
+  padding: 0.8em 1.1em;
+  border-radius: 3px;
+  margin-top: 0.6em;
+  text-align: left;
+}
+
+.reveal .slides section.title-slide-alt .alt-terminal-box p,
+.reveal .slides section.title-slide-alt .alt-terminal-box li {
+  color: var(--code-green);
+  font-family: Menlo, Consolas, "Liberation Mono", monospace;
+}
