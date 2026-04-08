@@ -339,7 +339,7 @@ institute for information technolgy.
 As with other areas of engineering, these include both the highly technical and things that are more like management science, and the interaction between them. For example, "agile project management"
 techniques grew up within software engineering.
 
-### 2.3.3 Not just *software* engineering
+### 2.5.3 Not just *software* engineering
 
 Now, software is not the only aspect of computational science - we've talked about the hardware and network engineering of warehouse-scale computers. 
 

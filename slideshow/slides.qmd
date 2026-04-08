@@ -1,6 +1,26 @@
-# Engineering Computational Science, or Data and Computers and Code and People
+---
+title: "Engineering Computational Science, or Data and Computers and Code and People"
+format:
+  revealjs:
+    slide-number: true
+    controls: true
+    progress: true
+    history: true
+    navigation-mode: grid
+    transition: none
+    incremental: false
+    center: false
+    slide-level: 2
+---
 
-# Structural note
+## Deck navigation
+- Left/right moves between Part one, Part two, and Part three.
+- Up/down moves within each Part section stack.
+- This pass preserves section mapping; text-trimming comes later.
+
+<!-- COMMENTED_FOR_LIVE_DELIVERY: Overflow text may be commented in a future pass. -->
+
+## Structural note
 
 This document is the 'essay version' of my Inaugural lecture, typed in to help facilitate getting the length and content right, and verify the structure of the argument.
 
@@ -16,7 +36,7 @@ In the third, I look at some possible futures for this field in the context of t
 
 ## 1.1 Pseudocode and the path to scientific understanding
 
-### 1.1.1 A young person's guide to programming gravity
+## 1.1.1 A young person's guide to programming gravity
 
 It's the mid-1980s. A BBC micro starts - Beep Boop!. I'm an early teenager, and I've just been reading some stuff about gravity. The explanation sort of makes sense, but I like programming
 on my new-ish home computer, and I feel like there's bits of it I haven't understood.
@@ -46,7 +66,7 @@ We'll work in 2-d, with x and y coordinates.
 
 Suppose there's no gravity, and we have some speed, and the current speed is vx metres per second in the x direction, and vy metres per second in the y direction.
 
-### 1.1.2 An introduction to pseudocode
+## 1.1.2 An introduction to pseudocode
 
 Now, this is supposed to be a public lecture about computer programming. How are we going to do this? 
 
@@ -90,7 +110,7 @@ end of loop
 
 We type this in, and watch the video, and it looks like it's working! [Demo]
 
-### 1.1.3 Pseudocode as an intuition pump
+## 1.1.3 Pseudocode as an intuition pump
 
 The lesson here that I really want to get across here is that for me, and for many of us, the process of building the code, is a really useful way of making sure **there's none of the science you don't understand**.
 I definitely didn't understand this properly as a kid, but the point of doing this WASN'T to build a gravity simulation. It was to **use the process of programming as a tool to explore whether you've really understood the thing you're trying to put in the computer**. We call this "modelling" - the computer contains a 'model' of the earth going round the sun. The process of writing the code *even pseudocode* - especially pseudocode - has really forced us to tighten up our thinking.
@@ -115,7 +135,7 @@ Now, let's think through this a little carefully:
 
 This will be important.
 
-### 1.1.4 Simple isn't always correct
+## 1.1.4 Simple isn't always correct
 
 But then we draw the trajectory over time - and instead of being a circle, it doesn't quite meet up! Something is wrong! Oh no, did we misunderstand gravity!?!?! [Figure]
 
@@ -123,7 +143,7 @@ Now, probably quite a few of you in this audience will know that the problem her
 
 So this is another aspect of our lesson about what we learn by programming in science: effectively implementing computer programmes to model the world introduces us to interesting new challenges, in ways that we didn't expect.
 
-### 1.1.5 - Birds and sheep are particles too
+## 1.1.5 - Birds and sheep are particles too
 
 Another thing tenage me really liked a few years later - I think I saw this in one of my Dad's books but then did an implentation on Archimedes - is that pretty similar code to this can be used - with a different rule for acceleration - to simulate behaviour of flocking sheep. (Remember I'm from Cumbria.) Or indeed flocking birds - with really beautiful videos. 
 
@@ -137,7 +157,7 @@ The rules for the Boids:
 
 This also really made an impression on me - the kind of understanding-with-rules, where you aren't properly convinced you've understood something until you can get a computer to do it, works in biology and sociology, and history, as well as physics. 
 
-### 1.1.6 - Effective
+## 1.1.6 - Effective
 
 My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
 
@@ -149,7 +169,7 @@ I wanted to try to write something which generalised this, so you could specify 
 
 ## 1.2 Speed - readability tradeoffs
 
-### 1.2.1 Avoiding an unnecessary square root
+## 1.2.1 Avoiding an unnecessary square root
 
 Some of you will have noticed that the gravity programme is inefficient:
 
@@ -167,7 +187,7 @@ could be:
 ...we've saved ourself doing a square root and then a square. Do we want to make that change? The new programme will be faster, but it will be harder to understand. Does that matter?
 Well, what if we want to change the programme, or give it to someone else to make changes? My grandad was also into this kind of thing, and it was nice to be able to show him the code.
 
-### 1.2.2 Sharing the load
+## 1.2.2 Sharing the load
 
 Let's take this a step further - we're way beyond my teenage example now - but it's another useful bit of the exploration. Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
 and we have to use lots of computers together to solve it.
@@ -194,7 +214,7 @@ We got a big speed-up from using a supercomputer, but there's LOTS AND LOTS of n
 
 This will always happen - anything that doesn't go down as fast as the bit you can properly "parallelise" - i.e. spread across N computers so each takes one Nth of the time - will end up taking all the time! This is called Amdahl's law.
 
-### 1.2.3 Warehouse scale computers as toys and tools
+## 1.2.3 Warehouse scale computers as toys and tools
 
 We call these 'compute clusters' or 'supercomputers' or 'warehouse scale computers'.
 
@@ -205,7 +225,7 @@ Even getting them built is a serious challenge, there's physical complexity in t
 
 In order to get to this point of working with computers-that-share-the-work, there's a lot of complexity that needs to be understood. The interesting part for me is that the complexity of how you structure the machine feeds through into the kind of code you have to write, and vice versa.
 
-### 1.2.4 The abstraction stack
+## 1.2.4 The abstraction stack
 
 It's a LOT harder to write the program now. And a lot easier to make mistakes. But calculations are possible that would otherwise not be.
 
@@ -224,7 +244,7 @@ This is our second deep lesson: **because in science we use computers to underst
 ## 1.3 The Third Paradigm
 
 
-### 1.3.2 Simulation and Modelling
+## 1.3.2 Simulation and Modelling
 
 When we describe the rules of a system and work out the consequences with a computer, we might be doing "the software is expected to precisely describe the real world, to the point where we could use it to build and
 manage an aircraft" - a simulation or 'digital twin' - to "the software is expected to display some interesting characteristics of the real world" - a model. This is not an either-or - there's a spectrum of options in between.
@@ -233,7 +253,7 @@ The more toward the simulation end of things we are, the more the objective is t
 
 The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations - the "intuition pump" again.
 
-### 1.3.1 Complexity Science
+## 1.3.1 Complexity Science
 
 The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
 understand the resulting behaviour by exploring the modelling process and observing the results of the model - is an important part of the background that got me into this. Ecological systems modelling leading
@@ -244,7 +264,7 @@ to nice chaotic fractals.
 It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
 I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
 
-### 1.3.2 Software as a research tool and the third paradigm.
+## 1.3.2 Software as a research tool and the third paradigm.
 
 These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
 
@@ -256,7 +276,7 @@ We'll hear about the fourth and fifth later in the lecture.
 
 ## 2.1 Some examples
 
-### 2.1.1 The Avoiding Mass Extinctions Engine
+## 2.1.1 The Avoiding Mass Extinctions Engine
 
 Fast forward a few years, to 2009. I'm outside academia for a while, working for a startup doing climate impact modelling - the name of the company was AMEE - the "Avoiding Mass Extinctions Engine". It's a for-profit social enterprise - with a mission to save the world, and make a bob or two doing it. [AMEE bug logo] [Climate matrix symbol]
 
@@ -264,7 +284,7 @@ This really suits me politically - I'm uncomfortable not working for mission/pur
 
 What our product does is not model the climate - we model polluters. E.g. a computer programme that tells me "if I build a big computer, how much will it harm the climate?" The point here is that Obama was about to pass climate tax legislation, and if that had happened, it would have put such models in the financial-services-business-planning loop.
 
-### 2.1.2 Climategate
+## 2.1.2 Climategate
 
 In 2009, a group of researchers building computer models of climate at UEA were hacked by climate denialists. In addition to taking various email comments out of context to undermine the science, the hackers exploited bug reports in those emails. Issues with developing computer simulations - part of the work I described in the previous section - were played up to undermine trust in climate science.
 
@@ -275,7 +295,7 @@ And where science is a political football - being used to make decisions that ma
 
 By this time I'd realised that my PhD software was also very buggy and badly engineered I should add. My successor in Prof Webber's lab had a lot of tidying up to do! (Sorry.)
 
-### 2.1.3 The Joint Biosecurity Centre
+## 2.1.3 The Joint Biosecurity Centre
 
 As another example of the importance of trustworthiness in scientific code, during the covid crisis I was a senior advisor at the Joint Biosecurity Centre, building the team that did the modelling that put together
 the national R number - remember that?
@@ -289,7 +309,7 @@ higher education sector.
 
 <illustration>
 
-### 2.2.1 The reproducibility crisis
+## 2.2.1 The reproducibility crisis
 
 Given the complexity of the task of effectively using computers in research, it is no wonder we run into these challenges.
 
@@ -309,7 +329,7 @@ So we have learned: **we need to build our computer systems for science carefull
 
 ## 2.3 What is engineering?
 
-### 2.3.1 A definition
+## 2.3.1 A definition
 
 There is a name for the methods humans have come up with to allow us to build things reliably: Engineering.
 
@@ -325,7 +345,7 @@ As engineers, we are concerned not just with wisely using our understanding to m
 
 [Illustration - earthquake]
 
-### 2.3.2 Software Engineering
+## 2.3.2 Software Engineering
 
 Software systems now govern our lives, and, as a society, in practice we are *terrible* at it.
 
@@ -339,7 +359,7 @@ institute for information technolgy.
 As with other areas of engineering, these include both the highly technical and things that are more like management science, and the interaction between them. For example, "agile project management"
 techniques grew up within software engineering.
 
-### 2.3.3 Not just *software* engineering
+## 2.5.3 Not just *software* engineering
 
 Now, software is not the only aspect of computational science - we've talked about the hardware and network engineering of warehouse-scale computers. 
 
@@ -352,7 +372,7 @@ The data itself, is also a key part of this - librarianship is a long-standing p
 
 All of these are just as critical to effective computational science and are in scope of the emerging discipline we're trying to describe here.
 
-### 2.3.3 Ethics and Engineering
+## 2.3.3 Ethics and Engineering
 
 A key part of any engineering practice is a sustained ethical framework, and mechanisms for professional practice that ensure that these ethics are upheld. 
 
@@ -362,7 +382,7 @@ I won't go into details in public, but as a data scientist working in the covid 
 
 [Illustration - phrenology]
 
-### 2.3.4 The Research Software Engineer and the rise of UCL ARC
+## 2.3.4 The Research Software Engineer and the rise of UCL ARC
 
 In 2012 - following some postdocing, and the mathworks, and the climate start up failed, and, needing a job, I came back to academia to do the brain blood flow postdoc with Peter.
 
@@ -376,7 +396,7 @@ There are now thousands of people around the world employed as part of this set 
 
 Probably a lot of the reason I'm standing here is the success of this idea - we'll talk more in a moment about whether that's a scientific achievement or not. 
 
-### 2.3.5 The data empowered society
+## 2.3.5 The data empowered society
 
 Considered thus, engineering is part of management science, and a social science. 
 
@@ -395,7 +415,7 @@ scientific context - in software and data companies selling cars and T-shirts, i
 
 I want to dig for a moment into the relationship of science and engineering, touching on four aspects of the relationship.
 
-### 2.4.1 Science-for-engineering
+## 2.4.1 Science-for-engineering
 
 People often think about the question of science-for-engineering: using an understanding of the world, built up from the tools of science, to build useful things to help us manage and control the world.
 
@@ -409,7 +429,7 @@ We've seen that in the model-simulation continuum, simulation is of primary util
 
 You'll see that my forays into application are usually driven by a sense of accountability - where the technologies that are related to the science have risks or benefits that matter enough to the world that we have a duty as scientists to be concerned with them.
 
-### 2.4.2 Engineering-for-science
+## 2.4.2 Engineering-for-science
 
 It's also the case that advances in scientific understanding are often driven by engineering goals. Our Boids example - the flocking behaviour - was motivated first by the need to make things that *look like* flocks of birds, for special effects in movies, and then only later applied to animal behaviour as a science!
 
@@ -417,12 +437,12 @@ This is also highly motivating - the role of the application is not only to deli
 
 [Building up a diagram as we go]
 
-### 2.4.3 Engineering studied scientifically
+## 2.4.3 Engineering studied scientifically
 
 There's a different flavour of science-for-engineering. Not the use of understanding that emerged from science to help with engineering challenges, but rather, the application of the scientific method to discover which tools, practices and systems of engineering, are effective. We can use rigorous methods to investigate questions of which kind of CAD tool is best for building cars, or which structure of an engineering
 company delivers most reliably. We'll extensively discuss such approaches in a moment.
 
-### 2.4.4 Engineering applied to science
+## 2.4.4 Engineering applied to science
 
 While all four of these touch my research practice, the fourth category is the one I'm most interested in: the application of engineering to the tools of science? Sometimes this is called "instrument science": 
 how best do we build a telescope? A supercollider?
@@ -432,7 +452,7 @@ trustworthy computer code to be applied as part of the scientific endeavour, and
 
 ## 2.5 Engineering Computational Science
 
-### 2.5.1 Definition
+## 2.5.1 Definition
 
 So now we're ready to define what I'm interested in - what I claim to be a professor of!
 
@@ -450,7 +470,7 @@ trustworthy, ethical and safe use of information technologies as part of trying 
 
 So now you know what I do.
 
-### 2.5.2 Why is this particularly interesting?
+## 2.5.2 Why is this particularly interesting?
 
 Science and scholarship are more interesting than most other things people do... (I would be happy to be into programming for the arts or sport, but not selling widgets...), and you get to study those things when trying to make software about them, including some quite hard maths, which I like, given my background in theoretical physics.
 
@@ -469,7 +489,7 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 
 ## 2.6 How do we study engineering for computational science?
 
-### 2.6.1 Epistemic cultures
+## 2.6.1 Epistemic cultures
 
 We need to think for a moment about how we might study of this field.
 
@@ -484,7 +504,7 @@ my only beef is with epistemic exclusionists.)
 
 Over-obsession with a particular epistemology - theory of knowledge - way of building truth, is naive "scientism" - science as a fundamentalist religion, not as science.
 
-### 2.6.2 Epistemic pluralism
+## 2.6.2 Epistemic pluralism
 
 The randomised clinical trial is by far from the only valid research methodology. Don't get me wrong, I love RCTs, and there are colleagues who are making great progress by finding new ways to apply them outside medicine.
 
@@ -502,7 +522,7 @@ My view is that our work of knowledge production is constantly developing new to
 
 As we discover new research disciplines, we therefore need to ask, what will be effective self-deception-limiting ways of working, appropriate to the challenges of that domain.
 
-### 2.6.2 The Empirical Software Engineering epistemology
+## 2.6.2 The Empirical Software Engineering epistemology
 
 One powerful approach, but one I do not make use of in my own work - not because I don't believe in it, but just because it doesn't suit my temperament - is the empirical software engineering approach. I need to
 explain it carefully now, by way of explaining what my wonderful colleagues who work in this way do, so that I can explain how my approaches differ.
@@ -512,7 +532,7 @@ open source code in the world, compare different testing practices, and see whic
 
 One can also deliberately make interventions - such as give a subset of projects free access to some research software engineers - and observe the results, approximating a controlled trial. Again, fascinating, but not my thing.
 
-### 2.6.3 The Tinkerer's epistemology
+## 2.6.3 The Tinkerer's epistemology
 
 The primary methodology applied within the computational science cultures I grew up in - theoretical physics, high performance computing, and computational biology - is what I call the Tinkerer's Epistemology.
 One observes a challenge, develops a hypothesis for a software tool, or more commonly, a modification to an existing software tool, which would make it work better, (produce results faster or more accurately).
@@ -522,7 +542,7 @@ With existing tools, this approach can often have the nice property of being sel
 Now, many code changes can have multiple effects on different metrics - reducing lucidity (and thus maintainability, trustworthiness or pedagogical value) - while improving performance. And such additional concerns
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
 
-### 2.6.4 The Service Provider's epistemology
+## 2.6.4 The Service Provider's epistemology
 
 I can therefore now turn to *why*, in 2012, when working on the brain bloodflow codes, I formed the research software group in UCL as part of what many would frame as "IT support", of all things.
 
@@ -540,7 +560,7 @@ correctness of this conjecture.
 I'm by no means the first to take this step in combining instrument science with service provision as a research methodology. Some labs - constructed as labs, within the research culture - such as the
 Diamond Light Source, or the European Molecular Biology Laboratory - have been doing it for years.
 
-### 2.6.5 Research IT and instrument science
+## 2.6.5 Research IT and instrument science
 
 However, there's been a challenge in doing this in the context of software-as-a-research-instrument. There's been an evolution in universities for core IT - the IT that manages the payroll and does the email -
 to move away from the academic functions of the university and be established as a professional service. This is for good reasons - there's no particular reason for these to be part of the academic culture,
@@ -550,7 +570,7 @@ What we've been able to establish in UCL ARC is, therefore, particularly excitin
 best to use data and computers and software as research instruments, and as a reliable professional service with real market data. I think there's more we can learn about services close to a university's
 academic mission in other areas besides IT from the success of UCL ARC.
 
-### 2.6.5 My appointment and the validation of these epistemologies
+## 2.6.5 My appointment and the validation of these epistemologies
 
 It's been a challenging journey to establish the research-IT-as-academic-and-professional identity in the institutions I've worked for. 
 
@@ -567,7 +587,7 @@ I'm pleased that my appointment as professor recognises that the approaches to s
 
 ## 3.1 The fourth paradigm. 
 
-### 3.1.1 Why Data?
+## 3.1.1 Why Data?
 
 My tagline - data and computers and code and people - centres data. But we've not really talked about data yet. I want now to turn to the recent past and the future of engineering computational science.
 
@@ -575,7 +595,7 @@ The biggest change during my career - only hinted at when I first started the re
 
 It's time to turn to a demonstration again, to explain what this is about.
 
-### 3.1.2 Physics-free gravity 
+## 3.1.2 Physics-free gravity 
 
 Let's take our gravity code, and run it lots and lots of times - we're pretending to build up a big dataset of observations, which might have been measured by Tycho Brahe with a telescope.
 
@@ -587,7 +607,7 @@ from around the mid-2010s. These days we can do it fairly quickly.
 
 <demo>
 
-### 3.1.3 The triumph of stamp collecting.
+## 3.1.3 The triumph of stamp collecting.
 
 This is really interesting. 
 
@@ -609,7 +629,7 @@ It's grown in importance throughout my career.
 Some of the engineering challenges faced by data stewards can be quite fun - such as losing data during a pandemic at a critical moment due to a hard limit
 on the number of lines in an out of date version of Excel being used in the NHS. Hint - excel is not a sensible scientific file format for good data stewardship.
 
-### 3.1.3 Open science
+## 3.1.3 Open science
 
 One significant part of the cultural change that is being driven by the adoption of this research approach is the growing distance from data collection to data exploitation. This is another aspect of the growth
 of instrument science - automation in data gathering - but also in research IT in data storage and management. And the ability of data to be shared from the group that created it to groups that can use it
@@ -629,7 +649,7 @@ We now talk about FAIR data:
 
 as a better and more careful response to the needs of the fourth paradigm. This also goes to addressing the reproducibility challenge.
 
-### 3.1.4 Interpretability
+## 3.1.4 Interpretability
 
 This approach has been hugely powerful in science-for-engineering : if we build models that accurately predict how the universe will behave, that's very useful for things like - in the case of protein folding - making drugs.
 
@@ -639,7 +659,7 @@ It's also sometimes the case that not using understanding-of-the-world makes the
 
 There's a lot to be investigated here - with my PhD student Lewis O'Donnell we're exploring how much physics - perhaps zero - we need to put into a model of fusion reactors to reliably help colleagues at the atomic energy authority.
 
-### 3.1.5 VIABS and the Beacon Project
+## 3.1.5 VIABS and the Beacon Project
 
 I first started working in formal data management as part of my first postdoc. This was my first foray outside physics - looking at using maths and computers and data to understand diabetes. I was lucky enough
 to have a brilliant cross-disciplinary UCL supervisory team - Anthony Finkelstein, who will do the vote of thanks today, as my computer science supervisor, and Rob Seymour, a brilliant complexity scientist as 
@@ -650,7 +670,7 @@ set out today began because of the influence of that boundary-breaking UCL team.
 
 Now, what was the data that we were building management tools - ontologies - for? This is where things get interesting, because the datasets in question weren't just numbers, but models!
 
-### 3.1.6 Models as data
+## 3.1.6 Models as data
 
 A computer program:
 
@@ -676,7 +696,7 @@ We can apply the fourth paradigm to the language - whether computer language or 
 
 ## 3.2 The fifth paradigm
 
-### 3.2.1 Large language models
+## 3.2.1 Large language models
 
 I've always loved linguistics. As a kid I borrowed one by one every "teach yourself language" book in Kendal library, not to learn the languages, but to read about how all the different grammars work.
 
@@ -694,7 +714,7 @@ This is one of the things that taught me the importance of epistemic pluralism. 
 respectful of varied epistemic cultures, across disciplines, is really interesting and requires a humble approach. There's too much 'takeover' from tech in much of digital humanities
 and colleagues and I have tried to take a different path.
 
-### 3.2.2 Research software engineering and LLM coding
+## 3.2.2 Research software engineering and LLM coding
 
 Now, you'll all by now have heard about LLMs and software engineering, and all the programmers losing their jobs, and thinking that all of this sounds completely moot - we had a good run with the research software
 engineers, but now we're all about to get replaced by AIs.
@@ -704,7 +724,7 @@ The truth is much more interesting, and is going to be, I think, an area where g
 I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Idil Ozdemir <verify she accepts> we're going to be looking at how we
 might be able to know LLM-generated scientific software is reliable.
 
-### 3.2.3 Models-as-diagrams and the Mathworks
+## 3.2.3 Models-as-diagrams and the Mathworks
 
 There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.
 
@@ -717,4 +737,4 @@ models as diagrams, and automatically translate these into code, for just this r
 
 The fact that an LLM can take my pseudocode, and generate the python <demo> is just the latest in this chain. 
 
-What this does to the economics of being a professional research engineer, and how UCL ARC responds, I look forward to finding out. 
+What this does to the economics of being a professional research engineer, and how UCL ARC responds, I look forward to finding out.
