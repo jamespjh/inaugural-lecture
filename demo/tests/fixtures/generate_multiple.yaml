@@ -1,0 +1,8 @@
+- scenario: sun
+  method: LSODA
+  outfile: sun.mp4
+  visualise: dot
+  duration: 5
+- scenario: moon
+  method: euler
+  outfile: moon.csv

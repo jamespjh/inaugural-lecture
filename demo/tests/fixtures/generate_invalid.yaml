@@ -1,0 +1,3 @@
+scenario: sun
+method: LSODA
+outfile: sun.mp4

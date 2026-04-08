@@ -1,0 +1,5 @@
+- scenario: sun
+  method: LSODA
+  outfile: sun.mp4
+  visualise: dot
+  duration: 5

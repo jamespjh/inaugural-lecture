@@ -10,17 +10,21 @@ logger = logging.getLogger("Teachgrav")
 
 def entry():
     args = parse_args()
-    logger.setLevel(args.loglevel)
+    execute_scenario(args)
+
+
+def execute_scenario(args):
+    logger.setLevel(args.log_level)
     if args.log_file:
         file_handler = logging.FileHandler(args.log_file)
-        file_handler.setLevel(args.loglevel)
+        file_handler.setLevel(args.log_level)
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
     else:
-        logging.basicConfig(level=args.loglevel)
-    logger.info(f'Loglevel set to {args.loglevel}')
+        logging.basicConfig(level=args.log_level)
+    logger.info(f'Loglevel set to {args.log_level}')
     factory = ScenarioFactory(args.engine)
     create_scenario = factory.create_scenario
     system = create_scenario(args.scenario)
@@ -73,7 +77,8 @@ def parse_args(force_args=None):
         help='Output file for visualization (e.g. .mp4 or .gif)')
     parser.add_argument('--visualise', default='trail',
                         choices=['trail', 'dot'], help='Visualization style')
-    parser.add_argument('--loglevel', default='WARNING',
+    parser.add_argument('--log-level', '--loglevel', dest='log_level',
+                        default='WARNING',
                         help='Logging level (e.g. DEBUG, INFO, WARNING)')
     parser.add_argument('--log-file', default=None,
                         help='File to save log output')
