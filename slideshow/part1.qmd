@@ -27,9 +27,9 @@ In the third, I look at some possible futures for this field in the context of t
 
 - Change your velocity toward anything heavy:
   - The heavier it is → the more you accelerate
-    - twice as heavy → twice as much (proportional)
+    - Twice as heavy → twice as much
     - The further away → the less you accelerate
-  - Falls off with the square of the distance
+    - Falls off with the square of the distance
   - "Toward" means a vector:
     - velocity has a speed and a direction
     - the change points toward the heavy thing
@@ -68,9 +68,6 @@ Suppose there's no gravity, and we have some speed, and the current speed is vx 
 
 ::: {.columns}
 ::: {.column width="55%"}
-The code on the slide is not meant to be real, runnable source.
-
-It is **pseudocode**: code-like text designed to pull out the key idea.
 
 ```default
 Let's have a time step dt, and make it small, so dt = 0.1
@@ -80,6 +77,11 @@ Each time step:
     Draw it
 And that's the end of the time step, so go round and do it again.
 ```
+
+The code on this slide is not meant to be real, runnable source.
+
+It is **pseudocode**: code-like text designed to pull out the key idea.
+
 :::
 ::: {.column width="45%"}
 ```{=html}
