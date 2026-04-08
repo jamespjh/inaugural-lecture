@@ -138,9 +138,9 @@ end of loop
 ::: {.column width="45%"}
 
 ```{=html}
-<video controls muted loop playsinline width="100%" aria-label="Placeholder video for gravity demo">
-  <source src="assets/placeholder.mp4" type="video/mp4">
-  Placeholder video for gravity demo.
+<video controls muted loop playsinline width="100%" aria-label="Sun orbit simulation with Euler integration">
+  <source src="assets/sun_euler.mp4" type="video/mp4">
+  Sun orbit simulation with Euler integration.
 </video>
 ```
 

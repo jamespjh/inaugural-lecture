@@ -17,6 +17,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      
+      - name: Install teachgrav
+        run: |
+          cd demo
+          python -m venv venv
+          source venv/bin/activate
+          pip install -e .
+      
+      - name: Generate slide assets
+        run: |
+          source demo/venv/bin/activate
+          cd slideshow/assets
+          generate-figures scenarios.yml
+      
       - name: Install Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       

@@ -1,0 +1,6 @@
+---
+- scenario: sun
+  method: euler
+  duration: 5
+  visualise: dot
+  outfile: sun_euler.mp4
