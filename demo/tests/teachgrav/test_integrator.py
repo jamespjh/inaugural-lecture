@@ -2,13 +2,23 @@ import pytest
 from teachgrav.integrator import integrate_trajectory
 from teachgrav.scenarios import ScenarioFactory
 import logging
+from engines import ENGINES_TO_TEST
 logger = logging.getLogger("Teachgrav")
 
-
-@pytest.mark.parametrize("method,engine", [
+_ALL_TRAJECTORY_COMBOS = [
     ('euler', 'numpy'),
     ('RK45', 'numpy'),
     ('Tsit5', 'jax-cpu'),
+]
+
+_ALL_ORBIT_COMBOS = [
+    ('LSODA', 'numpy'),
+    ('Tsit5', 'jax-cpu'),
+]
+
+
+@pytest.mark.parametrize("method,engine", [
+    (m, e) for m, e in _ALL_TRAJECTORY_COMBOS if e in ENGINES_TO_TEST
 ])
 def test_integrate_trajectory(method, engine):
     factory = ScenarioFactory(engine=engine)
@@ -23,8 +33,7 @@ def test_integrate_trajectory(method, engine):
 
 
 @pytest.mark.parametrize("method,engine", [
-    ('LSODA', 'numpy'),
-    ('Tsit5', 'jax-cpu'),
+    (m, e) for m, e in _ALL_ORBIT_COMBOS if e in ENGINES_TO_TEST
 ])
 def test_close_to_start_after_one_orbit(method, engine):
     factory = ScenarioFactory(engine=engine)

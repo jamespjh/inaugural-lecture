@@ -2,6 +2,7 @@ import pytest
 import logging
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
+from engines import ENGINES_TO_TEST
 logger = logging.getLogger(__name__)
 
 factory = ScenarioFactory()
@@ -42,6 +43,10 @@ def test_law_scatter_3D():
     assert derivatives.shape == (2, 5, 3)
 
 
+@pytest.mark.skipif(
+    'jax-cpu' not in ENGINES_TO_TEST,
+    reason="JAX not available; skipping jax-cpu test"
+)
 def test_law_scatter_3D_jax():
     jax_factory = ScenarioFactory(engine='jax-cpu')
     system = jax_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
@@ -49,6 +54,10 @@ def test_law_scatter_3D_jax():
     assert derivatives.shape == (2, 5, 3)
 
 
+@pytest.mark.skipif(
+    'mlx-gpu' not in ENGINES_TO_TEST,
+    reason="MLX not available; skipping mlx-gpu test"
+)
 def test_law_scatter_3D_metal():
     metal_factory = ScenarioFactory(engine='mlx-gpu')
     system = metal_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
@@ -56,7 +65,9 @@ def test_law_scatter_3D_metal():
     assert derivatives.shape == (2, 5, 3)
 
 
-@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+@pytest.mark.parametrize("engine", [
+    e for e in ['numpy', 'jax-cpu', 'mlx-cpu'] if e in ENGINES_TO_TEST
+])
 def test_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
     N_sys = 5
