@@ -25,7 +25,7 @@ def execute_scenario(args):
     else:
         logging.basicConfig(level=args.log_level)
     logger.info(f'Loglevel set to {args.log_level}')
-    factory = ScenarioFactory(args.engine)
+    factory = ScenarioFactory(args.engine, seed=args.seed)
     create_scenario = factory.create_scenario
     scenario_kwargs = {}
     if args.n_bodies is not None:
@@ -121,6 +121,11 @@ def parse_args(force_args=None):
         '--video',
         action='store_true',
         help='Whether to create a video output (implies --visualise)')
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=None,
+        help='Random seed for reproducible scenarios (e.g. scatter).')
     parser.add_argument(
         '--duration',
         type=int,

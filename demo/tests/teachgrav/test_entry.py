@@ -69,6 +69,14 @@ def test_n_bodies_non_scatter_raises(scenario):
             ValueError,
             match="Option --n-bodies can only be used with the scatter"):
         parse_args(f'--scenario {scenario} --n-bodies 5')
+def test_parse_args_seed_option():
+    args = parse_args('--seed 42')
+    assert args.seed == 42
+
+
+def test_parse_args_seed_default_is_none():
+    args = parse_args(' ')
+    assert args.seed is None
 
 
 def test_benchmark_mode_passes_law_and_timing(monkeypatch):
@@ -86,6 +94,7 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         duration = 30
         format = 'csv'
         n_bodies = None
+        seed = None
 
     captured = {}
 

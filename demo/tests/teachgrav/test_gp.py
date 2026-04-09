@@ -3,6 +3,7 @@ import pytest
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
 from teachgrav.laws.gp import GPModel
+from engines import ENGINES_TO_TEST
 
 
 def test_gp_train():
@@ -26,7 +27,7 @@ def test_gp_predict():
     # assert factory.engine.np.allclose(gp_res, res, atol=0.2)
 
 
-@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_gp_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
     N_sys = 5
