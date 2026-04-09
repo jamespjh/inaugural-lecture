@@ -1,7 +1,5 @@
 import warnings
 
-ALL_ENGINES = ['numpy', 'jax-cpu', 'jax-gpu', 'mlx-cpu', 'mlx-gpu']
-
 
 def get_available_engines():
     """Detect and return available compute engines for testing.
@@ -21,9 +19,9 @@ def get_available_engines():
         available.append('jax-cpu')
     except ImportError:
         warnings.warn(
-            "JAX not available; skipping jax-cpu tests.",
+            "JAX not available; skipping jax-cpu and jax-gpu tests.",
             UserWarning,
-            stacklevel=2,
+            stacklevel=1,
         )
 
     if jax_available:
@@ -35,13 +33,13 @@ def get_available_engines():
                 warnings.warn(
                     "No Nvidia GPU found; skipping jax-gpu tests.",
                     UserWarning,
-                    stacklevel=2,
+                    stacklevel=1,
                 )
         except RuntimeError:
             warnings.warn(
                 "No Nvidia GPU found; skipping jax-gpu tests.",
                 UserWarning,
-                stacklevel=2,
+                stacklevel=1,
             )
 
     try:
@@ -53,7 +51,7 @@ def get_available_engines():
             "MLX not available (requires Apple Silicon); "
             "skipping mlx-cpu and mlx-gpu tests.",
             UserWarning,
-            stacklevel=2,
+            stacklevel=1,
         )
 
     return available

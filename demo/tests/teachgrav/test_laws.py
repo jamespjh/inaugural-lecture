@@ -37,37 +37,15 @@ def test_law_scatter():
     assert derivatives.shape == (2, 5, 2)
 
 
-def test_law_scatter_3D():
-    system = factory.create_scenario('scatter', n_bodies=5, dimensions=3)
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
+def test_law_scatter_3D(engine):
+    eng_factory = ScenarioFactory(engine=engine)
+    system = eng_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
     derivatives = law(system)
     assert derivatives.shape == (2, 5, 3)
 
 
-@pytest.mark.skipif(
-    'jax-cpu' not in ENGINES_TO_TEST,
-    reason="JAX not available; skipping jax-cpu test"
-)
-def test_law_scatter_3D_jax():
-    jax_factory = ScenarioFactory(engine='jax-cpu')
-    system = jax_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
-    derivatives = law(system)
-    assert derivatives.shape == (2, 5, 3)
-
-
-@pytest.mark.skipif(
-    'mlx-gpu' not in ENGINES_TO_TEST,
-    reason="MLX not available; skipping mlx-gpu test"
-)
-def test_law_scatter_3D_metal():
-    metal_factory = ScenarioFactory(engine='mlx-gpu')
-    system = metal_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
-    derivatives = law(system)
-    assert derivatives.shape == (2, 5, 3)
-
-
-@pytest.mark.parametrize("engine", [
-    e for e in ['numpy', 'jax-cpu', 'mlx-cpu'] if e in ENGINES_TO_TEST
-])
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
     N_sys = 5

@@ -27,9 +27,7 @@ def test_gp_predict():
     # assert factory.engine.np.allclose(gp_res, res, atol=0.2)
 
 
-@pytest.mark.parametrize("engine", [
-    e for e in ['numpy', 'jax-cpu', 'mlx-cpu'] if e in ENGINES_TO_TEST
-])
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_gp_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
     N_sys = 5
