@@ -30,7 +30,7 @@ def integrate_trajectory(
     """Integrate the system state forward in time for a number of steps."""
     # Create the model based on selected law
     model = create_law(law, factory=factory)
-    
+
     steps = int(until / dt)
     trajectory = Trajectory(system)
 

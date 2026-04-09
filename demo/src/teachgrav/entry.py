@@ -156,7 +156,7 @@ def parse_args(force_args=None):
             "Option --duration can only be used with video output")
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
-    
+
     # Enforce law-solver compatibility
     fitted_laws = ['gaussian', 'power']
     if args.law in fitted_laws and args.method != 'euler':
@@ -164,11 +164,13 @@ def parse_args(force_args=None):
             f"Fitted law '{args.law}' is not compatible with solver "
             f"'{args.method}'. Switching to euler method.")
         args.method = 'euler'
-    
+
     return args
 
 
-def solve(system, method: str, law: str = 'gravity', factory=None, dt: float = 0.01, until: float = 10):
-    trajectory = integrate_trajectory(system, method, law=law, factory=factory, dt=dt, until=until)
+def solve(system, method: str, law: str = 'gravity', factory=None,
+          dt: float = 0.01, until: float = 10):
+    trajectory = integrate_trajectory(
+        system, method, law=law, factory=factory, dt=dt, until=until)
     logger.info('Simulation complete')
     return trajectory

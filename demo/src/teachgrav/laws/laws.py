@@ -22,17 +22,17 @@ class Model:
 def create_law(law_name: str, factory=None):
     """
     Factory function to create a law model by name.
-    
+
     Args:
         law_name: one of 'gravity', 'constant', 'gaussian', 'power'
         factory: ScenarioFactory instance for fitted laws (gaussian, power)
-    
+
     Returns:
         Model instance for the selected law
     """
     import logging
     logger = logging.getLogger("Teachgrav")
-    
+
     if law_name == 'gravity':
         from .true_law import TrueLawModel
         return TrueLawModel()
