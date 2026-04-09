@@ -32,3 +32,20 @@ def test_scenario_sun():
     assert len(system.masses) == 2
     assert system.immobile[0]
     assert not system.immobile[1]
+
+
+def test_create_scenario_single_preserves_initial_state():
+    system = factory.create_scenario(
+        'single',
+        position=[2.0, -1.0],
+        velocity=[0.5, -0.25],
+        mass=3.0,
+    )
+
+    np = system.data.__array_namespace__()
+    assert system.positions().shape == (1, 2)
+    assert system.velocities().shape == (1, 2)
+    assert system.masses.shape == (1,)
+    assert np.allclose(system.positions()[0], np.array([2.0, -1.0]))
+    assert np.allclose(system.velocities()[0], np.array([0.5, -0.25]))
+    assert np.allclose(system.masses, np.array([3.0]))

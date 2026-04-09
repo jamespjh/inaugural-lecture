@@ -85,9 +85,9 @@ It is **pseudocode**: code-like text designed to pull out the key idea.
 :::
 ::: {.column width="45%"}
 ```{=html}
-<video controls muted loop playsinline width="100%" aria-label="Placeholder video for straight-line motion demo">
-  <source src="assets/placeholder.mp4" type="video/mp4">
-  Placeholder video for straight-line motion demo.
+<video controls muted loop playsinline width="100%" aria-label="Single-particle straight-line motion with constant velocity">
+  <source src="assets/constant_euler.mp4" type="video/mp4">
+  Single-particle straight-line motion with constant velocity.
 </video>
 ```
 :::
