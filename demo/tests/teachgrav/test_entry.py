@@ -53,6 +53,16 @@ def test_fitted_law_forces_euler_with_warning(caplog, law, method):
     assert f"Fitted law '{law}' is not compatible with solver" in caplog.text
 
 
+def test_parse_args_seed_option():
+    args = parse_args('--seed 42')
+    assert args.seed == 42
+
+
+def test_parse_args_seed_default_is_none():
+    args = parse_args(' ')
+    assert args.seed is None
+
+
 def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     class Args:
         log_level = 'WARNING'
@@ -67,6 +77,7 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         video = False
         duration = 30
         format = 'csv'
+        seed = None
 
     captured = {}
 
