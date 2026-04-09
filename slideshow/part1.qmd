@@ -220,7 +220,7 @@ This will be important.
 :::
 ::: {}
 {{< video-credit
-  src="assets/sun_RK45_trail.mp4"
+  src="assets/sun_rk45_trail.mp4"
   alt="Sun orbit with RK45 integration: trail shows closed, stable orbit" >}}
 :::
 ::::
