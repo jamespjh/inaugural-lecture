@@ -176,6 +176,8 @@ def parse_args(force_args=None):
         raise ValueError(
             f"Option --n-bodies can only be used with the scatter scenario, "
             f"not '{args.scenario}'.")
+    if args.n_bodies is not None and args.n_bodies < 1:
+        raise ValueError("Option --n-bodies must be at least 1.")
 
     # Enforce law-solver compatibility
     fitted_laws = ['gaussian', 'power']
