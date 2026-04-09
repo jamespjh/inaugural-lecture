@@ -1,3 +1,4 @@
+import pytest
 import logging
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
@@ -55,7 +56,9 @@ def test_law_scatter_3D_metal():
     assert derivatives.shape == (2, 5, 3)
 
 
-def t_law_vectorised(factory):
+@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+def test_law_vectorised(engine):
+    factory = ScenarioFactory(engine=engine)
     N_sys = 5
     N_bodies = 3
     # Test that the law can be called multiple times over an array of states
@@ -77,15 +80,3 @@ def t_law_vectorised(factory):
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
-
-
-def test_law_vectorised():
-    t_law_vectorised(factory)
-
-
-def test_law_vectorised_jax():
-    t_law_vectorised(ScenarioFactory(engine='jax-cpu'))
-
-
-def test_law_vectorised_metal():
-    t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
