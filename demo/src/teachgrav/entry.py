@@ -27,7 +27,10 @@ def execute_scenario(args):
     logger.info(f'Loglevel set to {args.log_level}')
     factory = ScenarioFactory(args.engine, seed=args.seed)
     create_scenario = factory.create_scenario
-    system = create_scenario(args.scenario)
+    scenario_kwargs = {}
+    if args.n_bodies is not None:
+        scenario_kwargs['n_bodies'] = args.n_bodies
+    system = create_scenario(args.scenario, **scenario_kwargs)
     if args.benchmark:
         logger.info('Running in benchmark mode')
         print(f'Benchmarking scenario: {args.scenario}' +
@@ -63,6 +66,27 @@ def execute_scenario(args):
             f"{args.outfile if args.outfile else 'stdout'}")
         stream = open(args.outfile, 'w') if args.outfile else sys.stdout
         trajectory.write(stream, args.format)
+
+
+def _resolve_output_format(args):
+    """Detect and set output format from file extension."""
+    if args.outfile.endswith('.mp4'):
+        args.video = True
+        args.format = 'mp4'
+    elif args.outfile.endswith('.csv'):
+        args.video = False
+        args.format = 'csv'
+        args.visualise = None
+    elif args.outfile.endswith('.png'):
+        args.video = False
+        args.format = 'png'
+    else:
+        logger.warning(
+            f"Unknown file extension for output: {args.outfile}" +
+            ". Defaulting to stdout text.")
+        args.visualise = None
+        args.format = 'csv'
+        args.outfile = None  # Output to stdout
 
 
 def parse_args(force_args=None):
@@ -114,8 +138,14 @@ def parse_args(force_args=None):
             'csv',
             'mp4',
             'png'],
-        help='Output format for trajectory data (e.g. csv, json, png).' +
+        help='Output format for trajectory data (e.g. csv, mp4, png).' +
              'Inferred from outfile extension if not specified.')
+    parser.add_argument(
+        '--n-bodies',
+        dest='n_bodies',
+        type=int,
+        default=None,
+        help='Number of bodies for the scatter scenario.')
     args = parser.parse_args(force_args.split() if force_args else None)
     if args.method in diffrax_methods and not args.engine:
         args.engine = 'jax-cpu'
@@ -135,23 +165,7 @@ def parse_args(force_args=None):
     if args.outfile and not args.format:
         logger.info(
             f"Selecting output format based on file extension: {args.outfile}")
-        if args.outfile.endswith('.mp4'):
-            args.video = True
-            args.format = 'mp4'
-        elif args.outfile.endswith('.csv'):
-            args.video = False
-            args.format = 'csv'
-            args.visualise = None
-        elif args.outfile.endswith('.png'):
-            args.video = False
-            args.format = 'png'
-        else:
-            logger.warning(
-                f"Unknown file extension for output: {args.outfile}" +
-                ". Defaulting to stdout text.")
-            args.visualise = None
-            args.format = 'csv'
-            args.outfile = None  # Output to stdout
+        _resolve_output_format(args)
     if not args.outfile:
         logger.info("No output file specified. Defaulting to stdout text.")
         args.visualise = None
@@ -161,6 +175,14 @@ def parse_args(force_args=None):
             "Option --duration can only be used with video output")
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
+
+    # Enforce n_bodies is only used with scatter scenario
+    if args.n_bodies is not None and args.scenario != 'scatter':
+        raise ValueError(
+            f"Option --n-bodies can only be used with the scatter scenario, "
+            f"not '{args.scenario}'.")
+    if args.n_bodies is not None and args.n_bodies < 1:
+        raise ValueError("Option --n-bodies must be at least 1.")
 
     # Enforce law-solver compatibility
     fitted_laws = ['gaussian', 'power']
