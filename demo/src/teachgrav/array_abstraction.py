@@ -4,16 +4,17 @@ import jax
 
 class ArrayAbstraction:
 
-    def __init__(self, engine):
+    def __init__(self, engine, seed=None):
         self.engine = engine
         if engine == 'numpy':
             self.np = np
+            self.rng = np.random.default_rng(seed)
         elif engine in ['jax-cpu', 'jax-gpu', 'jax-metal']:
             import jax.numpy as jnp
             import jax.random as jrandom
             self.np = jnp
             self.random = jrandom
-            self.key = jrandom.key(0)
+            self.key = jrandom.key(seed if seed is not None else 0)
             if engine == 'jax-metal':
                 self.jax_device = jax.devices("METAL")[0]
             elif engine == 'jax-gpu':
@@ -25,11 +26,15 @@ class ArrayAbstraction:
             mx.set_default_device(mx.cpu)  # # type: ignore
             self.np = mx
             self.random = mx.random
+            if seed is not None:
+                mx.random.seed(seed)  # type: ignore
         elif engine == 'mlx-gpu':
             import mlx.core as mx
             mx.set_default_device(mx.gpu)  # type: ignore
             self.np = mx
             self.random = mx.random
+            if seed is not None:
+                mx.random.seed(seed)  # type: ignore
         else:
             raise ValueError(
                 f"Unknown engine '{engine}'. Valid engines "
@@ -45,7 +50,7 @@ class ArrayAbstraction:
     def random_array(self, shape, min=0.0, max=1.0):
         """Generate a random array of the given shape."""
         if self.engine == 'numpy':
-            return np.random.uniform(min, max, size=shape)
+            return self.rng.uniform(min, max, size=shape)
         elif self.engine in ['jax-cpu', 'jax-gpu', 'jax-metal']:
             self.key, subkey = self.random.split(self.key)  # type: ignore
             res = self.random.uniform(subkey, shape,  # type: ignore
