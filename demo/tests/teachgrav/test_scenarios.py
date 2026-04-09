@@ -61,6 +61,8 @@ def test_same_seed_produces_same_scatter():
     assert np.allclose(
         np.array(s1.positions()), np.array(s2.positions()))
     assert np.allclose(
+        np.array(s1.velocities()), np.array(s2.velocities()))
+    assert np.allclose(
         np.array(s1.masses), np.array(s2.masses))
 
 
@@ -72,6 +74,10 @@ def test_different_seeds_produce_different_scatter():
     s2 = f2.create_scenario('scatter', n_bodies=5)
     assert not np.allclose(
         np.array(s1.positions()), np.array(s2.positions()))
+    assert not np.allclose(
+        np.array(s1.velocities()), np.array(s2.velocities()))
+    assert not np.allclose(
+        np.array(s1.masses), np.array(s2.masses))
 
 
 def test_same_seed_jax_produces_same_scatter():
@@ -82,6 +88,7 @@ def test_same_seed_jax_produces_same_scatter():
     s1 = f1.create_scenario('scatter', n_bodies=5)
     s2 = f2.create_scenario('scatter', n_bodies=5)
     assert jnp.allclose(s1.positions(), s2.positions())
+    assert jnp.allclose(s1.velocities(), s2.velocities())
     assert jnp.allclose(s1.masses, s2.masses)
 
 
@@ -93,3 +100,5 @@ def test_different_seeds_jax_produce_different_scatter():
     s1 = f1.create_scenario('scatter', n_bodies=5)
     s2 = f2.create_scenario('scatter', n_bodies=5)
     assert not jnp.allclose(s1.positions(), s2.positions())
+    assert not jnp.allclose(s1.velocities(), s2.velocities())
+    assert not jnp.allclose(s1.masses, s2.masses)

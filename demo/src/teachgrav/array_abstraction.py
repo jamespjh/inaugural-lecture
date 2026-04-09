@@ -62,8 +62,10 @@ class ArrayAbstraction:
             return res
         elif self.engine in ['mlx-cpu', 'mlx-gpu']:
             res = self.random.uniform(shape=shape)  # type: ignore
-            return res
+            # Scale from [0, 1] to [min, max]
+            return min + res * (max - min)
         else:
             raise ValueError(
-                f"Unknown engine '{self.engine}'."
-                f"Valid engines: 'numpy', 'jax-cpu', 'jax-gpu', 'jax-metal'.")
+                f"Unknown engine '{self.engine}'. "
+                f"Valid engines: 'numpy', 'jax-cpu', 'jax-gpu', 'jax-metal', "
+                f"'mlx-cpu', 'mlx-gpu'.")
