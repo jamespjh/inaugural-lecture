@@ -21,7 +21,7 @@ def get_available_engines():
         warnings.warn(
             "JAX not available; skipping jax-cpu and jax-gpu tests.",
             UserWarning,
-            stacklevel=1,
+            stacklevel=2,
         )
 
     if jax_available:
@@ -33,13 +33,13 @@ def get_available_engines():
                 warnings.warn(
                     "No Nvidia GPU found; skipping jax-gpu tests.",
                     UserWarning,
-                    stacklevel=1,
+                    stacklevel=2,
                 )
         except RuntimeError:
             warnings.warn(
                 "No Nvidia GPU found; skipping jax-gpu tests.",
                 UserWarning,
-                stacklevel=1,
+                stacklevel=2,
             )
 
     try:
@@ -51,7 +51,7 @@ def get_available_engines():
             "MLX not available (requires Apple Silicon); "
             "skipping mlx-cpu and mlx-gpu tests.",
             UserWarning,
-            stacklevel=1,
+            stacklevel=2,
         )
 
     return available
