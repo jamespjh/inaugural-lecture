@@ -1,3 +1,5 @@
+import pytest
+
 from teachgrav.scenarios import ScenarioFactory
 from teachgrav.laws.pl import PLModel
 from teachgrav.laws.true_law import TrueLawModel
@@ -9,7 +11,8 @@ def test_pl_train():
     model.train(256, n_bodies=3)
 
 
-def t_pl_predict(n_bodies=2):
+@pytest.mark.parametrize("n_bodies", [2, 3, 10])
+def test_pl_predict(n_bodies):
     factory = ScenarioFactory('numpy')
     model = PLModel(factory)
     truth = TrueLawModel()
@@ -26,19 +29,9 @@ def t_pl_predict(n_bodies=2):
     assert factory.engine.np.allclose(pl_res, res, atol=0.01)
 
 
-def test_pl_predict_2():
-    t_pl_predict(n_bodies=2)
-
-
-def test_pl_predict_3():
-    t_pl_predict(n_bodies=3)
-
-
-def test_pl_predict_10():
-    t_pl_predict(n_bodies=10)
-
-
-def t_law_vectorised(factory):
+@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+def test_pl_law_vectorised(engine):
+    factory = ScenarioFactory(engine=engine)
     N_sys = 5
     N_bodies = 3
     masses = factory.engine.array([1.0, 1.0, 1.0])
@@ -64,15 +57,3 @@ def t_law_vectorised(factory):
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
-
-
-def test_pl_law_vectorised():
-    t_law_vectorised(ScenarioFactory(engine='numpy'))
-
-
-def test_pl_law_vectorised_jax():
-    t_law_vectorised(ScenarioFactory(engine='jax-cpu'))
-
-
-def test_pl_law_vectorised_metal():
-    t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
