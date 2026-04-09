@@ -32,13 +32,19 @@ def execute_scenario(args):
         logger.info('Running in benchmark mode')
         print(f'Benchmarking scenario: {args.scenario}' +
               f"with method: {args.method}")
-        time = benchmark(solve, system, args.method, 0.01, 0.05)
+
+        def run_once():
+            return solve(system, args.method, law=args.law,
+                         factory=factory, dt=0.01, until=0.05)
+
+        time = benchmark(run_once)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 
     logger.info(
-        f'Running scenario: {args.scenario} with method: {args.method}')
-    trajectory = solve(system, args.method)
+        f'Running scenario: {args.scenario} with method: {args.method} '
+        f'and law: {args.law}')
+    trajectory = solve(system, args.method, args.law, factory=factory)
 
     if args.visualise:
         logger.info(f'Visualizing results with options: {args.visualise}')
@@ -63,9 +69,12 @@ def parse_args(force_args=None):
     logger.info('Teachgrav called')
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
     parser.add_argument('--scenario', default='moon',
-                        choices=['moon', 'scatter', 'sun'])
+                        choices=['moon', 'scatter', 'sun', 'single'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
+    parser.add_argument('--law', default='gravity',
+                        choices=['gravity', 'constant', 'gaussian', 'power'],
+                        help='Physics law/acceleration model to use')
     parser.add_argument('--engine', choices=['numpy',
                                              'jax-gpu', 'jax-cpu', 'jax-metal',
                                              'mlx-cpu', 'mlx-gpu'],
@@ -147,10 +156,21 @@ def parse_args(force_args=None):
             "Option --duration can only be used with video output")
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
+
+    # Enforce law-solver compatibility
+    fitted_laws = ['gaussian', 'power']
+    if args.law in fitted_laws and args.method != 'euler':
+        logger.warning(
+            f"Fitted law '{args.law}' is not compatible with solver "
+            f"'{args.method}'. Switching to euler method.")
+        args.method = 'euler'
+
     return args
 
 
-def solve(system, method: str, dt: float = 0.01, until: float = 10):
-    trajectory = integrate_trajectory(system, method, dt=dt, until=until)
+def solve(system, method: str, law: str = 'gravity', factory=None,
+          dt: float = 0.01, until: float = 10):
+    trajectory = integrate_trajectory(
+        system, method, law=law, factory=factory, dt=dt, until=until)
     logger.info('Simulation complete')
     return trajectory

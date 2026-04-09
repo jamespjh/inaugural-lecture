@@ -51,3 +51,53 @@ def test_integrate_trajectory_scatter_3D():
     # 101 time steps, 5 bodies, 3D velocities
     assert trajectory.velocities().shape == (101, 5, 3)
     assert trajectory.masses.shape == (5,)          # 5 bodies
+
+
+def test_constant_single_body_moves_at_expected_position():
+    system = factory.create_scenario(
+        'single',
+        position=[2.0, -1.0],
+        velocity=[0.5, -0.25],
+        mass=1.0,
+    )
+    dt = 0.01
+    until = 2.0
+    trajectory = integrate_trajectory(
+        system,
+        method='euler',
+        law='constant',
+        dt=dt,
+        until=until,
+    )
+
+    np = trajectory.positions().__array_namespace__()
+    start_pos = trajectory.positions()[0, 0]
+    end_pos = trajectory.positions()[-1, 0]
+    velocity = trajectory.velocities()[0, 0]
+    expected_end = start_pos + velocity * until
+    assert np.allclose(end_pos, expected_end, atol=1e-12)
+
+
+def test_constant_single_body_moves_at_expected_position_diffrax():
+    system = jax_factory.create_scenario(
+        'single',
+        position=[2.0, -1.0],
+        velocity=[0.5, -0.25],
+        mass=1.0,
+    )
+    dt = 0.01
+    until = 1.0
+    trajectory = integrate_trajectory(
+        system,
+        method='Tsit5',
+        law='constant',
+        dt=dt,
+        until=until,
+    )
+
+    np = trajectory.positions().__array_namespace__()
+    start_pos = trajectory.positions()[0, 0]
+    end_pos = trajectory.positions()[-1, 0]
+    velocity = trajectory.velocities()[0, 0]
+    expected_end = start_pos + velocity * until
+    assert np.allclose(end_pos, expected_end, atol=1e-6)

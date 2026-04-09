@@ -4,3 +4,9 @@
   duration: 5
   visualise: dot
   outfile: sun_euler.mp4
+- scenario: single
+  method: euler
+  law: constant
+  duration: 5
+  visualise: dot
+  outfile: constant_euler.mp4

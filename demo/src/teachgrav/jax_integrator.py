@@ -4,14 +4,16 @@ from diffrax import diffeqsolve, ODETerm, PIDController
 import diffrax
 import equinox as eqx
 from functools import partial
-from .laws.true_law import TrueLawModel
+from .laws.laws import create_law
 
 
-@partial(jit, static_argnames=['method'])
+@partial(jit, static_argnames=['method', 'law'])
 @eqx.debug.assert_max_traces(max_traces=3)
-def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
+def diffrax_solve(method, law, t1, dt, y0, saveat, masses, immobile):
+    model = create_law(law)
+
     def fun(t, y, args):
-        return TrueLawModel().flat_law(y, args[0], args[1])
+        return model.flat_law(y, args[0], args[1])
 
     term = ODETerm(fun)
     solver = getattr(diffrax, method)
@@ -24,6 +26,9 @@ def diffrax_solve(method, t1, dt, y0, saveat, masses, immobile):
     return solve
 
 
-def solve_diffrax(method, t1, dt, y0, saveat, masses, immobile):
-    solve = diffrax_solve(method, t1, dt, y0, saveat, masses, immobile)
+def solve_diffrax(method, law, t1, dt, y0, saveat, masses, immobile):
+    if law in ['gaussian', 'power']:
+        raise ValueError(
+            f"Law '{law}' is not supported with Diffrax methods.")
+    solve = diffrax_solve(method, law, t1, dt, y0, saveat, masses, immobile)
     return solve.ys

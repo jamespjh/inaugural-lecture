@@ -1,4 +1,4 @@
-from .laws.true_law import TrueLawModel
+from .laws.laws import create_law
 from .system import System, Trajectory, Change
 
 import logging
@@ -23,10 +23,14 @@ def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
 def integrate_trajectory(
         system: System,
         method: str,
-        dt: float,
-        until: float,
-        model=TrueLawModel()) -> Trajectory:
+        law: str = 'gravity',
+        factory=None,
+        dt: float = 0.01,
+        until: float = 10) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
+    # Create the model based on selected law
+    model = create_law(law, factory=factory)
+
     steps = int(until / dt)
     trajectory = Trajectory(system)
 
@@ -42,7 +46,7 @@ def integrate_trajectory(
 
         if method in diffrax_methods:
             from .jax_integrator import solve_diffrax
-            res = solve_diffrax(method, until, dt, y0, np.arange(
+            res = solve_diffrax(method, law, until, dt, y0, np.arange(
                 0, dt * steps + dt, dt), system.masses, system.immobile)
 
         elif method in scipy_methods:

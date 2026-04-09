@@ -87,8 +87,8 @@ It is **pseudocode**: code-like text designed to pull out the key idea.
 :::
 ::: {}
 {{< video-credit
-  src="assets/placeholder.mp4"
-  alt="Placeholder video for straight-line motion demo" >}}
+  src="assets/constant_euler.mp4"
+  alt="Single-particle straight-line motion with constant velocity" >}}
 :::
 ::::
 
