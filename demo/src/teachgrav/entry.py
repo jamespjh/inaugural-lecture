@@ -32,7 +32,12 @@ def execute_scenario(args):
         logger.info('Running in benchmark mode')
         print(f'Benchmarking scenario: {args.scenario}' +
               f"with method: {args.method}")
-        time = benchmark(solve, system, args.method, 0.01, 0.05)
+
+        def run_once():
+            return solve(system, args.method, law=args.law,
+                         factory=factory, dt=0.01, until=0.05)
+
+        time = benchmark(run_once)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 

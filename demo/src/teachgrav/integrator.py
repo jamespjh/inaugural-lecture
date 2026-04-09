@@ -46,7 +46,7 @@ def integrate_trajectory(
 
         if method in diffrax_methods:
             from .jax_integrator import solve_diffrax
-            res = solve_diffrax(method, until, dt, y0, np.arange(
+            res = solve_diffrax(method, law, until, dt, y0, np.arange(
                 0, dt * steps + dt, dt), system.masses, system.immobile)
 
         elif method in scipy_methods:
