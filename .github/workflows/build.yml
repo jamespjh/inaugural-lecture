@@ -1,4 +1,4 @@
-name: Prepare demos
+name: Prepare demo generation code
 on:
   push:
     branches:

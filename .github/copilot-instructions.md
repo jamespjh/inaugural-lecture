@@ -27,6 +27,11 @@ Run commands from `demo/` unless task explicitly targets docs/slides only.
 5. `pytest`
 6. `flake8`
 
+## Virtual environments
+
+Test discovery and running can fail if the sandbox venv is not activated. Always ensure the venv is active before running tests or the demo entry point.
+If that fails, explicitly find the executable for pytest or similar in the venv and run it directly, for example `./venv/bin/pytest`.
+
 ## Slide Generation
 1. Fill in here
 2. In slideshow `.qmd` files, wrap raw HTML (for example `<video>` blocks) inside Pandoc raw blocks using fenced syntax:
@@ -55,7 +60,7 @@ Run commands from `demo/` unless task explicitly targets docs/slides only.
 - Lecture manuscript: `essay.md`
 
 ## Commit Message Structure
-**Before running any `git commit`, always show the user in chat:**
+Before running any `git commit`, when working locally rather than as a cloud agent, always show the user in chat:
 1. The full proposed commit message (in a code block)
 2. The list of files to be staged
 
@@ -81,3 +86,25 @@ AI-Reviewed-By: jamespjh
 - `AI-Reviewed-By` is always `jamespjh`.
 
 - The 'Prompt Summary:' field should be a concise plain-English description of the instruction given to the AI. Neither a verbatim quote nor a copy of the commit message subject line.
+
+## Committing plans
+
+When implementing a plan, add the plan to folder /plans in the repo as a markdown file, copyiing the content from plan.md. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the plans that were implemented. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`.
+
+## Prompt summaries
+
+When making a commit, also add a longer summary of our conversation that led to the commit, in the folder /prompts in the repo. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the prompts that were used to generate code changes. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`. Also include a summary of key decisions and elements of your reasoning.
+
+## Working to close an issue
+
+When working to close an issue:
+
+- work in a branch in the main repo, not a fork
+- make commits with the above structure, and push them to the branch
+- open a PR from the branch to main, referencing the issue in the PR description
+- always write a plan first, and commit the plan to the /plans folder with the above structure, before writing any code
+- also add the plan as a comment to the issue
+- when commenting to issues, when logged in as jamespjh, always include AI-Tool and AI-Model metadata in the comment.
+- In the /prompts folder, as above, keep a record of the prompts used to generate the code, and a summary of key decisions and elements of your reasoning.
+- do not write code before writing a plan
+- wait for CI to pass and for jamespjh to review and merge the PR
