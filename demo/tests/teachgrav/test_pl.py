@@ -3,6 +3,7 @@ import pytest
 from teachgrav.scenarios import ScenarioFactory
 from teachgrav.laws.pl import PLModel
 from teachgrav.laws.true_law import TrueLawModel
+from engines import ENGINES_TO_TEST
 
 
 def test_pl_train():
@@ -29,7 +30,7 @@ def test_pl_predict(n_bodies):
     assert factory.engine.np.allclose(pl_res, res, atol=0.01)
 
 
-@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_pl_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
     N_sys = 5

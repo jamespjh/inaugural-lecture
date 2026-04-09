@@ -9,6 +9,7 @@ class ConstantLawModel(Model):
     Model where bodies move at constant velocity.
     Acceleration (velocity derivative) is always zero.
     """
+
     def __init__(self, factory=None, **kwargs):
         self.factory = factory
 

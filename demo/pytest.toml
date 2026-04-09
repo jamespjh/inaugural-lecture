@@ -1,5 +1,6 @@
 [pytest]
 addopts = ["--import-mode=importlib"]
+pythonpath = ["tests/teachgrav"]
 
 
 log_file = "pytest.log"

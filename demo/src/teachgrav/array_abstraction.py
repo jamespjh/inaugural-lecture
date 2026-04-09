@@ -1,6 +1,8 @@
 import numpy as np
 import jax
 
+ALL_ENGINES = ['numpy', 'jax-cpu', 'jax-gpu', 'mlx-cpu', 'mlx-gpu']
+
 
 class ArrayAbstraction:
 
