@@ -2,14 +2,30 @@ import pytest
 from teachgrav.integrator import integrate_trajectory
 from teachgrav.scenarios import ScenarioFactory
 import logging
+from engines import ENGINES_TO_TEST
 logger = logging.getLogger("Teachgrav")
 
+_METHOD_ENGINE_COMBOS = [
+    (m, e) for m, e in [
+        ('RK45', 'numpy'),
+        ('LSODA', 'numpy'),
+        ('Tsit5', 'jax-cpu'),
+    ] if e in ENGINES_TO_TEST
+]
 
-@pytest.mark.parametrize("method,engine", [
-    ('euler', 'numpy'),
-    ('RK45', 'numpy'),
-    ('Tsit5', 'jax-cpu'),
-])
+
+def test_euler_trajectory():
+    """Euler integration runs and output has correct shape."""
+    factory = ScenarioFactory(engine='numpy')
+    system = factory.create_scenario('moon')
+    trajectory = integrate_trajectory(
+        system, method='euler', dt=0.01, until=1.0)
+    assert trajectory.positions().shape == (101, 2, 2)
+    assert trajectory.velocities().shape == (101, 2, 2)
+    assert trajectory.masses.shape == (2,)
+
+
+@pytest.mark.parametrize("method,engine", _METHOD_ENGINE_COMBOS)
 def test_integrate_trajectory(method, engine):
     factory = ScenarioFactory(engine=engine)
     system = factory.create_scenario('moon')
@@ -22,10 +38,7 @@ def test_integrate_trajectory(method, engine):
     assert trajectory.masses.shape == (2,)          # 2 bodies
 
 
-@pytest.mark.parametrize("method,engine", [
-    ('LSODA', 'numpy'),
-    ('Tsit5', 'jax-cpu'),
-])
+@pytest.mark.parametrize("method,engine", _METHOD_ENGINE_COMBOS)
 def test_close_to_start_after_one_orbit(method, engine):
     factory = ScenarioFactory(engine=engine)
     system = factory.create_scenario('sun')
