@@ -1,3 +1,5 @@
+import pytest
+
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
 from teachgrav.laws.gp import GPModel
@@ -24,7 +26,9 @@ def test_gp_predict():
     # assert factory.engine.np.allclose(gp_res, res, atol=0.2)
 
 
-def t_law_vectorised(factory):
+@pytest.mark.parametrize("engine", ['numpy', 'jax-cpu', 'mlx-cpu'])
+def test_gp_law_vectorised(engine):
+    factory = ScenarioFactory(engine=engine)
     N_sys = 5
     N_bodies = 3
     masses = factory.engine.array([1.0, 1.0, 1.0])
@@ -52,18 +56,6 @@ def t_law_vectorised(factory):
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
         simple_results, vector_results, atol=1e-6)
-
-
-def test_gp_law_vectorised():
-    t_law_vectorised(ScenarioFactory(engine='numpy'))
-
-
-def test_gp_law_vectorised_jax():
-    t_law_vectorised(ScenarioFactory(engine='jax-cpu'))
-
-
-def test_gp_law_vectorised_metal():
-    t_law_vectorised(ScenarioFactory(engine='mlx-cpu'))
 
 
 def test_normalise_denormalise():
