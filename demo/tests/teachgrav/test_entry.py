@@ -3,6 +3,17 @@ import pytest
 from teachgrav.entry import parse_args, execute_scenario
 
 
+def test_parse_model_data_arg():
+    args = parse_args('--law power --model-data /tmp/model.yaml')
+    assert args.model_data == '/tmp/model.yaml'
+    assert args.law == 'power'
+
+
+def test_default_model_data_is_none():
+    args = parse_args(' ')
+    assert args.model_data is None
+
+
 def test_parse_args():
     args = parse_args(
         '--scenario scatter --method Tsit5 --outfile output.mp4 ' +

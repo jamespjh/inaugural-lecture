@@ -26,10 +26,11 @@ def integrate_trajectory(
         law: str = 'gravity',
         factory=None,
         dt: float = 0.01,
-        until: float = 10) -> Trajectory:
+        until: float = 10,
+        model_data: str = None) -> Trajectory:
     """Integrate the system state forward in time for a number of steps."""
     # Create the model based on selected law
-    model = create_law(law, factory=factory)
+    model = create_law(law, factory=factory, model_data=model_data)
 
     steps = int(until / dt)
     trajectory = Trajectory(system)

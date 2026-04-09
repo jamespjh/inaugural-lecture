@@ -35,7 +35,8 @@ def execute_scenario(args):
 
         def run_once():
             return solve(system, args.method, law=args.law,
-                         factory=factory, dt=0.01, until=0.05)
+                         factory=factory, dt=0.01, until=0.05,
+                         model_data=getattr(args, 'model_data', None))
 
         time = benchmark(run_once)
         print(f'Benchmark time: {time:.5f} seconds')
@@ -44,7 +45,8 @@ def execute_scenario(args):
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method} '
         f'and law: {args.law}')
-    trajectory = solve(system, args.method, args.law, factory=factory)
+    trajectory = solve(system, args.method, args.law, factory=factory,
+                       model_data=getattr(args, 'model_data', None))
 
     if args.visualise:
         logger.info(f'Visualizing results with options: {args.visualise}')
@@ -75,6 +77,9 @@ def parse_args(force_args=None):
     parser.add_argument('--law', default='gravity',
                         choices=['gravity', 'constant', 'gaussian', 'power'],
                         help='Physics law/acceleration model to use')
+    parser.add_argument('--model-data', dest='model_data', default=None,
+                        help='Path to a trained model file '
+                             '(required for gaussian and power laws)')
     parser.add_argument('--engine', choices=['numpy',
                                              'jax-gpu', 'jax-cpu', 'jax-metal',
                                              'mlx-cpu', 'mlx-gpu'],
@@ -169,8 +174,9 @@ def parse_args(force_args=None):
 
 
 def solve(system, method: str, law: str = 'gravity', factory=None,
-          dt: float = 0.01, until: float = 10):
+          dt: float = 0.01, until: float = 10, model_data: str = None):
     trajectory = integrate_trajectory(
-        system, method, law=law, factory=factory, dt=dt, until=until)
+        system, method, law=law, factory=factory, dt=dt, until=until,
+        model_data=model_data)
     logger.info('Simulation complete')
     return trajectory

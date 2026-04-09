@@ -19,13 +19,14 @@ class Model:
             return ICs
 
 
-def create_law(law_name: str, factory=None):
+def create_law(law_name: str, factory=None, model_data: str = None):
     """
     Factory function to create a law model by name.
 
     Args:
         law_name: one of 'gravity', 'constant', 'gaussian', 'power'
         factory: ScenarioFactory instance for fitted laws (gaussian, power)
+        model_data: path to a saved model file (required for gaussian, power)
 
     Returns:
         Model instance for the selected law
@@ -41,18 +42,24 @@ def create_law(law_name: str, factory=None):
         return ConstantLawModel(factory=factory)
     elif law_name == 'gaussian':
         from .gp import GPModel
-        model = GPModel(factory=factory)
-        if factory:
-            logger.info("Training Gaussian Process model for fitted law use")
-            model.train(N_sys=50)  # MVP: conservative default
-        return model
+        if model_data is None:
+            raise ValueError(
+                "Law 'gaussian' requires a trained model file. "
+                "Use --model-data to specify the path, or run "
+                "'train-model --law gaussian' to train a model first."
+            )
+        logger.info(f"Loading Gaussian Process model from {model_data}")
+        return GPModel.load(model_data, factory=factory)
     elif law_name == 'power':
         from .pl import PLModel
-        model = PLModel(factory=factory)
-        if factory:
-            logger.info("Training Power Law model for fitted law use")
-            model.train(N_sys=50)  # MVP: conservative default
-        return model
+        if model_data is None:
+            raise ValueError(
+                "Law 'power' requires a trained model file. "
+                "Use --model-data to specify the path, or run "
+                "'train-model --law power' to train a model first."
+            )
+        logger.info(f"Loading Power Law model from {model_data}")
+        return PLModel.load(model_data, factory=factory)
     else:
         raise ValueError(
             f"Unknown law '{law_name}'. "
