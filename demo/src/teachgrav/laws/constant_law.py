@@ -30,8 +30,7 @@ class ConstantLawModel(Model):
         from ..system import to_shaped
         data_shaped = to_shaped(data_flat, num_vec, len(masses))
         
-        # Extract components
-        positions = data_shaped[:, 0, :, :]  # (C, N, D)
+        # Extract velocity component
         velocities = data_shaped[:, 1, :, :]  # (C, N, D)
         
         # Derivatives: dpos/dt = velocity, dvel/dt = 0
