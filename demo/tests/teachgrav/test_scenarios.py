@@ -1,5 +1,5 @@
 from teachgrav.scenarios import ScenarioFactory
-import numpy as np
+import pytest
 
 factory = ScenarioFactory()
 jax_factory = ScenarioFactory(engine='jax-cpu')
@@ -52,53 +52,27 @@ def test_create_scenario_single_preserves_initial_state():
     assert np.allclose(system.masses, np.array([3.0]))
 
 
-def test_same_seed_produces_same_scatter():
-    """Same seed should produce identical scatter scenarios."""
-    f1 = ScenarioFactory(seed=42)
-    f2 = ScenarioFactory(seed=42)
+@pytest.mark.parametrize("engine", ["numpy", "jax-cpu"])
+def test_same_seed_produces_same_scatter(engine):
+    """Same seed should produce identical scatter scenarios across engines."""
+    f1 = ScenarioFactory(engine=engine, seed=42)
+    f2 = ScenarioFactory(engine=engine, seed=42)
     s1 = f1.create_scenario('scatter', n_bodies=5)
     s2 = f2.create_scenario('scatter', n_bodies=5)
-    assert np.allclose(
-        np.array(s1.positions()), np.array(s2.positions()))
-    assert np.allclose(
-        np.array(s1.velocities()), np.array(s2.velocities()))
-    assert np.allclose(
-        np.array(s1.masses), np.array(s2.masses))
+    np = s1.positions().__array_namespace__()
+    assert np.allclose(s1.positions(), s2.positions())
+    assert np.allclose(s1.velocities(), s2.velocities())
+    assert np.allclose(s1.masses, s2.masses)
 
 
-def test_different_seeds_produce_different_scatter():
-    """Different seeds should produce different scatter scenarios."""
-    f1 = ScenarioFactory(seed=1)
-    f2 = ScenarioFactory(seed=2)
+@pytest.mark.parametrize("engine", ["numpy", "jax-cpu"])
+def test_different_seeds_produce_different_scatter(engine):
+    """Different seeds should produce different scatter scenarios across engines."""
+    f1 = ScenarioFactory(engine=engine, seed=1)
+    f2 = ScenarioFactory(engine=engine, seed=2)
     s1 = f1.create_scenario('scatter', n_bodies=5)
     s2 = f2.create_scenario('scatter', n_bodies=5)
-    assert not np.allclose(
-        np.array(s1.positions()), np.array(s2.positions()))
-    assert not np.allclose(
-        np.array(s1.velocities()), np.array(s2.velocities()))
-    assert not np.allclose(
-        np.array(s1.masses), np.array(s2.masses))
-
-
-def test_same_seed_jax_produces_same_scatter():
-    """Same seed should produce identical scatter scenarios with JAX engine."""
-    import jax.numpy as jnp
-    f1 = ScenarioFactory(engine='jax-cpu', seed=99)
-    f2 = ScenarioFactory(engine='jax-cpu', seed=99)
-    s1 = f1.create_scenario('scatter', n_bodies=5)
-    s2 = f2.create_scenario('scatter', n_bodies=5)
-    assert jnp.allclose(s1.positions(), s2.positions())
-    assert jnp.allclose(s1.velocities(), s2.velocities())
-    assert jnp.allclose(s1.masses, s2.masses)
-
-
-def test_different_seeds_jax_produce_different_scatter():
-    """Different seeds should produce different scatter scenarios with JAX."""
-    import jax.numpy as jnp
-    f1 = ScenarioFactory(engine='jax-cpu', seed=1)
-    f2 = ScenarioFactory(engine='jax-cpu', seed=2)
-    s1 = f1.create_scenario('scatter', n_bodies=5)
-    s2 = f2.create_scenario('scatter', n_bodies=5)
-    assert not jnp.allclose(s1.positions(), s2.positions())
-    assert not jnp.allclose(s1.velocities(), s2.velocities())
-    assert not jnp.allclose(s1.masses, s2.masses)
+    np = s1.positions().__array_namespace__()
+    assert not np.allclose(s1.positions(), s2.positions())
+    assert not np.allclose(s1.velocities(), s2.velocities())
+    assert not np.allclose(s1.masses, s2.masses)
