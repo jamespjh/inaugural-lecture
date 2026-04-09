@@ -10,3 +10,13 @@
   duration: 5
   visualise: dot
   outfile: constant_euler.mp4
+- scenario: sun
+  method: euler
+  duration: 5
+  visualise: trail
+  outfile: sun_euler_trail.mp4
+- scenario: sun
+  method: RK45
+  duration: 5
+  visualise: trail
+  outfile: sun_RK45_trail.mp4

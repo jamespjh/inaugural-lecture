@@ -169,6 +169,22 @@ We type this in, and watch the video, and it looks like it's working! [Demo]
 -->
 
 ## 1.1.5 Pseudocode as an intuition builder
+
+- Code helps us build our understanding of the science
+- If I can't code it, I didn't really understand it.
+
+Most of that benefit is in pseudocode, not real code.
+
+```python
+def acceleration(position):
+    r = np.sqrt(position[0]*position[0] + position[1]*position[1])
+    G = 100.0  # Gravitational constant
+    g = G / (r * r)  # Gravitational acceleration
+    return - g * (position / r) # Make it point toward origin
+```
+- Pseudocode isn't enough - we need a working model to be confident there isn't something we missed
+- But the careful thinking isn't in the language syntax.
+
 <!--
 The lesson here that I really want to get across here is that for me, and for many of us, the process of building the code, is a really useful way of making sure **there's none of the science you don't understand**.
 I definitely didn't understand this properly as a kid, but the point of doing this WASN'T to build a gravity simulation. It was to **use the process of programming as a tool to explore whether you've really understood the thing you're trying to put in the computer**. We call this "modelling" - the computer contains a 'model' of the earth going round the sun. The process of writing the code *even pseudocode* - especially pseudocode - has really forced us to tighten up our thinking.
@@ -195,6 +211,19 @@ This will be important.
 -->
 
 ## 1.1.6 Simple isn't always correct
+
+:::: {.two-col}
+::: {}
+{{< video-credit
+  src="assets/sun_euler_trail.mp4"
+  alt="Sun orbit with Euler integration: trail shows non-closing, drifting path" >}}
+:::
+::: {}
+{{< video-credit
+  src="assets/sun_RK45_trail.mp4"
+  alt="Sun orbit with RK45 integration: trail shows closed, stable orbit" >}}
+:::
+::::
 <!--
 But then we draw the trajectory over time - and instead of being a circle, it doesn't quite meet up! Something is wrong! Oh no, did we misunderstand gravity!?!?! [Figure]
 
