@@ -133,7 +133,7 @@ def parse_args(force_args=None):
             'csv',
             'mp4',
             'png'],
-        help='Output format for trajectory data (e.g. csv, json, png).' +
+        help='Output format for trajectory data (e.g. csv, mp4, png).' +
              'Inferred from outfile extension if not specified.')
     parser.add_argument(
         '--n-bodies',
