@@ -19,4 +19,4 @@
   method: RK45
   duration: 5
   visualise: trail
-  outfile: sun_RK45_trail.mp4
+  outfile: sun_rk45_trail.mp4
