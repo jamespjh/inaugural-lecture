@@ -1,4 +1,3 @@
-from .laws.true_law import TrueLawModel
 from .laws.laws import create_law
 from .system import System, Trajectory, Change
 
