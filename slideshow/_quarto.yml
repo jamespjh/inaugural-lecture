@@ -2,6 +2,9 @@ project:
   title: "Inaugural Lecture Slides"
   output-dir: ../_site/
 
+filters:
+  - two-col
+
 format:
   revealjs:
     output-file: index.html
