@@ -9,6 +9,10 @@ from .system import System, to_shaped
 from .array_abstraction import ArrayAbstraction
 logger = logging.getLogger("Teachgrav")
 
+# Scenarios that generate random initial conditions and are
+# therefore suitable for use as training data for fitted laws.
+STOCHASTIC_SCENARIOS = ['scatter']
+
 
 class ScenarioFactory:
     def __init__(self, engine='numpy'):

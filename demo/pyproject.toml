@@ -45,5 +45,4 @@ cuda = [
 [project.scripts]
 teachgrav = "teachgrav.entry:entry"
 generate-figures = "teachgrav.generate:generate_figures"
-train-model = "teachgrav.train:train_model"
 

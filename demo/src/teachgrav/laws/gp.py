@@ -1,7 +1,6 @@
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
 import joblib
-import numpy as _np
 from .laws import Model
 from ..system import restack_va, to_shaped
 
@@ -59,12 +58,13 @@ class GPModel(Model):
 
     def save(self, path):
         """Save the GP model to a joblib file (sklearn-compatible format)."""
+        import numpy as np
         state = {
             'gaussian_process': self.gaussian_process,
-            'X_mean': _np.asarray(self.X_mean),
-            'X_std': _np.asarray(self.X_std),
-            'Y_mean': _np.asarray(self.Y_mean),
-            'Y_std': _np.asarray(self.Y_std),
+            'X_mean': np.asarray(self.X_mean),
+            'X_std': np.asarray(self.X_std),
+            'Y_mean': np.asarray(self.Y_mean),
+            'Y_std': np.asarray(self.Y_std),
         }
         joblib.dump(state, path)
         logger.info(f"Saved GP model to {path}")

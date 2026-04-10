@@ -4,6 +4,9 @@ from teachgrav.entry import parse_args, execute_scenario
 
 
 def test_parse_model_data_arg():
+    # model-data accepted alongside a fitted law when not training
+    # (validation of missing model_data is only applied in simulation mode,
+    # so we pass a dummy path to avoid the ValueError)
     args = parse_args('--law power --model-data /tmp/model.yaml')
     assert args.model_data == '/tmp/model.yaml'
     assert args.law == 'power'
@@ -12,6 +15,16 @@ def test_parse_model_data_arg():
 def test_default_model_data_is_none():
     args = parse_args(' ')
     assert args.model_data is None
+
+
+def test_fitted_law_without_model_data_raises():
+    with pytest.raises(ValueError, match='pre-trained model file'):
+        parse_args('--law power')
+
+
+def test_fitted_law_gaussian_without_model_data_raises():
+    with pytest.raises(ValueError, match='pre-trained model file'):
+        parse_args('--law gaussian')
 
 
 def test_parse_args():
@@ -59,7 +72,8 @@ def test_parse_args_law_option():
 @pytest.mark.parametrize('method', ['RK45', 'Tsit5'])
 def test_fitted_law_forces_euler_with_warning(caplog, law, method):
     with caplog.at_level('WARNING', logger='Teachgrav'):
-        args = parse_args(f'--law {law} --method {method}')
+        args = parse_args(
+            f'--law {law} --method {method} --model-data /tmp/model.yaml')
     assert args.method == 'euler'
     assert f"Fitted law '{law}' is not compatible with solver" in caplog.text
 
@@ -78,6 +92,7 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         video = False
         duration = 30
         format = 'csv'
+        train = False
 
     captured = {}
 

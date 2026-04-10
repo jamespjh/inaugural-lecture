@@ -1,16 +1,51 @@
 import sys
 import argparse
 import logging
-from .scenarios import ScenarioFactory
+from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .viz import visualize
 from .benchmark import benchmark
 logger = logging.getLogger("Teachgrav")
 
+FITTED_LAWS = ['gaussian', 'power']
+
 
 def entry():
     args = parse_args()
     execute_scenario(args)
+
+
+def _train_model(args, factory):
+    """Train a fitted law and save the model to args.model_data."""
+    if args.seed is not None:
+        import numpy as np
+        np.random.seed(args.seed)
+        logger.info(f"Random seed set to {args.seed}")
+
+    scenario_kwargs = {}
+    if args.scenario == 'scatter':
+        scenario_kwargs['n_bodies'] = args.n_bodies
+
+    logger.info(f"Training {args.law} model on {args.n_systems} "
+                f"'{args.scenario}' systems...")
+
+    if args.law == 'power':
+        from .laws.pl import PLModel
+        model = PLModel(factory=factory)
+        model.train(args.n_systems, **scenario_kwargs)
+        model.save(args.model_data)
+        logger.info(f"Saved power law model to {args.model_data}")
+        print(f"Trained power law model: G={model.G:.6f}, "
+              f"power={model.power:.6f}")
+        print(f"Model saved to: {args.model_data}")
+    elif args.law == 'gaussian':
+        from .laws.gp import GPModel
+        model = GPModel(factory=factory)
+        model.train(args.n_systems, **scenario_kwargs)
+        model.save(args.model_data)
+        logger.info(f"Saved GP model to {args.model_data}")
+        print("Trained Gaussian Process model.")
+        print(f"Model saved to: {args.model_data}")
 
 
 def execute_scenario(args):
@@ -26,6 +61,11 @@ def execute_scenario(args):
         logging.basicConfig(level=args.log_level)
     logger.info(f'Loglevel set to {args.log_level}')
     factory = ScenarioFactory(args.engine)
+
+    if getattr(args, 'train', False):
+        _train_model(args, factory)
+        return
+
     create_scenario = factory.create_scenario
     system = create_scenario(args.scenario)
     if args.benchmark:
@@ -67,6 +107,45 @@ def execute_scenario(args):
         trajectory.write(stream, args.format)
 
 
+def _validate_args(args):
+    """Validate parsed args and raise ValueError for incompatible options."""
+    if args.method in diffrax_methods and args.engine == 'numpy':
+        raise ValueError(
+            f"Method {args.method} is not compatible"
+            f"with engine {args.engine}")
+
+    if args.train:
+        if args.law not in FITTED_LAWS:
+            raise ValueError(
+                f"--train requires a fitted law (gaussian or power). "
+                f"'{args.law}' does not require training.")
+        if args.scenario not in STOCHASTIC_SCENARIOS:
+            valid = ', '.join(STOCHASTIC_SCENARIOS)
+            raise ValueError(
+                f"--train requires a stochastic scenario. "
+                f"'{args.scenario}' is not suitable for training. "
+                f"Valid training scenarios: {valid}.")
+        if args.model_data is None:
+            raise ValueError(
+                "--train requires --model-data to specify the output path "
+                "for the saved model.")
+        if args.video or args.outfile is not None:
+            raise ValueError(
+                "--train cannot be used with visualization options "
+                "(--video, --outfile).")
+
+    if args.duration is not None and not args.video:
+        raise ValueError(
+            "Option --duration can only be used with video output")
+
+    if not args.train and args.law in FITTED_LAWS and args.model_data is None:
+        raise ValueError(
+            f"Law '{args.law}' requires a pre-trained model file. "
+            f"Use --model-data to specify the path, or run "
+            f"'teachgrav --train --law {args.law} --model-data <path>' "
+            f"to train a model first.")
+
+
 def parse_args(force_args=None):
     logger.info('Teachgrav called')
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
@@ -78,8 +157,20 @@ def parse_args(force_args=None):
                         choices=['gravity', 'constant', 'gaussian', 'power'],
                         help='Physics law/acceleration model to use')
     parser.add_argument('--model-data', dest='model_data', default=None,
-                        help='Path to a trained model file '
-                             '(required for gaussian and power laws)')
+                        help='Path to a trained model file for simulation '
+                             '(required for gaussian and power laws), or '
+                             'output path when used with --train')
+    parser.add_argument('--train', action='store_true',
+                        help='Train a fitted law model and save it to '
+                             '--model-data instead of running a simulation')
+    parser.add_argument('--n-systems', dest='n_systems', type=int, default=256,
+                        help='Number of training systems (used with --train)')
+    parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=3,
+                        help='Number of bodies per system (used with --train '
+                             'and scatter scenario)')
+    parser.add_argument('--seed', type=int, default=None,
+                        help='Random seed for reproducibility (used with '
+                             '--train)')
     parser.add_argument('--engine', choices=['numpy',
                                              'jax-gpu', 'jax-cpu', 'jax-metal',
                                              'mlx-cpu', 'mlx-gpu'],
@@ -125,13 +216,11 @@ def parse_args(force_args=None):
     else:
         args.engine = args.engine or 'numpy'
         logger.info(f"Using engine: {args.engine}")
-    if args.method in diffrax_methods and args.engine == 'numpy':
-        logger.error(
-            f"Method {args.method} is not compatible"
-            f"with engine {args.engine}")
-        raise ValueError(
-            f"Method {args.method} is not compatible"
-            f"with engine {args.engine}")
+
+    # Validate --train mode before outfile processing so args.outfile
+    # is still the original user-supplied value.
+    _validate_args(args)
+
     if args.outfile and not args.format:
         logger.info(
             f"Selecting output format based on file extension: {args.outfile}")
@@ -156,15 +245,11 @@ def parse_args(force_args=None):
         logger.info("No output file specified. Defaulting to stdout text.")
         args.visualise = None
         args.format = 'csv'
-    if args.duration is not None and not args.video:
-        raise ValueError(
-            "Option --duration can only be used with video output")
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
 
     # Enforce law-solver compatibility
-    fitted_laws = ['gaussian', 'power']
-    if args.law in fitted_laws and args.method != 'euler':
+    if args.law in FITTED_LAWS and args.method != 'euler':
         logger.warning(
             f"Fitted law '{args.law}' is not compatible with solver "
             f"'{args.method}'. Switching to euler method.")
