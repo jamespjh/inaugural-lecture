@@ -26,9 +26,11 @@ class Timer:
         return max(cpu, gpu)
 
     def timeit_jax(self, fn, *args):
+        import jax
+
         def ffn(*args):
             res = fn(*args)
-            res.block_until_ready()
+            jax.block_until_ready(res)
             return res
         return self.timeit(ffn, *args)
 
