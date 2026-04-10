@@ -34,11 +34,21 @@ class Timer:
             return res
         return self.timeit(ffn, *args)
 
+    def timeit_mps(self, fn, *args):
+        import torch
+        def ffn(*args):
+            res = fn(*args)
+            torch.mps.synchronize()
+            return res
+        return self.timeit(ffn, *args)
+
     def timeit_engine(self, fn, engine=None, *args):
         if engine in ['cupy', 'torch-gpu']:
             return self.timeit_cu(fn, *args)
         if engine in jax_engines:
             return self.timeit_jax(fn, *args)
+        if engine == 'torch-mps':
+            return self.timeit_mps(fn, *args)
         else:
             return self.timeit(fn, *args)
 

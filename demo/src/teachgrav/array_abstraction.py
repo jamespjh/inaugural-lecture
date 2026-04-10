@@ -6,6 +6,17 @@ from .engine_support import jax_engines, mlx_engines
 from .engine_support import torch_engines, valid_engines
 
 
+def to_numpy_host(x):
+    """Convert backend arrays/tensors to host NumPy arrays."""
+    if hasattr(x, "detach"):
+        x = x.detach()
+    if hasattr(x, "cpu"):
+        x = x.cpu()
+    if hasattr(x, "numpy"):
+        return x.numpy()
+    return np.asarray(x)
+
+
 def _ensure_torch_array_api(torch):
     """Add minimal Array API hooks expected by this codebase."""
     if getattr(torch, "_teachgrav_array_api_patched", False):
@@ -122,6 +133,10 @@ class ArrayAbstraction:
             res = jax.device_put(res, self.jax_device)
         if self.engine == 'torch-gpu':
             res = res.to('cuda')
+        if self.engine == 'torch-mps':
+            if res.dtype == self.np.float64:
+                res = res.to(dtype=self.np.float32)
+            res = res.to('mps')
         return res
 
     def random_array(self, shape, min=0.0, max=1.0):
@@ -154,6 +169,8 @@ class ArrayAbstraction:
             res = self.random(size=shape) * (max - min) + min
             if self.engine == 'torch-gpu':
                 res = res.to('cuda')
+            if self.engine == 'torch-mps':
+                res = res.to('mps')
             return res
         else:
             raise ValueError(

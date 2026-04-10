@@ -3,7 +3,7 @@ import importlib.util
 
 jax_engines = ['jax-cpu', 'jax-gpu', 'jax-metal']
 mlx_engines = ['mlx-cpu', 'mlx-gpu']
-torch_engines = ['torch-cpu', 'torch-gpu']
+torch_engines = ['torch-cpu', 'torch-gpu', 'torch-mps']
 valid_engines = [
     'python',
     'numba',
@@ -62,6 +62,13 @@ def detect_torch_cuda():
     return torch.cuda.is_available()
 
 
+def detect_torch_mps():
+    if not detect_torch():
+        return False
+    import torch
+    return torch.backends.mps.is_available()
+
+
 def get_available_engines():
     """Return available engines."""
     available = ['python', 'numpy']
@@ -88,6 +95,8 @@ def get_available_engines():
         available.append('torch-cpu')
         if detect_torch_cuda():
             available.append('torch-gpu')
+        if detect_torch_mps():
+            available.append('torch-mps')
 
     return available
 
