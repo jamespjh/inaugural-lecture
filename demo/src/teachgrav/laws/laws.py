@@ -37,6 +37,9 @@ def create_law(law_name: str, factory=None, model_data: str = None):
     if law_name == 'gravity':
         from .true_law import TrueLawModel
         return TrueLawModel()
+    elif law_name == 'boids':
+        from .boids_law import BoidsLawModel
+        return BoidsLawModel(factory=factory)
     elif law_name == 'constant':
         from .constant_law import ConstantLawModel
         return ConstantLawModel(factory=factory)
@@ -68,5 +71,5 @@ def create_law(law_name: str, factory=None, model_data: str = None):
     else:
         raise ValueError(
             f"Unknown law '{law_name}'. "
-            f"Valid choices: gravity, constant, gaussian, power"
+            f"Valid choices: gravity, boids, constant, gaussian, power"
         )

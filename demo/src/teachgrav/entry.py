@@ -90,6 +90,7 @@ def execute_scenario(args):
         f'Running scenario: {args.scenario} with method: {args.method} '
         f'and law: {args.law}')
     trajectory = solve(system, args.method, args.law, factory=factory,
+                       dt=args.dt, until=args.until,
                        model_data=getattr(args, 'model_data', None))
 
     if args.visualise:
@@ -169,6 +170,9 @@ def _validate_args(args):
         args.format = 'csv'
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
+    # Default integration timestep and end time.
+    args.dt = args.dt if args.dt is not None else 0.01
+    args.until = args.until if args.until is not None else 10.0
 
     # Enforce n_bodies is only used with scatter scenario
     if args.n_bodies is not None and args.scenario != 'scatter':
@@ -211,11 +215,12 @@ def parse_args(force_args=None):
     logger.info('Teachgrav called')
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
     parser.add_argument('--scenario', default='moon',
-                        choices=['moon', 'scatter', 'sun', 'single'])
+                        choices=['moon', 'scatter', 'sun', 'single', 'boids'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
     parser.add_argument('--law', default='gravity',
-                        choices=['gravity', 'constant', 'gaussian', 'power'],
+                        choices=['gravity', 'boids', 'constant', 'gaussian',
+                                 'power'],
                         help='Physics law/acceleration model to use')
     parser.add_argument('--model-data', dest='model_data', default=None,
                         help='Path to a trained model file for simulation '
@@ -264,6 +269,16 @@ def parse_args(force_args=None):
         type=int,
         default=None,
         help='Video duration in seconds (default: 30).')
+    parser.add_argument(
+        '--dt',
+        type=float,
+        default=None,
+        help='Integration timestep (default: 0.01).')
+    parser.add_argument(
+        '--until',
+        type=float,
+        default=None,
+        help='Simulation end time (default: 10).')
     parser.add_argument(
         '--format',
         default=None,
