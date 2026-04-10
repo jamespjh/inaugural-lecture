@@ -81,7 +81,7 @@ def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):
     t_ar = ArrayAbstraction(engine)
     pytest.importorskip("numba")
     numba_ar = ArrayAbstraction('numba')
-    src = np.array([[1.0, 2.0], [3.0, 4.0]])
+    src = t_ar.array([[1.0, 2.0], [3.0, 4.0]])
 
     out = numba_ar.array(src)
 
