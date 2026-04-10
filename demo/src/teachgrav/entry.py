@@ -192,9 +192,6 @@ def parse_args(force_args=None):
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
-    parser.add_argument('--seed', type=int, default=None,
-                        help='Random seed for reproducibility (used with '
-                             '--train)')
     parser.add_argument('--engine', choices=['numpy',
                                              'jax-gpu', 'jax-cpu', 'jax-metal',
                                              'mlx-cpu', 'mlx-gpu'],
