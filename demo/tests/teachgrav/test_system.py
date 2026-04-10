@@ -1,3 +1,4 @@
+from engines import ENGINES_TO_TEST
 from teachgrav.system import System, Trajectory
 
 from teachgrav.array_abstraction import ArrayAbstraction
@@ -6,7 +7,6 @@ import pytest
 ar = ArrayAbstraction('numpy')
 np = ar.np
 
-from engines import ENGINES_TO_TEST
 
 fixture_system = System(ar.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]),
                         masses=ar.array([1, 1]))
@@ -75,6 +75,7 @@ def test_array_python_engine_converts_ndarray_to_nested_lists(engine):
 
     assert isinstance(out, list)
     assert out == [[1.0, 2.0], [3.0, 4.0]]
+
 
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):

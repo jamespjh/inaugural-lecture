@@ -62,22 +62,17 @@ class ArrayAbstraction:
     def configure_engine(self, engine):
         if engine == 'python':
             self.np = None
-            import random
-            self.random = random
         elif engine == 'numba':
             self.np = None
         elif engine == 'numpy':
             self.np = np
-            self.random = np.random
         elif engine == 'cupy':
             import cupy as cp
             self.np = cp
-            self.random = cp.random
         elif engine in torch_engines:
             import torch
             _ensure_torch_array_api(torch)
             self.np = torch
-            self.random = torch.rand
         elif engine in jax_engines:
             self.configure_jax()
         elif engine in mlx_engines:
@@ -114,17 +109,38 @@ class ArrayAbstraction:
         if self.engine in jax_engines:
             self.key = self.random.key(seed if seed is not None else 0)
             return
-        if seed is None:
-            return
         if self.engine in torch_engines:
-            self.np.manual_seed(seed)
+            import torch
+            # Create a per-instance generator for reproducibility
+            self.random = torch.Generator()
+            if seed is not None:
+                self.random.manual_seed(seed)
         elif self.engine == 'numpy':
-            self.random = self.random.default_rng(seed)
+            if seed is not None:
+                self.random = np.random.default_rng(seed)
+            else:
+                self.random = np.random.default_rng()
+        elif self.engine == 'cupy':
+            import cupy as cp
+            if seed is not None:
+                self.random = cp.random.RandomState(seed)
+            else:
+                self.random = cp.random
         elif self.engine == 'numba':
-            from .array_numba import numba_seed
-            numba_seed(seed)
-        else:
-            self.random.seed(seed)
+            if seed is not None:
+                from .array_numba import numba_seed
+                numba_seed(seed)
+        elif self.engine in mlx_engines:
+            # Use NumPy RNG for MLX to ensure reproducibility
+            if seed is not None:
+                self.random = np.random.default_rng(seed)
+            else:
+                self.random = np.random.default_rng()
+        elif self.engine == 'python':
+            import random
+            self.random = random
+            if seed is not None:
+                self.random.seed(seed)
 
     def array(self, data):
         """Create an array in the appropriate engine."""
@@ -176,10 +192,21 @@ class ArrayAbstraction:
             res = jax.device_put(res, self.jax_device)
             return res
         elif self.engine in mlx_engines:
-            res = self.random.uniform(shape=shape, low=min, high=max)
+            # Use NumPy RNG with per-instance seeding, then convert to MLX
+            if self.random is not None:
+                res_np = self.random.uniform(min, max, size=shape)
+            else:
+                raise ValueError(
+                    "MLX engine requires seeding for RNG.")
+            res = self.np.array(res_np)
             return res
         elif self.engine in torch_engines:
-            res = self.random(size=shape) * (max - min) + min
+            # Use per-instance generator if available
+            if self.random is not None:
+                res = self.np.rand(size=shape,
+                                   generator=self.random) * (max - min) + min
+            else:
+                res = self.np.rand(size=shape) * (max - min) + min
             if self.engine == 'torch-gpu':
                 res = res.to('cuda')
             if self.engine == 'torch-mps':

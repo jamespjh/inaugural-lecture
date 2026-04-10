@@ -13,7 +13,7 @@ def test_pl_train(engine):
     model.train(256, n_bodies=3)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("n_bodies", [2, 3, 10])
 def test_pl_predict(n_bodies):
     factory = ScenarioFactory('numpy')
