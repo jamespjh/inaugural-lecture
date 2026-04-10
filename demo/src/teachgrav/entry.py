@@ -23,7 +23,7 @@ def _train_model(args, factory):
         logger.info(f"Random seed set to {args.seed}")
 
     scenario_kwargs = {}
-    if args.scenario == 'scatter':
+    if args.scenario == 'scatter' and args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
 
     logger.info(f"Training {args.law} model on {args.n_systems} "
@@ -65,7 +65,6 @@ def execute_scenario(args):
     if getattr(args, 'train', False):
         _train_model(args, factory)
         return
-
 
     create_scenario = factory.create_scenario
     scenario_kwargs = {}
@@ -190,7 +189,7 @@ def parse_args(force_args=None):
                              '--model-data instead of running a simulation')
     parser.add_argument('--n-systems', dest='n_systems', type=int, default=256,
                         help='Number of training systems (used with --train)')
-    parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=3,
+    parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
     parser.add_argument('--seed', type=int, default=None,
@@ -219,11 +218,6 @@ def parse_args(force_args=None):
         action='store_true',
         help='Whether to create a video output (implies --visualise)')
     parser.add_argument(
-        '--seed',
-        type=int,
-        default=None,
-        help='Random seed for reproducible scenarios (e.g. scatter).')
-    parser.add_argument(
         '--duration',
         type=int,
         default=None,
@@ -237,12 +231,6 @@ def parse_args(force_args=None):
             'png'],
         help='Output format for trajectory data (e.g. csv, mp4, png).' +
              'Inferred from outfile extension if not specified.')
-    parser.add_argument(
-        '--n-bodies',
-        dest='n_bodies',
-        type=int,
-        default=None,
-        help='Number of bodies for the scatter scenario.')
     args = parser.parse_args(force_args.split() if force_args else None)
     if args.method in diffrax_methods and not args.engine:
         args.engine = 'jax-cpu'
