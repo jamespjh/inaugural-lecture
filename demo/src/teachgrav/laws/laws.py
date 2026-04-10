@@ -36,7 +36,7 @@ def create_law(law_name: str, factory=None, model_data: str = None):
 
     if law_name == 'gravity':
         from .true_law import TrueLawModel
-        return TrueLawModel()
+        return TrueLawModel(factory=factory)
     elif law_name == 'constant':
         from .constant_law import ConstantLawModel
         return ConstantLawModel(factory=factory)
