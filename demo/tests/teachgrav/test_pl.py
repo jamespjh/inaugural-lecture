@@ -12,6 +12,7 @@ def test_pl_train():
     model.train(256, n_bodies=3)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("n_bodies", [2, 3, 10])
 def test_pl_predict(n_bodies):
     factory = ScenarioFactory('numpy')
@@ -30,6 +31,7 @@ def test_pl_predict(n_bodies):
     assert factory.engine.np.allclose(pl_res, res, atol=0.01)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_pl_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)

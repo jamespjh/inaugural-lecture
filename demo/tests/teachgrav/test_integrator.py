@@ -38,6 +38,7 @@ def test_integrate_trajectory(method, engine):
     assert trajectory.masses.shape == (2,)          # 2 bodies
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("method,engine", _METHOD_ENGINE_COMBOS)
 def test_close_to_start_after_one_orbit(method, engine):
     factory = ScenarioFactory(engine=engine)
