@@ -1,5 +1,4 @@
 import numpy as np
-import jax
 from operator import mul
 from functools import reduce
 from .engine_support import jax_engines, mlx_engines
@@ -89,6 +88,7 @@ class ArrayAbstraction:
                 f"are: {valid_engines}.")
 
     def configure_jax(self):
+        import jax
         import jax.numpy as jnp
         import jax.random as jrandom
         self.np = jnp
@@ -139,6 +139,7 @@ class ArrayAbstraction:
 
         res = self.np.array(data)
         if self.engine in jax_engines:
+            import jax
             res = jax.device_put(res, self.jax_device)
         if self.engine == 'torch-gpu':
             res = res.to('cuda')
@@ -171,6 +172,7 @@ class ArrayAbstraction:
             res = self.random.uniform(subkey, shape,
                                       minval=min,
                                       maxval=max)
+            import jax
             res = jax.device_put(res, self.jax_device)
             return res
         elif self.engine in mlx_engines:

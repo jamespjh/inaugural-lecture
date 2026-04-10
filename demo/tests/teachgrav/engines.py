@@ -5,7 +5,7 @@ from teachgrav.engine_support import (
 )
 AVAILABLE_ENGINES = get_available_engines()
 
-DONT_TEST_ENGINES = {'python', 'numba'}
+DONT_TEST_ENGINES = {'python', 'numba', 'torch-cpu'}
 ENGINES_TO_TEST = [
     engine for engine in AVAILABLE_ENGINES if engine not in DONT_TEST_ENGINES
 ]

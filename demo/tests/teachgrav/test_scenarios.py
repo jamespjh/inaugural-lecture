@@ -1,8 +1,12 @@
 from teachgrav.scenarios import ScenarioFactory
 import pytest
+from engines import AVAILABLE_ENGINES
 
 factory = ScenarioFactory()
-jax_factory = ScenarioFactory(engine='jax-cpu')
+
+_seed_test_engines = [
+    e for e in ["numpy", "jax-cpu"] if e in AVAILABLE_ENGINES
+]
 
 
 def test_create_scenario_moon():
@@ -52,7 +56,7 @@ def test_create_scenario_single_preserves_initial_state():
     assert np.allclose(system.masses, np.array([3.0]))
 
 
-@pytest.mark.parametrize("engine", ["numpy", "jax-cpu"])
+@pytest.mark.parametrize("engine", _seed_test_engines)
 def test_same_seed_produces_same_scatter(engine):
     """Same seed should produce identical scatter scenarios across engines."""
     f1 = ScenarioFactory(engine=engine, seed=42)
@@ -65,7 +69,7 @@ def test_same_seed_produces_same_scatter(engine):
     assert np.allclose(s1.masses, s2.masses)
 
 
-@pytest.mark.parametrize("engine", ["numpy", "jax-cpu"])
+@pytest.mark.parametrize("engine", _seed_test_engines)
 def test_different_seeds_produce_different_scatter(engine):
     """Different seeds should produce different scatter."""
     f1 = ScenarioFactory(engine=engine, seed=1)
