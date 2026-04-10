@@ -1,10 +1,11 @@
 import sys
 import argparse
 import logging
+from .engine_support import jax_engines, mlx_engines
 from .scenarios import ScenarioFactory
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .viz import visualize
-from .benchmark import benchmark
+from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
 
 
@@ -40,7 +41,7 @@ def execute_scenario(args):
             return solve(system, args.method, law=args.law,
                          factory=factory, dt=0.01, until=0.05)
 
-        time = benchmark(run_once)
+        time = benchmark_engine(run_once, args.engine)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 
@@ -99,11 +100,13 @@ def parse_args(force_args=None):
     parser.add_argument('--law', default='gravity',
                         choices=['gravity', 'constant', 'gaussian', 'power'],
                         help='Physics law/acceleration model to use')
-    parser.add_argument('--engine', choices=['numpy',
-                                             'jax-gpu', 'jax-cpu', 'jax-metal',
-                                             'mlx-cpu', 'mlx-gpu'],
-                        help='Computation engine to use')
-    # Add CUPY, Torch and MLX later.
+    parser.add_argument(
+        '--engine',
+        choices=['numpy'] +
+        jax_engines +
+        mlx_engines,
+        help='Computation engine to use')
+    # Add CuPy and Torch later.
     parser.add_argument(
         '--outfile',
         default=None,

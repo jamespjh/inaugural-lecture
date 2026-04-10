@@ -1,7 +1,5 @@
-import jax
 import time
-import logging
-logger = logging.getLogger("Teachgrav")
+from .engine_support import jax_engines
 
 
 class Timer:
@@ -18,12 +16,60 @@ class Timer:
         toc = time.perf_counter()
         return (toc - tic) / self.repeat
 
+    def timeit_cu(self, fn, *args):
+        from cupyx.profiler import benchmark
+        res = benchmark(
+            fn, n_repeat=self.repeat, n_warmup=self.warmup, args=args)
+        cpu = res.cpu_times.mean()
+        gpu = res.gpu_times.mean()
+        # Return the maximum of CPU and GPU time as the benchmark result
+        return max(cpu, gpu)
+
+    def timeit_jax(self, fn, *args):
+        import jax
+
+        def ffn(*args):
+            res = fn(*args)
+            jax.block_until_ready(res)
+            return res
+        return self.timeit(ffn, *args)
+
+    def timeit_mps(self, fn, *args):
+        import torch
+
+        def ffn(*args):
+            res = fn(*args)
+            torch.mps.synchronize()
+            return res
+        return self.timeit(ffn, *args)
+
+    def timeit_torch_cuda(self, fn, *args):
+        import torch
+
+        def ffn(*args):
+            res = fn(*args)
+            torch.cuda.synchronize()
+            return res
+        return self.timeit(ffn, *args)
+
+    def timeit_engine(self, fn, engine=None, *args):
+        if engine == 'cupy':
+            return self.timeit_cu(fn, *args)
+        if engine == 'torch-gpu':
+            return self.timeit_torch_cuda(fn, *args)
+        if engine in jax_engines:
+            return self.timeit_jax(fn, *args)
+        if engine == 'torch-mps':
+            return self.timeit_mps(fn, *args)
+        else:
+            return self.timeit(fn, *args)
+
 
 def benchmark(fn, *args):
-    timer = Timer(warmup=5, repeat=5)
+    timer = Timer(warmup=3, repeat=5)
+    return timer.timeit(fn, *args)
 
-    def ffn(*args):
-        result = fn(*args)
-        jax.block_until_ready(result)
-    fn(*args)  # Compile
-    return timer.timeit(ffn, *args)
+
+def benchmark_engine(fn, engine, *args):
+    timer = Timer(warmup=3, repeat=5)
+    return timer.timeit_engine(fn, engine, *args)
