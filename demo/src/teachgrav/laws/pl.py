@@ -1,3 +1,4 @@
+import yaml
 from scipy.optimize import minimize
 from .laws import Model
 from ..system import to_shaped, restack_va
@@ -57,6 +58,22 @@ class PLModel(Model):
 
         logger.info(f"Trained Power Law model with parameters:"
                     f"{self.G}, {self.power}")
+
+    def save(self, path):
+        """Save model parameters to a YAML file."""
+        with open(path, 'w') as f:
+            yaml.safe_dump({'G': float(self.G), 'power': float(self.power)}, f)
+        logger.info(f"Saved Power Law model parameters to {path}")
+
+    @classmethod
+    def load(cls, path, factory=None):
+        """Load model parameters from a YAML file."""
+        with open(path, 'r') as f:
+            params = yaml.safe_load(f)
+        model = cls(factory=factory, G=params['G'], power=params['power'])
+        logger.info(f"Loaded Power Law model parameters from {path}: "
+                    f"G={model.G}, power={model.power}")
+        return model
 
     def flat_law(self, data, masses, immobile):
         """Compute the derivatives of the state."""
