@@ -96,6 +96,13 @@ class TrueLawModel(PLModel):
                     sum(displacement[d] ** 2 for d in range(D))
                 )
 
+                # Skip coincident bodies to avoid division by zero.
+                # (Physically, two distinct bodies at the same position
+                # produce infinite force; we treat the contribution as zero,
+                # consistent with the numpy implementation.)
+                if distance == 0.0:
+                    continue
+
                 # Add body j's contribution to the acceleration of body i:
                 #   a += G * M_j * displacement / distance^3
                 for d in range(D):
