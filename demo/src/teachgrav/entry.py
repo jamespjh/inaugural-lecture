@@ -4,6 +4,7 @@ import logging
 from .engine_support import jax_engines, mlx_engines
 from .scenarios import ScenarioFactory
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
+from .laws.laws import create_law
 from .viz import visualize
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
@@ -34,12 +35,12 @@ def execute_scenario(args):
     system = create_scenario(args.scenario, **scenario_kwargs)
     if args.benchmark:
         logger.info('Running in benchmark mode')
-        print(f'Benchmarking scenario: {args.scenario}' +
-              f"with method: {args.method}")
+        print(f'Benchmarking scenario: {args.scenario} with law: {args.law}')
+
+        model = create_law(args.law, factory=factory)
 
         def run_once():
-            return solve(system, args.method, law=args.law,
-                         factory=factory, dt=0.01, until=0.05)
+            return model.law(system)
 
         time = benchmark_engine(run_once, args.engine)
         print(f'Benchmark time: {time:.5f} seconds')
