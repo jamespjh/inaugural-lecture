@@ -20,6 +20,8 @@ classifiers = [
 dependencies = [
     "numpy",
     "scipy",
+    "numba",
+    "torch",
     "matplotlib",
     "PyYAML",
     "scikit-learn",
@@ -29,6 +31,7 @@ dependencies = [
     "diffrax;platform_system != 'Darwin'", # if not on Apple Silicon, Diffrax
     "diffrax==0.7.2;platform_system == 'Darwin'", # if on Apple Silicon might need an older diffrax
     "mlx;platform_system == 'Darwin'", # if on Apple Silicon, MLX
+
 ]
 
 [project.optional-dependencies]

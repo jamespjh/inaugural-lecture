@@ -138,8 +138,8 @@ class ScenarioFactory:
         scenarios = [self.create_scenario('scatter', **kwargs)
                      for _ in range(N_sys)]
 
-        ICs = self.engine.np.array([system.data.flatten()
-                                    for system in scenarios])
+        ICs = self.engine.array([system.data.flatten()
+                                 for system in scenarios])
         flatICs = ICs.reshape((N_sys, -1))
         masses = scenarios[0].masses
         immobile = scenarios[0].immobile

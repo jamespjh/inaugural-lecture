@@ -67,7 +67,7 @@ def test_same_seed_produces_same_scatter(engine):
 
 @pytest.mark.parametrize("engine", ["numpy", "jax-cpu"])
 def test_different_seeds_produce_different_scatter(engine):
-    """Different seeds should produce different scatter scenarios across engines."""
+    """Different seeds should produce different scatter."""
     f1 = ScenarioFactory(engine=engine, seed=1)
     f2 = ScenarioFactory(engine=engine, seed=2)
     s1 = f1.create_scenario('scatter', n_bodies=5)
