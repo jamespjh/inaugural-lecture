@@ -165,5 +165,5 @@ class ArrayAbstraction:
             raise ValueError("Python engine only supports 2D matrices.")
         return [[
             self.random.random()
-            for _ in range(size[0])]
             for _ in range(size[1])]
+            for _ in range(size[0])]
