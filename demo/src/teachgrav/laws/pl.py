@@ -59,7 +59,7 @@ class PLModel(Model):
     def save(self, path):
         """Save model parameters to a YAML file."""
         with open(path, 'w') as f:
-            yaml.dump({'G': float(self.G), 'power': float(self.power)}, f)
+            yaml.safe_dump({'G': float(self.G), 'power': float(self.power)}, f)
         logger.info(f"Saved Power Law model parameters to {path}")
 
     @classmethod
