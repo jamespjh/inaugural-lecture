@@ -94,6 +94,8 @@ def test_n_bodies_non_scatter_raises(scenario):
             ValueError,
             match="Option --n-bodies can only be used with the scatter"):
         parse_args(f'--scenario {scenario} --n-bodies 5')
+
+
 def test_parse_args_seed_option():
     args = parse_args('--seed 42')
     assert args.seed == 42
@@ -126,9 +128,11 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
 
     def fake_benchmark(fn, *args):
         captured['arg_count'] = len(args)
+        captured['args'] = args
         fn()
         return 0.1
 
-    monkeypatch.setattr('teachgrav.entry.benchmark', fake_benchmark)
+    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
     execute_scenario(Args())
-    assert captured['arg_count'] == 0
+    assert captured['arg_count'] == 1
+    assert captured['args'][0] == 'numpy'

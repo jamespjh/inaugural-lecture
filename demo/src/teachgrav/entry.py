@@ -2,9 +2,11 @@ import sys
 import argparse
 import logging
 from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
+from .engine_support import jax_engines, mlx_engines
+from .scenarios import ScenarioFactory
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .viz import visualize
-from .benchmark import benchmark
+from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
 
 FITTED_LAWS = ['gaussian', 'power']
@@ -81,7 +83,7 @@ def execute_scenario(args):
                          factory=factory, dt=0.01, until=0.05,
                          model_data=getattr(args, 'model_data', None))
 
-        time = benchmark(run_once)
+        time = benchmark_engine(run_once, args.engine)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 
@@ -117,6 +119,20 @@ def _validate_args(args):
             f"Method {args.method} is not compatible"
             f"with engine {args.engine}")
 
+    if args.method in diffrax_methods and not args.engine:
+        args.engine = 'jax-cpu'
+        logger.info(
+            f"Method {args.method} requires a JAX engine."
+            f"Defaulting to {args.engine}.")
+    else:
+        args.engine = args.engine or 'numpy'
+        logger.info(f"Using engine: {args.engine}")
+
+    if args.outfile and not args.format and not args.train:
+        logger.info(
+            f"Selecting output format based on file extension: {args.outfile}")
+        _resolve_output_format(args)
+
     if args.train:
         if args.law not in FITTED_LAWS:
             raise ValueError(
@@ -147,6 +163,28 @@ def _validate_args(args):
             f"Use --model-data to specify the path, or run "
             f"'teachgrav --train --law {args.law} --model-data <path>' "
             f"to train a model first.")
+
+    if not args.outfile:
+        logger.info("No output file specified. Defaulting to stdout text.")
+        args.visualise = None
+        args.format = 'csv'
+    # Default to 30 seconds for video duration.
+    args.duration = args.duration or 30
+
+    # Enforce n_bodies is only used with scatter scenario
+    if args.n_bodies is not None and args.scenario != 'scatter':
+        raise ValueError(
+            f"Option --n-bodies can only be used with the scatter scenario, "
+            f"not '{args.scenario}'.")
+    if args.n_bodies is not None and args.n_bodies < 1:
+        raise ValueError("Option --n-bodies must be at least 1.")
+
+    # Enforce law-solver compatibility
+    if args.law in FITTED_LAWS and args.method != 'euler':
+        logger.warning(
+            f"Fitted law '{args.law}' is not compatible with solver "
+            f"'{args.method}'. Switching to euler method.")
+        args.method = 'euler'
 
 
 def _resolve_output_format(args):
@@ -192,11 +230,14 @@ def parse_args(force_args=None):
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
-    parser.add_argument('--engine', choices=['numpy',
-                                             'jax-gpu', 'jax-cpu', 'jax-metal',
-                                             'mlx-cpu', 'mlx-gpu'],
-                        help='Computation engine to use')
     # Add CUPY, Torch and MLX later.
+    parser.add_argument(
+        '--engine',
+        choices=['numpy'] +
+        jax_engines +
+        mlx_engines,
+        help='Computation engine to use')
+    # Add CuPy and Torch later.
     parser.add_argument(
         '--outfile',
         default=None,
@@ -210,6 +251,11 @@ def parse_args(force_args=None):
                         help='File to save log output')
     parser.add_argument('--benchmark', action='store_true',
                         help='Whether to run in benchmark mode')
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=None,
+        help='Random seed for reproducible scenarios (e.g. scatter).')
     parser.add_argument(
         '--video',
         action='store_true',
@@ -229,44 +275,10 @@ def parse_args(force_args=None):
         help='Output format for trajectory data (e.g. csv, mp4, png).' +
              'Inferred from outfile extension if not specified.')
     args = parser.parse_args(force_args.split() if force_args else None)
-    if args.method in diffrax_methods and not args.engine:
-        args.engine = 'jax-cpu'
-        logger.info(
-            f"Method {args.method} requires a JAX engine."
-            f"Defaulting to {args.engine}.")
-    else:
-        args.engine = args.engine or 'numpy'
-        logger.info(f"Using engine: {args.engine}")
 
     # Validate --train mode before outfile processing so args.outfile
     # is still the original user-supplied value.
     _validate_args(args)
-
-    if args.outfile and not args.format:
-        logger.info(
-            f"Selecting output format based on file extension: {args.outfile}")
-        _resolve_output_format(args)
-    if not args.outfile:
-        logger.info("No output file specified. Defaulting to stdout text.")
-        args.visualise = None
-        args.format = 'csv'
-    # Default to 30 seconds for video duration.
-    args.duration = args.duration or 30
-
-    # Enforce n_bodies is only used with scatter scenario
-    if args.n_bodies is not None and args.scenario != 'scatter':
-        raise ValueError(
-            f"Option --n-bodies can only be used with the scatter scenario, "
-            f"not '{args.scenario}'.")
-    if args.n_bodies is not None and args.n_bodies < 1:
-        raise ValueError("Option --n-bodies must be at least 1.")
-
-    # Enforce law-solver compatibility
-    if args.law in FITTED_LAWS and args.method != 'euler':
-        logger.warning(
-            f"Fitted law '{args.law}' is not compatible with solver "
-            f"'{args.method}'. Switching to euler method.")
-        args.method = 'euler'
 
     return args
 

@@ -7,9 +7,8 @@ class System:
         self.masses = masses  # shape (N,) for N bodies
         self.immobile = (
             immobile if immobile is not None else
-            self.data.__array_namespace__().zeros(
-                self.masses.shape,
-                dtype=self.data.__array_namespace__().bool_))
+            self.data.__array_namespace__().zeros_like(
+                self.masses).astype(self.data.__array_namespace__().bool_))
 
     def positions(self):
         return self.data[0]

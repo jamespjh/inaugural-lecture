@@ -2,7 +2,7 @@ import pytest
 from teachgrav.integrator import integrate_trajectory
 from teachgrav.scenarios import ScenarioFactory
 import logging
-from engines import ENGINES_TO_TEST
+from engines import ENGINES_TO_TEST, AVAILABLE_ENGINES
 logger = logging.getLogger("Teachgrav")
 
 _METHOD_ENGINE_COMBOS = [
@@ -67,10 +67,15 @@ def test_integrate_trajectory_scatter_3D():
     assert trajectory.masses.shape == (5,)          # 5 bodies
 
 
+_jax_single_body_cases = (
+    [('jax-cpu', 'Tsit5', 1.0, 1e-6)] if 'jax-cpu' in AVAILABLE_ENGINES
+    else []
+)
+
+
 @pytest.mark.parametrize("engine,method,until,atol", [
     ('numpy', 'euler', 2.0, 1e-12),
-    ('jax-cpu', 'Tsit5', 1.0, 1e-6),
-])
+] + _jax_single_body_cases)
 def test_constant_single_body_moves_at_expected_position(
         engine, method, until, atol):
     factory = ScenarioFactory(engine=engine)

@@ -3,6 +3,7 @@ from sklearn.gaussian_process.kernels import Matern
 import joblib
 from .laws import Model
 from ..system import restack_va, to_shaped
+from ..array_abstraction import to_numpy_host
 
 import logging
 logger = logging.getLogger("Teachgrav")
@@ -50,6 +51,8 @@ class GPModel(Model):
             self.factory.create_training_data(N_sys, **kwargs)
         norm_y = self.normaliseY(accelerations)
         norm_ICs = self.normaliseX(ICs)
+        norm_y = to_numpy_host(norm_y)
+        norm_ICs = to_numpy_host(norm_ICs)
 
         logger.info("Training GP model...")
         self.gaussian_process.fit(norm_ICs, norm_y)
@@ -86,7 +89,8 @@ class GPModel(Model):
         """Compute the derivatives of the state using a learned GP model."""
         # Might be given multiple ICs in a batch, shape (C, 2 N D)
         ICs = self.add_vectorising_dimension_if_needed(data)
-        means = self.gaussian_process.predict(self.renormaliseX(ICs))
+        pred_in = to_numpy_host(self.renormaliseX(ICs))
+        means = self.gaussian_process.predict(pred_in)
         acc = self.factory.engine.array(means)  # Accelerations
         acc = self.denormaliseY(acc)
         velocities = to_shaped(

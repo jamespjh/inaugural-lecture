@@ -24,9 +24,7 @@ jobs:
           cd demo
           python -m venv venv
           source venv/bin/activate
-          pip install -e .
-          pip install pytest 
-          pip install '.[dev]'
+          pip install -e '.[dev,torch,numba,jax]'
       - name: Test python stub
         run: |
           cd demo

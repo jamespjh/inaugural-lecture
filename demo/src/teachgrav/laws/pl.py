@@ -2,6 +2,7 @@ import yaml
 from scipy.optimize import minimize
 from .laws import Model
 from ..system import to_shaped, restack_va
+from ..array_abstraction import to_numpy_host
 
 import logging
 logger = logging.getLogger("Teachgrav")
@@ -25,6 +26,7 @@ class PLModel(Model):
         # Placeholder implementation, replace with actual GP training code
         ICs, accelerations, masses, immobile = \
             self.factory.create_training_data(N_sys, **kwargs)
+        target_acc = to_numpy_host(accelerations)
 
         logger.info("Training Power Law model...")
 
@@ -40,8 +42,9 @@ class PLModel(Model):
         def objective(params):
             k, n = params
             pred = model(ICs, k, n)
-            delta = pred - accelerations
-            return self.factory.engine.np.sum(delta ** 2)
+            pred = to_numpy_host(pred)
+            delta = pred - target_acc
+            return float(to_numpy_host(delta ** 2).sum())
 
         res = minimize(
             objective, x0=[
@@ -50,8 +53,8 @@ class PLModel(Model):
         logger.info(f"Optimization result: {res}")
         logger.debug(f"Optimizer message: {res.message}")
         pars = res.x
-        self.G = self.factory.engine.np.array(pars[0]).item()
-        self.power = self.factory.engine.np.array(pars[1]).item()
+        self.G = float(pars[0])
+        self.power = float(pars[1])
 
         logger.info(f"Trained Power Law model with parameters:"
                     f"{self.G}, {self.power}")
@@ -106,7 +109,6 @@ class PLModel(Model):
         # Sum accelerations from all other bodies
         dvelocities = np.sum(accelerations, axis=2)
         # logger.debug("Total Accelerations:\n%s", dvelocities)
-
         delta = restack_va(dpositions, dvelocities)  # shape (C, 2, N, D)
         # Mask out the derivatives for immobile bodies
         # 1 where mobile, 0 where immobile

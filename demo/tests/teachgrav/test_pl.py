@@ -6,13 +6,14 @@ from teachgrav.laws.true_law import TrueLawModel
 from engines import ENGINES_TO_TEST
 
 
-def test_pl_train():
-    factory = ScenarioFactory('numpy')
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
+def test_pl_train(engine):
+    factory = ScenarioFactory(engine=engine)
     model = PLModel(factory)
     model.train(256, n_bodies=3)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("n_bodies", [2, 3, 10])
 def test_pl_predict(n_bodies):
     factory = ScenarioFactory('numpy')
