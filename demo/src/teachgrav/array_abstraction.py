@@ -121,13 +121,22 @@ class ArrayAbstraction:
         elif self.engine == 'numpy':
             self.random = self.random.default_rng(seed)
         elif self.engine == 'numba':
-            import numba
-            numba.core.random.seed(seed)
+            from .array_numba import numba_seed
+            numba_seed(seed)
         else:
             self.random.seed(seed)
 
     def array(self, data):
         """Create an array in the appropriate engine."""
+        if self.engine == 'python':
+            host = to_numpy_host(data)
+            if getattr(host, "ndim", 0) == 0:
+                return host.item()
+            return host.tolist()
+        if self.engine == 'numba':
+            from .array_numba import to_numba_typed_list
+            return to_numba_typed_list(to_numpy_host(data))
+
         res = self.np.array(data)
         if self.engine in jax_engines:
             res = jax.device_put(res, self.jax_device)
@@ -145,8 +154,10 @@ class ArrayAbstraction:
             max_python_size = 1024
             if reduce(mul, shape) > max_python_size * max_python_size:
                 raise ValueError(
-                    f"Size {shape} is too large for native-python." +
-                    f"Maximum size is {max_python_size}.")
+                    f"Size {shape} is too large for native-python. "
+                    f"Maximum total size is "
+                    f"{max_python_size * max_python_size} elements "
+                    f"({max_python_size}x{max_python_size}).")
             return self.random_python_matrix(shape)
         elif self.engine == 'numba':
             from .array_numba import numba_python_matrix
