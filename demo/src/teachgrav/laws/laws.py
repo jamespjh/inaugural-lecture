@@ -48,6 +48,11 @@ def create_law(law_name: str, factory=None, model_data: str = None):
                 "Use --model-data to specify the path, or run "
                 "'train-model --law gaussian' to train a model first."
             )
+        if factory is None:
+            raise ValueError(
+                "Law 'gaussian' requires a ScenarioFactory. "
+                "Pass factory=... when loading a Gaussian Process model."
+            )
         logger.info(f"Loading Gaussian Process model from {model_data}")
         return GPModel.load(model_data, factory=factory)
     elif law_name == 'power':
