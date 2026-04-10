@@ -100,7 +100,8 @@ def clear_gpu_cache():
         cupy.get_default_pinned_memory_pool().free_all_blocks()
     if detect_jax():
         import jax
-        [buf.delete() for buf in jax.live_arrays()]
+        for buf in jax.live_arrays():
+            buf.delete()
     if detect_torch_cuda():
         import torch
         torch.cuda.empty_cache()
