@@ -3,7 +3,6 @@ import argparse
 import logging
 from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import jax_engines, mlx_engines
-from .scenarios import ScenarioFactory
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .viz import visualize
 from .benchmark import benchmark_engine
