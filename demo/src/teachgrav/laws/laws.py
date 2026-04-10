@@ -46,7 +46,7 @@ def create_law(law_name: str, factory=None, model_data: str = None):
             raise ValueError(
                 "Law 'gaussian' requires a trained model file. "
                 "Use --model-data to specify the path, or run "
-                "'train-model --law gaussian' to train a model first."
+                "'teachgrav --train --law gaussian' to train a model first."
             )
         if factory is None:
             raise ValueError(
@@ -61,7 +61,7 @@ def create_law(law_name: str, factory=None, model_data: str = None):
             raise ValueError(
                 "Law 'power' requires a trained model file. "
                 "Use --model-data to specify the path, or run "
-                "'train-model --law power' to train a model first."
+                "'teachgrav --train --law power' to train a model first."
             )
         logger.info(f"Loading Power Law model from {model_data}")
         return PLModel.load(model_data, factory=factory)
