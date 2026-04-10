@@ -51,8 +51,7 @@ def test_boids_separation_repels_close_boids():
     velocities = np.zeros((2, 2))
     masses = np.array([1.0, 1.0])
 
-    import numpy
-    data = numpy.array([positions, velocities])
+    data = np.array([positions, velocities])
 
     from teachgrav.system import System
     system = System(data, masses=masses)
