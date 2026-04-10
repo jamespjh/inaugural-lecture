@@ -15,8 +15,8 @@ STOCHASTIC_SCENARIOS = ['scatter']
 
 
 class ScenarioFactory:
-    def __init__(self, engine='numpy'):
-        self.engine = ArrayAbstraction(engine)
+    def __init__(self, engine='numpy', seed=None):
+        self.engine = ArrayAbstraction(engine, seed=seed)
 
     def create_scenario(self, name: str, **kwargs) -> System:
         """Return a scenario system by name."""

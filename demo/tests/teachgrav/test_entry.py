@@ -78,6 +78,32 @@ def test_fitted_law_forces_euler_with_warning(caplog, law, method):
     assert f"Fitted law '{law}' is not compatible with solver" in caplog.text
 
 
+def test_n_bodies_scatter():
+    args = parse_args('--scenario scatter --n-bodies 6')
+    assert args.n_bodies == 6
+
+
+def test_n_bodies_default_is_none():
+    args = parse_args('--scenario scatter')
+    assert args.n_bodies is None
+
+
+@pytest.mark.parametrize('scenario', ['moon', 'sun', 'single'])
+def test_n_bodies_non_scatter_raises(scenario):
+    with pytest.raises(
+            ValueError,
+            match="Option --n-bodies can only be used with the scatter"):
+        parse_args(f'--scenario {scenario} --n-bodies 5')
+def test_parse_args_seed_option():
+    args = parse_args('--seed 42')
+    assert args.seed == 42
+
+
+def test_parse_args_seed_default_is_none():
+    args = parse_args(' ')
+    assert args.seed is None
+
+
 def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     class Args:
         log_level = 'WARNING'
@@ -93,6 +119,8 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         duration = 30
         format = 'csv'
         train = False
+        n_bodies = None
+        seed = None
 
     captured = {}
 

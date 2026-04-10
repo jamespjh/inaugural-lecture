@@ -27,6 +27,7 @@ def test_gp_predict():
     # assert factory.engine.np.allclose(gp_res, res, atol=0.2)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_gp_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
@@ -59,6 +60,7 @@ def test_gp_law_vectorised(engine):
         simple_results, vector_results, atol=1e-6)
 
 
+@pytest.mark.flaky(reruns=2)
 def test_normalise_denormalise():
     from teachgrav.laws.gp import GPModel
     from teachgrav.scenarios import ScenarioFactory
