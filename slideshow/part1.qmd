@@ -111,17 +111,6 @@ During this lecture, there will be some actual programmable demos I've built, bu
 
 The demos are all generated using real code - and are available online for those who would like to look at them later - not in BBC basic but in Python so there's some utility for a modern audience.
 
-Then our code looks like:
-
-```
-Let's have a time step dt, and make it small, so dt = 0.1
-Each time step:
-    x = x + vx * dt
-    y = y + vy * dt
-    Draw it
-And that's the end of the time step, so go round and do it again.
-```
-
 If we show this animation, we get a dot, moving in a straight line! [Demo]
 
 :::
