@@ -106,7 +106,7 @@ def parse_args(force_args=None):
         jax_engines +
         mlx_engines,
         help='Computation engine to use')
-    # Add CUPY, Torch and MLX later.
+    # Add CuPy and Torch later.
     parser.add_argument(
         '--outfile',
         default=None,
