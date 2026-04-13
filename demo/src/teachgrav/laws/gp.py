@@ -1,5 +1,6 @@
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern
+import joblib
 from .laws import Model
 from ..system import restack_va, to_shaped
 from ..array_abstraction import to_numpy_host
@@ -57,6 +58,32 @@ class GPModel(Model):
         self.gaussian_process.fit(norm_ICs, norm_y)
         logger.info(f"Trained GP model with kernel: "
                     f"{self.gaussian_process.kernel_}")
+
+    def save(self, path):
+        """Save the GP model to a joblib file (sklearn-compatible format)."""
+        import numpy as np
+        state = {
+            'gaussian_process': self.gaussian_process,
+            'X_mean': np.asarray(self.X_mean),
+            'X_std': np.asarray(self.X_std),
+            'Y_mean': np.asarray(self.Y_mean),
+            'Y_std': np.asarray(self.Y_std),
+        }
+        joblib.dump(state, path)
+        logger.info(f"Saved GP model to {path}")
+
+    @classmethod
+    def load(cls, path, factory=None):
+        """Load a GP model from a joblib file."""
+        state = joblib.load(path)
+        model = cls(factory=factory)
+        model.gaussian_process = state['gaussian_process']
+        model.X_mean = state['X_mean']
+        model.X_std = state['X_std']
+        model.Y_mean = state['Y_mean']
+        model.Y_std = state['Y_std']
+        logger.info(f"Loaded GP model from {path}")
+        return model
 
     def flat_law(self, data, masses, immobile):
         """Compute the derivatives of the state using a learned GP model."""
