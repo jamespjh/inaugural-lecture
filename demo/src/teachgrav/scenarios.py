@@ -7,6 +7,7 @@ import logging
 
 from .system import System, to_shaped
 from .array_abstraction import ArrayAbstraction
+from .engine_support import PYTHON_LIKE_ENGINES
 logger = logging.getLogger("Teachgrav")
 
 # Scenarios that generate random initial conditions and are
@@ -16,10 +17,21 @@ STOCHASTIC_SCENARIOS = ['scatter']
 
 class ScenarioFactory:
     def __init__(self, engine='numpy', seed=None):
+        self._engine_name = engine
+        self._seed = seed
         self.engine = ArrayAbstraction(engine, seed=seed)
 
     def create_scenario(self, name: str, **kwargs) -> System:
-        """Return a scenario system by name."""
+        """Return a scenario system by name.
+
+        For python/numba engines that lack Array API support, the scenario is
+        built with a numpy engine internally so that all array operations
+        (e.g. momentum normalisation) work correctly.  The returned System
+        uses numpy arrays; laws convert data on the fly when needed.
+        """
+        if self._engine_name in PYTHON_LIKE_ENGINES:
+            numpy_factory = ScenarioFactory(engine='numpy', seed=self._seed)
+            return numpy_factory.create_scenario(name, **kwargs)
         dispatch = {
             "moon": self.init_moon_orbiting_earth,
             "sun": self.init_earth_orbiting_sun,

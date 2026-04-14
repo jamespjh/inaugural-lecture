@@ -3,12 +3,9 @@ import logging
 import numpy as np
 from .pl import PLModel
 from ..array_abstraction import to_numpy_host
+from ..engine_support import PYTHON_LIKE_ENGINES
 
 logger = logging.getLogger("Teachgrav")
-
-# Engines that work with plain Python data structures (lists) rather than
-# numpy arrays, and therefore need a numpy-free gravity implementation.
-PYTHON_LIKE_ENGINES = {'python', 'numba'}
 
 
 class TrueLawModel(PLModel):
