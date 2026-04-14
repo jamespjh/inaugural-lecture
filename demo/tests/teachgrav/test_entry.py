@@ -136,3 +136,18 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     execute_scenario(Args())
     assert captured['arg_count'] == 1
     assert captured['args'][0] == 'numpy'
+
+
+def test_benchmark_scenario_returns_float(monkeypatch):
+    from teachgrav.entry import benchmark_scenario, parse_args
+
+    def fake_benchmark_engine(fn, engine, *args):
+        fn()
+        return 0.007
+
+    monkeypatch.setattr(
+        'teachgrav.entry.benchmark_engine', fake_benchmark_engine)
+    parsed = parse_args('--scenario moon --benchmark')
+    result = benchmark_scenario(parsed)
+    assert isinstance(result, float)
+    assert result == 0.007
