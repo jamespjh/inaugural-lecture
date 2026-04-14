@@ -92,3 +92,20 @@ def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):
     assert out[0][1] == 2.0
     assert out[1][0] == 3.0
     assert out[1][1] == 4.0
+
+
+def test_system_to_engine_preserves_values():
+    """System.to_engine converts all arrays to the target engine."""
+    src_engine = ArrayAbstraction('numpy')
+    tgt_engine = ArrayAbstraction('numpy', seed=0)
+
+    src = System(
+        src_engine.array([[[1.0, 2.0], [3.0, 4.0]],
+                          [[0.1, 0.2], [0.3, 0.4]]]),
+        masses=src_engine.array([1.5, 2.5]),
+    )
+    dst = src.to_engine(tgt_engine)
+
+    assert np.array_equal(np.array(dst.data), np.array(src.data))
+    assert np.array_equal(np.array(dst.masses), np.array(src.masses))
+    assert np.array_equal(np.array(dst.immobile), np.array(src.immobile))

@@ -10,7 +10,7 @@ import importlib
 import logging
 
 from ..system import System, to_shaped
-from ..array_abstraction import ArrayAbstraction, to_numpy_host
+from ..array_abstraction import ArrayAbstraction
 from .base import Scenario  # noqa: F401 – re-exported for convenience
 
 logger = logging.getLogger("Teachgrav")
@@ -76,11 +76,7 @@ class ScenarioFactory:
                 and self._engine_name != 'numpy'):
             numpy_engine = ArrayAbstraction('numpy', seed=self._seed)
             system = cls(numpy_engine).create(**kwargs)
-            return System(
-                self.engine.array(to_numpy_host(system.data)),
-                masses=self.engine.array(to_numpy_host(system.masses)),
-                immobile=self.engine.array(to_numpy_host(system.immobile)),
-            )
+            return system.to_engine(self.engine)
 
         return cls(self.engine).create(**kwargs)
 
