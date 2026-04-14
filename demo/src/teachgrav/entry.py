@@ -167,6 +167,7 @@ def execute_scenario(args):
         f'Running scenario: {args.scenario} with method: {args.method} '
         f'and law: {args.law}')
     trajectory = solve(system, args.method, args.law, factory=factory,
+                       dt=args.dt, until=args.until,
                        model_data=getattr(args, 'model_data', None))
 
     if args.visualise:
@@ -209,24 +210,7 @@ def _validate_args(args):
         _resolve_output_format(args)
 
     if args.train:
-        if args.law not in FITTED_LAWS:
-            raise ValueError(
-                f"--train requires a fitted law (gaussian or power). "
-                f"'{args.law}' does not require training.")
-        if args.scenario not in STOCHASTIC_SCENARIOS:
-            valid = ', '.join(STOCHASTIC_SCENARIOS)
-            raise ValueError(
-                f"--train requires a stochastic scenario. "
-                f"'{args.scenario}' is not suitable for training. "
-                f"Valid training scenarios: {valid}.")
-        if args.model_data is None:
-            raise ValueError(
-                "--train requires --model-data to specify the output path "
-                "for the saved model.")
-        if args.video or args.outfile is not None:
-            raise ValueError(
-                "--train cannot be used with visualization options "
-                "(--video, --outfile).")
+        _validate_train_args(args)
 
     if args.duration is not None and not args.video:
         raise ValueError(
@@ -245,97 +229,9 @@ def _validate_args(args):
         args.format = 'csv'
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
-
-    # Enforce n_bodies is only used with scatter scenario
-    if args.n_bodies is not None and args.scenario != 'scatter':
-        raise ValueError(
-            f"Option --n-bodies can only be used with the scatter scenario, "
-            f"not '{args.scenario}'.")
-    if args.n_bodies is not None and args.n_bodies < 1:
-        raise ValueError("Option --n-bodies must be at least 1.")
-
-    # Enforce law-solver compatibility
-    if args.law in FITTED_LAWS and args.method != 'euler':
-        logger.warning(
-            f"Fitted law '{args.law}' is not compatible with solver "
-            f"'{args.method}'. Switching to euler method.")
-        args.method = 'euler'
-
-
-def benchmark_scenario(args):
-    """Run a single benchmark and return the mean timing in seconds."""
-    factory = ScenarioFactory(args.engine, seed=args.seed)
-    scenario_kwargs = {}
-    if args.n_bodies is not None:
-        scenario_kwargs['n_bodies'] = args.n_bodies
-    system = factory.create_scenario(args.scenario, **scenario_kwargs)
-
-    def run_once():
-        return solve(system, args.method, law=args.law,
-                     factory=factory, dt=0.01, until=0.05,
-                     model_data=getattr(args, 'model_data', None))
-
-    return benchmark_engine(run_once, args.engine)
-
-
-def _validate_args(args):
-    """Validate parsed args and raise ValueError for incompatible options."""
-    if args.method in diffrax_methods and args.engine == 'numpy':
-        raise ValueError(
-            f"Method {args.method} is not compatible"
-            f"with engine {args.engine}")
-
-    if args.method in diffrax_methods and not args.engine:
-        args.engine = 'jax-cpu'
-        logger.info(
-            f"Method {args.method} requires a JAX engine."
-            f"Defaulting to {args.engine}.")
-    else:
-        args.engine = args.engine or 'numpy'
-        logger.info(f"Using engine: {args.engine}")
-
-    if args.outfile and not args.format and not args.train:
-        logger.info(
-            f"Selecting output format based on file extension: {args.outfile}")
-        _resolve_output_format(args)
-
-    if args.train:
-        if args.law not in FITTED_LAWS:
-            raise ValueError(
-                f"--train requires a fitted law (gaussian or power). "
-                f"'{args.law}' does not require training.")
-        if args.scenario not in STOCHASTIC_SCENARIOS:
-            valid = ', '.join(STOCHASTIC_SCENARIOS)
-            raise ValueError(
-                f"--train requires a stochastic scenario. "
-                f"'{args.scenario}' is not suitable for training. "
-                f"Valid training scenarios: {valid}.")
-        if args.model_data is None:
-            raise ValueError(
-                "--train requires --model-data to specify the output path "
-                "for the saved model.")
-        if args.video or args.outfile is not None:
-            raise ValueError(
-                "--train cannot be used with visualization options "
-                "(--video, --outfile).")
-
-    if args.duration is not None and not args.video:
-        raise ValueError(
-            "Option --duration can only be used with video output")
-
-    if not args.train and args.law in FITTED_LAWS and args.model_data is None:
-        raise ValueError(
-            f"Law '{args.law}' requires a pre-trained model file. "
-            f"Use --model-data to specify the path, or run "
-            f"'teachgrav --train --law {args.law} --model-data <path>' "
-            f"to train a model first.")
-
-    if not args.outfile:
-        logger.info("No output file specified. Defaulting to stdout text.")
-        args.visualise = None
-        args.format = 'csv'
-    # Default to 30 seconds for video duration.
-    args.duration = args.duration or 30
+    # Default integration timestep and end time.
+    args.dt = args.dt if args.dt is not None else 0.01
+    args.until = args.until if args.until is not None else 10.0
 
     # Enforce n_bodies is only used with scatter scenario
     if args.n_bodies is not None and args.scenario != 'scatter':
@@ -395,65 +291,6 @@ def _validate_train_args(args):
     if getattr(args, 'checkpoint_interval', 1) < 1:
         raise ValueError("--checkpoint-interval must be at least 1.")
 
-
-def _validate_args(args):
-    """Validate parsed args and raise ValueError for incompatible options."""
-    if args.method in diffrax_methods and args.engine == 'numpy':
-        raise ValueError(
-            f"Method {args.method} is not compatible"
-            f"with engine {args.engine}")
-
-    if args.method in diffrax_methods and not args.engine:
-        args.engine = 'jax-cpu'
-        logger.info(
-            f"Method {args.method} requires a JAX engine."
-            f"Defaulting to {args.engine}.")
-    else:
-        args.engine = args.engine or 'numpy'
-        logger.info(f"Using engine: {args.engine}")
-
-    if args.outfile and not args.format and not args.train:
-        logger.info(
-            f"Selecting output format based on file extension: {args.outfile}")
-        _resolve_output_format(args)
-
-    if args.train:
-        _validate_train_args(args)
-
-    if args.duration is not None and not args.video:
-        raise ValueError(
-            "Option --duration can only be used with video output")
-
-    if not args.train and args.law in FITTED_LAWS and args.model_data is None:
-        raise ValueError(
-            f"Law '{args.law}' requires a pre-trained model file. "
-            f"Use --model-data to specify the path, or run "
-            f"'teachgrav --train --law {args.law} --model-data <path>' "
-            f"to train a model first.")
-
-    if not args.outfile:
-        logger.info("No output file specified. Defaulting to stdout text.")
-        args.visualise = None
-        args.format = 'csv'
-    # Default to 30 seconds for video duration.
-    args.duration = args.duration or 30
-
-    # Enforce n_bodies is only used with scatter scenario
-    if args.n_bodies is not None and args.scenario != 'scatter':
-        raise ValueError(
-            f"Option --n-bodies can only be used with the scatter scenario, "
-            f"not '{args.scenario}'.")
-    if args.n_bodies is not None and args.n_bodies < 1:
-        raise ValueError("Option --n-bodies must be at least 1.")
-
-    # Enforce law-solver compatibility
-    if args.law in FITTED_LAWS and args.method != 'euler':
-        logger.warning(
-            f"Fitted law '{args.law}' is not compatible with solver "
-            f"'{args.method}'. Switching to euler method.")
-        args.method = 'euler'
-
-
 def _resolve_output_format(args):
     """Detect and set output format from file extension."""
     if args.outfile.endswith('.mp4'):
@@ -479,11 +316,12 @@ def parse_args(force_args=None):
     logger.info('Teachgrav called')
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
     parser.add_argument('--scenario', default='moon',
-                        choices=['moon', 'scatter', 'sun', 'single'])
+                        choices=['moon', 'scatter', 'sun', 'single', 'boids'])
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
     parser.add_argument('--law', default='gravity',
-                        choices=['gravity', 'constant', 'gaussian', 'power'],
+                        choices=['gravity', 'boids', 'constant', 'gaussian',
+                                 'power'],
                         help='Physics law/acceleration model to use')
     parser.add_argument('--model-data', dest='model_data', default=None,
                         help='Path to a trained model file for simulation '
@@ -532,6 +370,16 @@ def parse_args(force_args=None):
         type=int,
         default=None,
         help='Video duration in seconds (default: 30).')
+    parser.add_argument(
+        '--dt',
+        type=float,
+        default=None,
+        help='Integration timestep (default: 0.01).')
+    parser.add_argument(
+        '--until',
+        type=float,
+        default=None,
+        help='Simulation end time (default: 10).')
     parser.add_argument(
         '--format',
         default=None,

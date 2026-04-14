@@ -20,11 +20,11 @@
   duration: 5
   visualise: trail
   outfile: sun_rk45_trail.mp4
-# The convergence video (power_law_convergence.mp4) is not a standard
-# simulation scenario entry.  It is generated via training mode with:
-#
-#   teachgrav --train --law power --scenario scatter \
-#             --model-data /tmp/model.yaml \
-#             --n-systems 256 --seed 42 \
-#             --convergence-video assets/power_law_convergence.mp4 \
-#             --show-true-law
+- scenario: boids
+  method: euler
+  law: boids
+  dt: 1
+  until: 600
+  duration: 30
+  visualise: dot
+  outfile: boids_euler.mp4
