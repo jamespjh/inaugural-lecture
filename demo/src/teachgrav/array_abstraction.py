@@ -67,6 +67,7 @@ def move_to_device(value, target):
 
     return value
 
+
 def ArrayAbstraction(engine, seed=None):
     """Return an engine instance for *engine*.
 

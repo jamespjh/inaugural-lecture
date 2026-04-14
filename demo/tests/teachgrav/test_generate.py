@@ -406,7 +406,7 @@ def test_generate_figures_benchmark_only_yaml():
 
 
 def test_generate_figures_expands_non_benchmark_arrays_with_outfile_template(
-        ):
+):
     yaml_file = FIXTURES_DIR / "generate_templated.yaml"
 
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \

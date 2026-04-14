@@ -61,12 +61,12 @@ def infer_shape(data):
         current = current[0]
     return tuple(shape)
 
+
 def infer_ndim(data):
     """Return the number of dimensions for arrays or nested lists."""
     if hasattr(data, 'ndim'):
         return int(data.ndim)
     return len(infer_shape(data))
-
 
 
 def flatten_array(data):
@@ -124,4 +124,3 @@ def reshape_array(data, shape):
         ]
 
     return _reshape_py(flat, shape)
-
