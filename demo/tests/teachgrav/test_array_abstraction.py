@@ -188,7 +188,7 @@ def test_array_round_trip_available_engines(engine_name):
 
 @pytest.mark.parametrize("engine_name", ENGINES_TO_TEST)
 def test_random_array_shape_available_engines(engine_name):
-    """engine.random_array() returns correct shape for each available engine."""
+    """engine.random_array() returns correct shape."""
     engine = create_engine(engine_name, seed=7)
     result = engine.random_array((4, 3))
     host = to_numpy_host(result)
