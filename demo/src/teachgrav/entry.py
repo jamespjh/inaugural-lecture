@@ -19,6 +19,8 @@ def entry():
 
 def _train_model(args, factory):
     """Train a fitted law and save the model to args.model_data."""
+    checkpoints = []
+
     if args.seed is not None:
         import numpy as np
         np.random.seed(args.seed)
@@ -57,7 +59,7 @@ def _train_model(args, factory):
 def _generate_convergence_video(args, checkpoints, scenario_kwargs):
     """Generate a convergence video from power-law training checkpoints.
 
-    For each checkpoint, simulate the scatter scenario using Euler integration
+    For each checkpoint, simulate the scatter scenario using given integration
     with the checkpoint parameters and collect the resulting trajectory.
     These trajectories are combined into a single MP4 that shows the fitted
     law converging toward the true law.
@@ -84,6 +86,10 @@ def _generate_convergence_video(args, checkpoints, scenario_kwargs):
         f"Generating convergence video from {len(selected)} checkpoints "
         f"(interval={interval})…")
 
+    method = getattr(args, 'method', 'euler')
+    dt = getattr(args, 'dt', 0.01)
+    until = getattr(args, 'until', 10.0)
+
     # Use a fixed seed for the visualisation scenario so all frames show the
     # same initial conditions and only the law changes.
     viz_seed = args.seed if args.seed is not None else 42
@@ -92,9 +98,20 @@ def _generate_convergence_video(args, checkpoints, scenario_kwargs):
 
     trajectories = []
     for ckpt in selected:
+        logger.info(
+            "Integrating trajectory for checkpoint "
+            f"G={ckpt['G']:.4f}, power={ckpt['power']:.4f}…"
+        )
         pl_model = PLModel(factory=None, G=ckpt['G'], power=ckpt['power'])
-        traj = integrate_trajectory(
-            system, method='euler', model=pl_model)
+        try:
+            traj = integrate_trajectory(
+                system, method=method, model=pl_model, dt=dt, until=until)
+        except Exception as exc:  # pragma: no cover
+            logger.debug(
+                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
+                f"power={ckpt['power']:.4f} (integration failed: {exc!r})."
+            )
+            continue
         traj.data = np.array(traj.data)
         # Skip trajectories that blew up (common during early optimization).
         if not np.isfinite(traj.data).all():
@@ -114,9 +131,16 @@ def _generate_convergence_video(args, checkpoints, scenario_kwargs):
 
     ref_trajectory = None
     if getattr(args, 'show_true_law', False):
-        ref_traj = integrate_trajectory(system, method='euler', law='gravity')
-        ref_traj.data = np.array(ref_traj.data)
-        ref_trajectory = ref_traj
+        try:
+            ref_traj = integrate_trajectory(
+                system, method=method, law='gravity', dt=dt, until=until)
+            ref_traj.data = np.array(ref_traj.data)
+            ref_trajectory = ref_traj
+        except Exception as exc:  # pragma: no cover
+            logger.warning(
+                f"Failed to generate true-law overlay trajectory: {exc!r}. "
+                "Continuing without overlay."
+            )
 
     convergence_video(
         trajectories,
@@ -205,7 +229,11 @@ def _validate_args(args):
     if args.train:
         _validate_train_args(args)
 
-    if args.duration is not None and not args.video:
+    has_convergence_video = bool(
+        getattr(args, 'train', False) and
+        getattr(args, 'convergence_video', None)
+    )
+    if args.duration is not None and not (args.video or has_convergence_video):
         raise ValueError(
             "Option --duration can only be used with video output")
 
@@ -245,8 +273,11 @@ def benchmark_scenario(args):
         scenario_kwargs['n_bodies'] = args.n_bodies
     system = factory.create_scenario(args.scenario, **scenario_kwargs)
 
-    model = create_law(args.law, factory=factory,
-                           model_data=getattr(args, 'model_data', None))
+    model = create_law(
+        args.law,
+        factory=factory,
+        model_data=getattr(args, 'model_data', None),
+    )
 
     def run_once():
         return model.law(system)
@@ -414,7 +445,7 @@ def parse_args(force_args=None):
 
 
 def solve(system, method: str, law: str = 'gravity', factory=None,
-          dt: float = 0.01, until: float = 10, model_data: str = None):
+          dt: float = 0.01, until: float = 10, model_data: str | None = None):
     trajectory = integrate_trajectory(
         system, method, law=law, factory=factory, dt=dt, until=until,
         model_data=model_data)

@@ -21,14 +21,15 @@ def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
 
 
 def integrate_trajectory(
-        system: System,
-        method: str,
-        law: str = 'gravity',
-        factory=None,
-        dt: float = 0.01,
-        until: float = 10,
-        model_data: str = None,
-        model=None) -> Trajectory:
+    system: System,
+    method: str,
+    law: str = 'gravity',
+    factory=None,
+    dt: float = 0.01,
+    until: float = 10,
+    model_data: str | None = None,
+    model=None,
+) -> Trajectory:
     """Integrate the system state forward in time for a number of steps.
 
     Args:

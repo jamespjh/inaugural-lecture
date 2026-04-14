@@ -182,12 +182,14 @@ def convergence_video(trajectories, output, fps=5, options='trail',
     # ------------------------------------------------------------------ #
     # Determine global axis bounds so all frames share the same scale.    #
     # ------------------------------------------------------------------ #
-    all_pos = [np.array(t.data)[:, 0, :, :].reshape(-1, 2)
-               for t in trajectories]
     if ref_trajectory is not None:
-        all_pos.append(
-            np.array(ref_trajectory.data)[:, 0, :, :].reshape(-1, 2))
-    all_flat = np.concatenate(all_pos, axis=0)
+        # Keep the frame fixed to the true-law extent so fitted trajectories
+        # are judged against a consistent reference box.
+        all_flat = np.array(ref_trajectory.data)[:, 0, :, :].reshape(-1, 2)
+    else:
+        # Fall back to the best fitted trajectory (the final checkpoint).
+        all_flat = np.array(trajectories[-1].data)[:, 0, :, :].reshape(-1, 2)
+
     finite = all_flat[np.isfinite(all_flat).all(axis=1)]
     if len(finite) == 0:
         finite = np.array([[-10.0, -10.0], [10.0, 10.0]])

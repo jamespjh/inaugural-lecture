@@ -107,6 +107,14 @@ def test_show_true_law_default_false():
     assert args.show_true_law is False
 
 
+def test_duration_allowed_with_convergence_video_training():
+    args = parse_args('--train --law power --scenario scatter '
+                      '--model-data /tmp/model.yaml '
+                      '--convergence-video /tmp/conv.mp4 '
+                      '--duration 15')
+    assert args.duration == 15
+
+
 # ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
@@ -210,3 +218,94 @@ def test_convergence_video_with_checkpoint_interval():
     # With 10 checkpoints and interval=3, we expect ceil(10/3)=4 frames
     expected_count = len(checkpoints[::3])
     assert len(generated_trajectories) == expected_count
+
+
+def test_convergence_video_forwards_solver_flags_to_integrator():
+    """Checkpoint and overlay integrations should use method/dt/until args."""
+    from teachgrav.entry import _generate_convergence_video
+    import numpy as np
+
+    checkpoints = [{'G': 1.0, 'power': 2.0}, {'G': 1.1, 'power': 2.1}]
+
+    class FakeArgs:
+        scenario = 'scatter'
+        n_bodies = None
+        seed = 42
+        checkpoint_interval = 1
+        convergence_video = '/tmp/fake_convergence.mp4'
+        show_true_law = True
+        convergence_fps = 5
+        method = 'RK45'
+        dt = 0.123
+        until = 4.5
+
+    class FakeTraj:
+        def __init__(self):
+            self.data = np.zeros((2, 2, 2), dtype=float)
+
+    calls = []
+
+    def fake_integrate_trajectory(system, method, **kwargs):
+        calls.append({'method': method, **kwargs})
+        return FakeTraj()
+
+    def fake_convergence_video(trajectories, output, **kwargs):
+        return None
+
+    with patch(
+        'teachgrav.entry.integrate_trajectory',
+        fake_integrate_trajectory,
+    ), patch('teachgrav.entry.convergence_video', fake_convergence_video):
+        _generate_convergence_video(FakeArgs(), checkpoints, {})
+
+    # 2 checkpoint runs + 1 true-law overlay run
+    assert len(calls) == 3
+    for c in calls:
+        assert c['method'] == 'RK45'
+        assert c['dt'] == pytest.approx(0.123)
+        assert c['until'] == pytest.approx(4.5)
+
+
+def test_convergence_video_skips_failed_checkpoint_integrations():
+    """Integration failures for some checkpoints should be skipped."""
+    from teachgrav.entry import _generate_convergence_video
+    import numpy as np
+
+    checkpoints = [{'G': 1.0, 'power': 2.0}, {'G': 1.1, 'power': 2.1}]
+
+    class FakeArgs:
+        scenario = 'scatter'
+        n_bodies = None
+        seed = 42
+        checkpoint_interval = 1
+        convergence_video = '/tmp/fake_convergence.mp4'
+        show_true_law = False
+        convergence_fps = 5
+        method = 'LSODA'
+        dt = 0.01
+        until = 2.0
+
+    class FakeTraj:
+        def __init__(self):
+            self.data = np.zeros((2, 2, 2), dtype=float)
+
+    call_count = {'n': 0}
+    captured = {'n_frames': None}
+
+    def fake_integrate_trajectory(system, method, **kwargs):
+        call_count['n'] += 1
+        if call_count['n'] == 1:
+            raise ValueError("cannot reshape array")
+        return FakeTraj()
+
+    def fake_convergence_video(trajectories, output, **kwargs):
+        captured['n_frames'] = len(trajectories)
+
+    with patch(
+        'teachgrav.entry.integrate_trajectory',
+        fake_integrate_trajectory,
+    ), patch('teachgrav.entry.convergence_video', fake_convergence_video):
+        _generate_convergence_video(FakeArgs(), checkpoints, {})
+
+    assert call_count['n'] == 2
+    assert captured['n_frames'] == 1

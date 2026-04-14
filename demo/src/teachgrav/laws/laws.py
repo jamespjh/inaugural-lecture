@@ -30,7 +30,7 @@ class Model:
             return ICs
 
 
-def create_law(law_name: str, factory=None, model_data: str = None):
+def create_law(law_name: str, factory=None, model_data: str | None = None):
     """
     Factory function to create a law model by name.
 
