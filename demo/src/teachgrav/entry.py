@@ -150,21 +150,11 @@ def execute_scenario(args):
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
-    system = create_scenario(args.scenario, **scenario_kwargs)
+
     if args.benchmark:
-        logger.info('Running in benchmark mode')
-        print(f'Benchmarking scenario: {args.scenario} with law: {args.law}')
-
-        model = create_law(args.law, factory=factory,
-                           model_data=getattr(args, 'model_data', None))
-
-        def run_once():
-            return model.law(system)
-
-        time = benchmark_engine(run_once, args.engine)
-        print(f'Benchmark time: {time:.5f} seconds')
+        benchmark_scenario(args)
         return
-
+    system = create_scenario(args.scenario, **scenario_kwargs)
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method} '
         f'and law: {args.law}')
@@ -262,10 +252,11 @@ def benchmark_scenario(args):
         scenario_kwargs['n_bodies'] = args.n_bodies
     system = factory.create_scenario(args.scenario, **scenario_kwargs)
 
+    model = create_law(args.law, factory=factory,
+                           model_data=getattr(args, 'model_data', None))
+
     def run_once():
-        return solve(system, args.method, law=args.law,
-                     factory=factory, dt=0.01, until=0.05,
-                     model_data=getattr(args, 'model_data', None))
+        return model.law(system)
 
     return benchmark_engine(run_once, args.engine)
 

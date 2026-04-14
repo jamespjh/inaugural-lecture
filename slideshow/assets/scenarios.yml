@@ -23,7 +23,8 @@
 - scenario: scatter
   benchmark: true
   seed: 42
-  engine: all
+  engine: ALL
+  engine-consistent-seed: true
   n-bodies: [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
   outfile: benchmark_engines.png
 - scenario: boids
