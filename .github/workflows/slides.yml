@@ -32,7 +32,7 @@ jobs:
           cd demo
           python -m venv venv
           source venv/bin/activate
-          pip install -e .
+          pip install -e '.[jax]'
       
       - name: Generate slide assets
         run: |

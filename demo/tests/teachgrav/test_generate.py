@@ -264,6 +264,163 @@ def test_generate_figures_warns_non_csv_output():
                                       output="/tmp/out.txt")
 
 
+def test_generate_figures_figure_output_no_warning():
+    """--output pointing to a .png should not warn about .csv extension."""
+    yaml_file = FIXTURES_DIR / "benchmark_single.yaml"
+    import warnings as _warnings
+    with patch("teachgrav.generate.run_benchmark"):
+        with _warnings.catch_warnings(record=True) as caught:
+            _warnings.simplefilter("always")
+            generate.generate_figures(str(yaml_file), benchmark=True,
+                                      output="/tmp/out.png")
+    csv_warnings = [w for w in caught if '.csv extension' in str(w.message)]
+    assert csv_warnings == []
+
+
+# ---------------------------------------------------------------------------
+# Tests for _is_figure_output
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("path,expected", [
+    ("out.png",  True),
+    ("out.svg",  True),
+    ("out.pdf",  True),
+    ("out.PNG",  True),   # case-insensitive
+    ("out.csv",  False),
+    ("",         False),
+    (None,       False),
+])
+def test_is_figure_output(path, expected):
+    assert generate._is_figure_output(path) is expected
+
+
+# ---------------------------------------------------------------------------
+# Tests for figure output routing in _write_benchmark_csv
+# ---------------------------------------------------------------------------
+
+def test_write_benchmark_csv_routes_to_figure(tmp_path):
+    """_write_benchmark_csv calls _plot_benchmark_figure for .png output."""
+    output = str(tmp_path / "out.png")
+    headers = ["n-bodies", "numpy", "jax-cpu"]
+    rows = [[2, 0.001, 0.002], [4, 0.002, 0.003]]
+    with patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
+        generate._write_benchmark_csv(headers, rows, output)
+    mock_plot.assert_called_once_with(headers, rows, output)
+
+
+def test_write_benchmark_csv_does_not_write_file_for_figure(tmp_path):
+    """_write_benchmark_csv must not create a CSV file when output is .png."""
+    output = str(tmp_path / "out.png")
+    headers = ["n-bodies", "numpy"]
+    rows = [[2, 0.001]]
+    with patch("teachgrav.generate._plot_benchmark_figure"):
+        generate._write_benchmark_csv(headers, rows, output)
+    assert not (tmp_path / "out.png").exists()
+
+
+# ---------------------------------------------------------------------------
+# Tests for run_benchmark outfile auto-detection
+# ---------------------------------------------------------------------------
+
+def test_run_benchmark_uses_config_outfile_as_figure(tmp_path):
+    """run_benchmark picks up outfile from config and routes to figure."""
+    output_path = str(tmp_path / "bench.png")
+    configs = [{"scenario": "moon", "outfile": output_path,
+                "n-bodies": [2, 4]}]
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.benchmark_scenario",
+                  return_value=0.1), \
+            patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
+        mock_parse.return_value = _make_mock_args()
+        generate.run_benchmark(configs)
+    mock_plot.assert_called_once()
+    _, _, saved_path = mock_plot.call_args.args
+    assert saved_path == output_path
+
+
+def test_run_benchmark_explicit_output_overrides_config_outfile(tmp_path):
+    """Explicit output arg takes precedence over config outfile."""
+    config_outfile = str(tmp_path / "config.png")
+    explicit_outfile = str(tmp_path / "explicit.png")
+    configs = [{"scenario": "moon", "outfile": config_outfile}]
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.benchmark_scenario",
+                  return_value=0.1), \
+            patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
+        mock_parse.return_value = _make_mock_args()
+        generate.run_benchmark(configs, output=explicit_outfile)
+    _, _, saved_path = mock_plot.call_args.args
+    assert saved_path == explicit_outfile
+
+
+def test_run_benchmark_outfile_not_warned_for_figure():
+    """outfile in config should not trigger 'ignored' warning when it is the figure path."""
+    configs = [{"scenario": "moon", "outfile": "bench.png"}]
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.benchmark_scenario",
+                  return_value=0.1), \
+            patch("teachgrav.generate._plot_benchmark_figure"):
+        mock_parse.return_value = _make_mock_args()
+        import warnings as _warnings
+        with _warnings.catch_warnings(record=True) as caught:
+            _warnings.simplefilter("always")
+            generate.run_benchmark(configs)
+    outfile_warnings = [w for w in caught
+                        if 'outfile' in str(w.message).lower()
+                        and 'ignored' in str(w.message).lower()]
+    assert outfile_warnings == []
+
+
+# ---------------------------------------------------------------------------
+# Tests for generate_figures auto-routing benchmark: true configs
+# ---------------------------------------------------------------------------
+
+def test_generate_figures_auto_routes_benchmark_configs(tmp_path):
+    """benchmark: true in YAML routes to run_benchmark without --benchmark flag."""
+    yaml_file = tmp_path / "mixed.yaml"
+    yaml_file.write_text(
+        "- scenario: sun\n"
+        "  method: euler\n"
+        "  outfile: sun.mp4\n"
+        "  visualise: trail\n"
+        "- scenario: scatter\n"
+        "  benchmark: true\n"
+        "  outfile: bench.png\n"
+        "  n-bodies: [2, 4]\n"
+    )
+    with patch("teachgrav.generate.run_benchmark") as mock_bench, \
+            patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+        mock_parse.return_value = "parsed"
+        generate.generate_figures(str(yaml_file))
+    # Only the sun scenario goes to simulation
+    mock_parse.assert_called_once()
+    mock_exec.assert_called_once_with("parsed")
+    # benchmark config goes to run_benchmark
+    mock_bench.assert_called_once()
+    configs_arg = mock_bench.call_args.args[0]
+    assert len(configs_arg) == 1
+    assert configs_arg[0]['scenario'] == 'scatter'
+
+
+def test_generate_figures_benchmark_only_yaml(tmp_path):
+    """A YAML with only benchmark: true configs calls run_benchmark, not run_batch."""
+    yaml_file = tmp_path / "bm_only.yaml"
+    yaml_file.write_text(
+        "- scenario: scatter\n"
+        "  benchmark: true\n"
+        "  outfile: bench.png\n"
+        "  n-bodies: [2, 4]\n"
+    )
+    with patch("teachgrav.generate.run_benchmark") as mock_bench, \
+            patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+        generate.generate_figures(str(yaml_file))
+    mock_parse.assert_not_called()
+    mock_exec.assert_not_called()
+    mock_bench.assert_called_once()
+
+
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------

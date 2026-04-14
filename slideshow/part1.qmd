@@ -310,9 +310,9 @@ Well, what if we want to change the programme, or give it to someone else to mak
 * It is necessary
 :::
 ::: {}
-{{< video-credit
-  src="assets/placeholder.png"
-  alt="Plot of performance vs matrix engine." >}}
+{{< image-credit
+  src="assets/benchmark_engines.png"
+  alt="Log-log plot of gravity law evaluation time vs number of bodies for numpy and jax-cpu engines." >}}
 :::
 ::::
 

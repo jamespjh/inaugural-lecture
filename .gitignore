@@ -33,3 +33,6 @@ demo/results.txt
 demo/test.png
 demo/test.mp4
 test.mp4
+
+# Benchmark generated files (produced by CI, not committed)
+slideshow/assets/benchmark_engines.png
