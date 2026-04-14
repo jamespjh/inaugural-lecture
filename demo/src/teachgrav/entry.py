@@ -62,7 +62,9 @@ def execute_scenario(args):
     else:
         logging.basicConfig(level=args.log_level)
     logger.info(f'Loglevel set to {args.log_level}')
-    factory = ScenarioFactory(args.engine, seed=args.seed)
+    factory = ScenarioFactory(
+        args.engine, seed=args.seed,
+        engine_consistent_seed=args.engine_consistent_seed)
 
     if getattr(args, 'train', False):
         _train_model(args, factory)
@@ -188,7 +190,9 @@ def _validate_args(args):
 
 def benchmark_scenario(args):
     """Run a single benchmark and return the mean timing in seconds."""
-    factory = ScenarioFactory(args.engine, seed=args.seed)
+    factory = ScenarioFactory(
+        args.engine, seed=args.seed,
+        engine_consistent_seed=getattr(args, 'engine_consistent_seed', True))
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
@@ -279,7 +283,9 @@ def _validate_args(args):
 
 def benchmark_scenario(args):
     """Run a single benchmark and return the mean timing in seconds."""
-    factory = ScenarioFactory(args.engine, seed=args.seed)
+    factory = ScenarioFactory(
+        args.engine, seed=args.seed,
+        engine_consistent_seed=getattr(args, 'engine_consistent_seed', True))
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
@@ -437,6 +443,13 @@ def parse_args(force_args=None):
         type=int,
         default=None,
         help='Random seed for reproducible scenarios (e.g. scatter).')
+    parser.add_argument(
+        '--engine-consistent-seed',
+        dest='engine_consistent_seed',
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help='Generate scenarios via numpy first for cross-engine RNG '
+             'consistency when --seed is used (default: enabled).')
     parser.add_argument(
         '--video',
         action='store_true',

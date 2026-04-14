@@ -106,6 +106,16 @@ def test_parse_args_seed_default_is_none():
     assert args.seed is None
 
 
+def test_engine_consistent_seed_default_is_true():
+    args = parse_args(' ')
+    assert args.engine_consistent_seed is True
+
+
+def test_no_engine_consistent_seed():
+    args = parse_args('--no-engine-consistent-seed')
+    assert args.engine_consistent_seed is False
+
+
 def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     class Args:
         log_level = 'WARNING'
@@ -123,14 +133,15 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         train = False
         n_bodies = None
         seed = None
-
-    captured = {}
+        engine_consistent_seed = True
 
     def fake_benchmark(fn, *args):
         captured['arg_count'] = len(args)
         captured['args'] = args
         fn()
         return 0.1
+
+    captured = {}
 
     monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
     execute_scenario(Args())
@@ -156,6 +167,7 @@ def test_benchmark_mode_runs_single_law_step_not_full_solve(monkeypatch):
         train = False
         n_bodies = None
         seed = None
+        engine_consistent_seed = True
 
     law_call_count = {'count': 0}
     solve_call_count = {'count': 0}
