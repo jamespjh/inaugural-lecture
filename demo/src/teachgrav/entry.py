@@ -2,7 +2,7 @@ import sys
 import argparse
 import logging
 from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
-from .engine_support import jax_engines, mlx_engines
+from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
 from .viz import visualize, convergence_video
@@ -344,9 +344,7 @@ def parse_args(force_args=None):
     # Add CUPY, Torch and MLX later.
     parser.add_argument(
         '--engine',
-        choices=['numpy'] +
-        jax_engines +
-        mlx_engines,
+        choices=get_available_engines(),
         help='Computation engine to use')
     # Add CuPy and Torch later.
     parser.add_argument(

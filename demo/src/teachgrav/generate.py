@@ -9,6 +9,7 @@ import numpy as np
 import yaml
 
 from . import entry
+from .engine_support import get_available_engines
 
 _VIZ_KEYS = {'visualise', 'video', 'outfile', 'format', 'duration'}
 _FIGURE_EXTENSIONS = frozenset({'.png', '.svg', '.pdf'})
@@ -113,6 +114,8 @@ def _expand_config_arrays(config):
             array_params.append((key, parsed))
         else:
             base_config[key] = parsed
+        if key == 'engine' and parsed == "ALL":
+            array_params.append((key, get_available_engines()))
     return base_config, array_params
 
 
