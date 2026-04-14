@@ -111,7 +111,6 @@ def execute_scenario(args):
         stream = open(args.outfile, 'w') if args.outfile else sys.stdout
         trajectory.write(stream, args.format)
 
-
 def _validate_args(args):
     """Validate parsed args and raise ValueError for incompatible options."""
     if args.method in diffrax_methods and args.engine == 'numpy':
