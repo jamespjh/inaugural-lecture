@@ -1,14 +1,21 @@
+from .array_abstraction import infer_shape, move_to_device
+
+
 class System:
     def __init__(self, data, masses, immobile=None):
         self.data = data  # shape (2, N, D) for N bodies
         # in D dimensions
         # First slice is positions, second slice is velocities
-        self.D = self.data.shape[2]  # Number of dimensions (e.g., 2 for 2D)
+        # Number of dimensions (e.g., 2 for 2D)
+        self.D = infer_shape(self.data)[2]
         self.masses = masses  # shape (N,) for N bodies
-        self.immobile = (
-            immobile if immobile is not None else
-            self.data.__array_namespace__().zeros_like(
-                self.masses).astype(self.data.__array_namespace__().bool_))
+        if immobile is not None:
+            self.immobile = immobile
+        elif hasattr(self.data, '__array_namespace__'):
+            np = self.data.__array_namespace__()
+            self.immobile = np.zeros_like(self.masses).astype(np.bool_)
+        else:
+            self.immobile = [False] * len(self.masses)
 
     def positions(self):
         return self.data[0]
@@ -39,25 +46,19 @@ class System:
         return self.update(self.data + other.data)
 
     def __len__(self):
-        return self.data.shape[1]  # Number of bodies
+        return infer_shape(self.data)[1]  # Number of bodies
 
     def to_cpu(self):
         """Update the system with data moved to CPU."""
-        if self.data.__array_namespace__().__name__ == 'numpy':
-            return
-        import jax
-        self.data = self.data.to_device(jax.devices('cpu')[0])
-        self.masses = self.masses.to_device(jax.devices('cpu')[0])
-        self.immobile = self.immobile.to_device(jax.devices('cpu')[0])
+        self.data = move_to_device(self.data, 'cpu')
+        self.masses = move_to_device(self.masses, 'cpu')
+        self.immobile = move_to_device(self.immobile, 'cpu')
 
     def to_gpu(self):
         """Update the system with data moved to GPU."""
-        if self.data.__array_namespace__.__name__ == 'numpy':
-            return
-        import jax
-        self.data = self.data.to_device(jax.devices('gpu')[0])
-        self.masses = self.masses.to_device(jax.devices('gpu')[0])
-        self.immobile = self.immobile.to_device(jax.devices('gpu')[0])
+        self.data = move_to_device(self.data, 'gpu')
+        self.masses = move_to_device(self.masses, 'gpu')
+        self.immobile = move_to_device(self.immobile, 'gpu')
 
 
 class Change:

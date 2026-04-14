@@ -1,11 +1,20 @@
+from ..array_abstraction import (
+    flatten_array,
+    infer_ndim,
+    infer_shape,
+    reshape_array,
+)
+
+
 class Model:
     def __init__(self, factory, **kwargs):
         self.factory = factory
 
     def law(self, system):
         """Compute the derivatives of the state."""
-        return self.flat_law(system.data.flatten(), system.masses,
-                             system.immobile).reshape(system.data.shape)
+        flat_data = flatten_array(system.data)
+        result = self.flat_law(flat_data, system.masses, system.immobile)
+        return reshape_array(result, infer_shape(system.data))
 
     def flat_law(self, data, masses, immobile):
         """Compute the derivatives of the state using a learned model."""
@@ -13,8 +22,10 @@ class Model:
 
     def add_vectorising_dimension_if_needed(self, ICs):
         """Add a vectorising dimension to the ICs."""
-        if ICs.ndim == 1:
-            return ICs.reshape(1, -1)
+        if infer_ndim(ICs) == 1:
+            if hasattr(ICs, 'reshape'):
+                return ICs.reshape(1, -1)
+            return [ICs]
         else:
             return ICs
 
@@ -37,6 +48,9 @@ def create_law(law_name: str, factory=None, model_data: str = None):
     if law_name == 'gravity':
         from .true_law import TrueLawModel
         return TrueLawModel(factory=factory)
+    elif law_name == 'boids':
+        from .boids_law import BoidsLawModel
+        return BoidsLawModel(factory=factory)
     elif law_name == 'constant':
         from .constant_law import ConstantLawModel
         return ConstantLawModel(factory=factory)
@@ -68,5 +82,5 @@ def create_law(law_name: str, factory=None, model_data: str = None):
     else:
         raise ValueError(
             f"Unknown law '{law_name}'. "
-            f"Valid choices: gravity, constant, gaussian, power"
+            f"Valid choices: gravity, boids, constant, gaussian, power"
         )

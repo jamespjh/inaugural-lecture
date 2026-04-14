@@ -92,3 +92,40 @@ def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):
     assert out[0][1] == 2.0
     assert out[1][0] == 3.0
     assert out[1][1] == 4.0
+
+
+def test_system_init_with_nested_lists_sets_dimension_and_length():
+    data = [
+        [[0.0, 0.0], [1.0, 0.0]],
+        [[0.0, 0.0], [0.0, 1.0]],
+    ]
+    masses = [1.0, 1.0]
+    system = System(data, masses)
+
+    assert system.D == 2
+    assert len(system) == 2
+    assert system.immobile == [False, False]
+
+
+def test_system_to_cpu_list_backed_is_noop():
+    data = [
+        [[0.0, 0.0], [1.0, 0.0]],
+        [[0.0, 0.0], [0.0, 1.0]],
+    ]
+    masses = [1.0, 1.0]
+    system = System(data, masses)
+
+    system.to_cpu()
+
+    assert system.data == data
+    assert system.masses == masses
+    assert system.immobile == [False, False]
+
+
+def test_system_to_gpu_numpy_backed_leaves_shape_intact():
+    system = fixture_system
+
+    system.to_gpu()
+
+    assert system.positions().shape == (2, 2)
+    assert system.velocities().shape == (2, 2)

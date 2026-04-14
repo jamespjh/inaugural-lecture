@@ -2,9 +2,16 @@ import pytest
 import logging
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
+from teachgrav.array_abstraction import infer_shape
 from teachgrav.engine_support import get_available_engines
 from engines import ENGINES_TO_TEST
 logger = logging.getLogger(__name__)
+
+
+def assert_shape(value, expected_shape):
+    """Assert shape for both array-backed and list-backed outputs."""
+    assert infer_shape(value) == expected_shape
+
 
 factory = ScenarioFactory()
 model = TrueLawModel()
@@ -26,7 +33,7 @@ def test_law(engine):
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
     # 2 bodies, 4 derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt)
-    assert derivatives.shape == (2, 2, 2)
+    assert_shape(derivatives, (2, 2, 2))
 
 
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
@@ -51,7 +58,7 @@ def test_law_scatter(engine):
     system = sys_factory.create_scenario('scatter', n_bodies=5)
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
-    assert derivatives.shape == (2, 5, 2)
+    assert_shape(derivatives, (2, 5, 2))
 
 
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
@@ -60,7 +67,7 @@ def test_law_scatter_3D(engine):
     system = sys_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
-    assert derivatives.shape == (2, 5, 3)
+    assert_shape(derivatives, (2, 5, 3))
 
 
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)

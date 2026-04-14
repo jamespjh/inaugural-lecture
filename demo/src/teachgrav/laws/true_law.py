@@ -3,7 +3,6 @@ import logging
 import numpy as np
 from .pl import PLModel
 from ..array_abstraction import to_numpy_host
-from ..engine_support import PYTHON_LIKE_ENGINES
 
 logger = logging.getLogger("Teachgrav")
 
@@ -16,7 +15,8 @@ class TrueLawModel(PLModel):
         """Return True if the factory uses a Python-like engine."""
         if self.factory is None:
             return False
-        return self.factory.engine.engine in PYTHON_LIKE_ENGINES
+        engine = self.factory.engine
+        return engine.is_python_like_engine()
 
     def law(self, system):
         """Compute the derivatives of the state.

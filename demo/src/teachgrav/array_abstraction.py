@@ -1,226 +1,161 @@
-import numpy as np
-from operator import mul
-from functools import reduce
-from .engine_support import jax_engines, mlx_engines
-from .engine_support import torch_engines, valid_engines
+"""
+Backward-compatible shim for the array-abstraction layer.
+
+The implementation now lives in :mod:`teachgrav.engines`.
+This module re-exports the public symbols that the rest of the codebase
+imports from here so that existing code continues to work unchanged.
+"""
+
+from .engines import create_engine          # noqa: F401
+from .engines.base import to_numpy_host     # noqa: F401
 
 
-def to_numpy_host(x):
-    """Convert backend arrays/tensors to host NumPy arrays."""
-    if hasattr(x, "detach"):
-        x = x.detach()
-    if hasattr(x, "cpu"):
-        x = x.cpu()
-    if hasattr(x, "numpy"):
-        return x.numpy()
-    return np.asarray(x)
+def infer_shape(data):
+    """Return a tuple shape for array-like or nested-list data.
+
+    Supports array-backed values (anything with a ``shape`` attribute)
+    and python/numba-style nested lists.
+    """
+    if hasattr(data, 'shape'):
+        return tuple(data.shape)
+
+    shape = []
+    current = data
+    while hasattr(current, '__len__') and hasattr(current, '__getitem__'):
+        shape.append(len(current))
+        if len(current) == 0:
+            break
+        current = current[0]
+    return tuple(shape)
 
 
-def _ensure_torch_array_api(torch):
-    """Add minimal Array API hooks expected by this codebase."""
-    if getattr(torch, "_teachgrav_array_api_patched", False):
-        return
-
-    if not hasattr(torch, 'bool_'):
-        torch.bool_ = torch.bool
-
-    def _torch_array(data):
-        if isinstance(
-                data, (list, tuple)) and any(
-                torch.is_tensor(x) for x in data):
-            tensors = [
-                x if torch.is_tensor(x) else torch.as_tensor(x)
-                for x in data
-            ]
-            return torch.stack(tensors)
-        return torch.as_tensor(data)
-
-    torch.array = _torch_array
-
-    if not hasattr(torch.Tensor, '__array_namespace__'):
-        def __array_namespace__(self, api_version=None):
-            return torch
-
-        torch.Tensor.__array_namespace__ = __array_namespace__
-
-    if not hasattr(torch.Tensor, 'astype'):
-        def astype(self, dtype):
-            return self.to(dtype=dtype)
-
-        torch.Tensor.astype = astype
-
-    torch._teachgrav_array_api_patched = True
+def infer_ndim(data):
+    """Return the number of dimensions for arrays or nested lists."""
+    if hasattr(data, 'ndim'):
+        return int(data.ndim)
+    return len(infer_shape(data))
 
 
-class ArrayAbstraction:
+def move_to_device(value, target):
+    """Best-effort move of backend arrays/tensors to ``target`` device.
 
-    def __init__(self, engine, seed=None):
-        self.engine = engine
-        self.configure_engine(engine)
-        self.seed_random(seed)
+    Args:
+        value: backend-native array/tensor or python object.
+        target: ``'cpu'`` or ``'gpu'``.
 
-    def configure_engine(self, engine):
-        if engine == 'python':
-            self.np = None
-        elif engine == 'numba':
-            self.np = None
-        elif engine == 'numpy':
-            self.np = np
-        elif engine == 'cupy':
-            import cupy as cp
-            self.np = cp
-        elif engine in torch_engines:
+    Returns:
+        Value moved when supported; otherwise returned unchanged.
+    """
+    if target not in {'cpu', 'gpu'}:
+        raise ValueError("target must be 'cpu' or 'gpu'")
+
+    namespace_fn = getattr(value, '__array_namespace__', None)
+    if namespace_fn is None:
+        return value
+
+    namespace = namespace_fn()
+    ns_name = getattr(namespace, '__name__', '')
+
+    if ns_name == 'numpy':
+        return value
+
+    if ns_name == 'torch':
+        if target == 'cpu' and hasattr(value, 'cpu'):
+            return value.cpu()
+        if target == 'gpu' and hasattr(value, 'to'):
             import torch
-            _ensure_torch_array_api(torch)
-            self.np = torch
-        elif engine in jax_engines:
-            self.configure_jax()
-        elif engine in mlx_engines:
-            self.configure_mlx()
-        else:
-            raise ValueError(
-                f"Unknown engine '{engine}'. Valid engines "
-                f"are: {valid_engines}.")
+            if torch.cuda.is_available():
+                return value.to('cuda')
+            has_mps = (
+                hasattr(torch.backends, 'mps') and
+                torch.backends.mps.is_available()
+            )
+            if has_mps:
+                return value.to('mps')
+        return value
 
-    def configure_jax(self):
+    if ns_name.startswith('jax') and hasattr(value, 'to_device'):
         import jax
-        import jax.numpy as jnp
-        import jax.random as jrandom
-        self.np = jnp
-        self.random = jrandom
-        if self.engine == 'jax-metal':
-            self.jax_device = jax.devices("METAL")[0]
-        elif self.engine == 'jax-gpu':
-            self.jax_device = jax.devices("gpu")[0]
+        devices = jax.devices(target)
+        if devices:
+            return value.to_device(devices[0])
+        return value
+
+    if ns_name.startswith('cupy'):
+        try:
+            import importlib
+            cupy = importlib.import_module('cupy')
+        except ImportError:
+            return value
+        if target == 'cpu':
+            return cupy.asnumpy(value)
+        return cupy.asarray(value)
+
+    return value
+
+
+def flatten_array(data):
+    """Return a flattened 1D representation of *data*.
+
+    Uses backend-native ``flatten`` when available and falls back to
+    pure-Python flattening for list-backed containers.
+    """
+    if hasattr(data, 'flatten'):
+        return data.flatten()
+    if hasattr(data, 'ravel'):
+        return data.ravel()
+
+    flat = []
+
+    def _flatten_py(value):
+        if isinstance(value, (list, tuple)):
+            for item in value:
+                _flatten_py(item)
         else:
-            self.jax_device = jax.devices("cpu")[0]
+            flat.append(value)
 
-    def configure_mlx(self):
-        import mlx.core as mx
-        if self.engine == 'mlx-cpu':
-            mx.set_default_device(mx.cpu)
-        else:
-            mx.set_default_device(mx.gpu)
-        self.np = mx
-        self.random = mx.random
+    _flatten_py(data)
+    return flat
 
-    def seed_random(self, seed):
-        """Seed the random number generator for reproducibility."""
-        if self.engine in jax_engines:
-            self.key = self.random.key(seed if seed is not None else 0)
-            return
-        if self.engine in torch_engines:
-            import torch
-            # Create a per-instance generator for reproducibility
-            self.random = torch.Generator()
-            if seed is not None:
-                self.random.manual_seed(seed)
-        elif self.engine == 'numpy':
-            if seed is not None:
-                self.random = np.random.default_rng(seed)
-            else:
-                self.random = np.random.default_rng()
-        elif self.engine == 'cupy':
-            import cupy as cp
-            if seed is not None:
-                self.random = cp.random.RandomState(seed)
-            else:
-                self.random = cp.random
-        elif self.engine == 'numba':
-            if seed is not None:
-                from .array_numba import numba_seed
-                numba_seed(seed)
-        elif self.engine in mlx_engines:
-            # Use NumPy RNG for MLX to ensure reproducibility
-            if seed is not None:
-                self.random = np.random.default_rng(seed)
-            else:
-                self.random = np.random.default_rng()
-        elif self.engine == 'python':
-            import random
-            self.random = random
-            if seed is not None:
-                self.random.seed(seed)
 
-    def array(self, data):
-        """Create an array in the appropriate engine."""
-        if self.engine == 'python':
-            host = to_numpy_host(data)
-            if getattr(host, "ndim", 0) == 0:
-                return host.item()
-            return host.tolist()
-        if self.engine == 'numba':
-            from .array_numba import to_numba_typed_list
-            return to_numba_typed_list(to_numpy_host(data))
+def reshape_array(data, shape):
+    """Reshape *data* to *shape* for both arrays and python lists."""
+    if hasattr(data, 'reshape'):
+        return data.reshape(shape)
 
-        res = self.np.array(data)
-        if self.engine in jax_engines:
-            import jax
-            res = jax.device_put(res, self.jax_device)
-        if self.engine == 'torch-gpu':
-            res = res.to('cuda')
-        if self.engine == 'torch-mps':
-            if res.dtype == self.np.float64:
-                res = res.to(dtype=self.np.float32)
-            res = res.to('mps')
-        return res
+    if not isinstance(shape, tuple):
+        shape = tuple(shape)
+    if any(dim == -1 for dim in shape):
+        raise ValueError("reshape_array does not support -1 for list data")
 
-    def random_array(self, shape, min=0.0, max=1.0):
-        """Generate a random array of the given shape."""
-        if self.engine == 'python':
-            max_python_size = 1024
-            if reduce(mul, shape) > max_python_size * max_python_size:
-                raise ValueError(
-                    f"Size {shape} is too large for native-python. "
-                    f"Maximum total size is "
-                    f"{max_python_size * max_python_size} elements "
-                    f"({max_python_size}x{max_python_size}).")
-            return self.random_python_matrix(shape)
-        elif self.engine == 'numba':
-            from .array_numba import numba_python_matrix
-            return numba_python_matrix(shape)
-        elif self.engine == 'numpy':
-            return self.random.uniform(min, max, size=shape)
-        elif self.engine == 'cupy':
-            return self.random.uniform(low=min, high=max, size=shape)
-        elif self.engine in jax_engines:
-            self.key, subkey = self.random.split(self.key)
-            res = self.random.uniform(subkey, shape,
-                                      minval=min,
-                                      maxval=max)
-            import jax
-            res = jax.device_put(res, self.jax_device)
-            return res
-        elif self.engine in mlx_engines:
-            # Use NumPy RNG with per-instance seeding, then convert to MLX
-            if self.random is not None:
-                res_np = self.random.uniform(min, max, size=shape)
-            else:
-                raise ValueError(
-                    "MLX engine requires seeding for RNG.")
-            res = self.np.array(res_np)
-            return res
-        elif self.engine in torch_engines:
-            # Use per-instance generator if available
-            if self.random is not None:
-                res = self.np.rand(size=shape,
-                                   generator=self.random) * (max - min) + min
-            else:
-                res = self.np.rand(size=shape) * (max - min) + min
-            if self.engine == 'torch-gpu':
-                res = res.to('cuda')
-            if self.engine == 'torch-mps':
-                res = res.to('mps')
-            return res
-        else:
-            raise ValueError(
-                f"Unknown engine '{self.engine}'."
-                f"Valid engines: {valid_engines}.")
+    flat = flatten_array(data)
 
-    def random_python_matrix(self, size):
-        if len(size) != 2:
-            raise ValueError("Python engine only supports 2D matrices.")
-        return [[
-            self.random.random()
-            for _ in range(size[1])]
-            for _ in range(size[0])]
+    expected = 1
+    for dim in shape:
+        expected *= dim
+    if expected != len(flat):
+        raise ValueError(
+            f"Cannot reshape list of size {len(flat)} into shape {shape}")
+
+    def _reshape_py(values, dims):
+        if len(dims) == 1:
+            return values[:dims[0]]
+        step = 1
+        for dim in dims[1:]:
+            step *= dim
+        return [
+            _reshape_py(values[i * step:(i + 1) * step], dims[1:])
+            for i in range(dims[0])
+        ]
+
+    return _reshape_py(flat, shape)
+
+
+def ArrayAbstraction(engine, seed=None):
+    """Return an engine instance for *engine*.
+
+    This is a factory function that provides backward compatibility with
+    the previous ``ArrayAbstraction`` class.  It delegates to
+    :func:`teachgrav.engines.create_engine`.
+    """
+    return create_engine(engine, seed=seed)

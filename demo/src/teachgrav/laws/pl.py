@@ -21,14 +21,27 @@ class PLModel(Model):
         self.G = G
         self.power = power
 
-    def train(self, N_sys, **kwargs):
-        """Train a model on random scatters for a given set of args."""
-        # Placeholder implementation, replace with actual GP training code
+    def train(self, N_sys, on_step=None, **kwargs):
+        """Train a model on random scatters for a given set of args.
+
+        Args:
+            N_sys: number of random scatter systems to train on.
+            on_step: optional callable invoked after each optimisation
+                     iteration with a dict ``{'G': float, 'power': float}``.
+            **kwargs: extra keyword arguments forwarded to
+                      ``factory.create_training_data``.
+
+        Returns:
+            list of checkpoint dicts recorded at each optimisation step,
+            e.g. ``[{'G': 0.5, 'power': 3.0}, ...]``.
+        """
         ICs, accelerations, masses, immobile = \
             self.factory.create_training_data(N_sys, **kwargs)
         target_acc = to_numpy_host(accelerations)
 
         logger.info("Training Power Law model...")
+
+        checkpoints = []
 
         def model(ICs, k, n):
             self.G = k
@@ -46,10 +59,17 @@ class PLModel(Model):
             delta = pred - target_acc
             return float(to_numpy_host(delta ** 2).sum())
 
+        def callback(xk):
+            params = {'G': float(xk[0]), 'power': float(xk[1])}
+            checkpoints.append(params)
+            if on_step is not None:
+                on_step(params)
+
         res = minimize(
             objective, x0=[
                 self.G, self.power], bounds=[
-                (-5.0, 5.0), (-5.0, 5.0)])
+                (-5.0, 5.0), (-5.0, 5.0)],
+            callback=callback)
         logger.info(f"Optimization result: {res}")
         logger.debug(f"Optimizer message: {res.message}")
         pars = res.x
@@ -58,6 +78,8 @@ class PLModel(Model):
 
         logger.info(f"Trained Power Law model with parameters:"
                     f"{self.G}, {self.power}")
+
+        return checkpoints
 
     def save(self, path):
         """Save model parameters to a YAML file."""
@@ -81,8 +103,8 @@ class PLModel(Model):
         data_flat = self.add_vectorising_dimension_if_needed(data)
         num_vec = data_flat.shape[0]
         data = to_shaped(data_flat, num_vec, num_bodies=len(immobile))
-        G = data.__array_namespace__().array(self.G)
-        power = data.__array_namespace__().array(self.power)
+        G = self.G
+        power = self.power
         dpositions = data[:, 1, :, :]  # Derivative of position is velocity
         # Get the array namespace (e.g., numpy or jax.numpy)
         np = data.__array_namespace__()
