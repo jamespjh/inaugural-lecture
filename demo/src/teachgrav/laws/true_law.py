@@ -37,7 +37,7 @@ class TrueLawModel(PLModel):
     @staticmethod
     def _to_py_list(array_like):
         """Convert any array-like (numpy, JAX, list, …) to a Python list."""
-        return to_numpy_host(np.asarray(array_like)).ravel().tolist()
+        return to_numpy_host(array_like).ravel().tolist()
 
     def flat_law(self, data, masses, immobile):
         """Compute gravitational derivatives from a flat state vector.
