@@ -19,3 +19,6 @@ class NumbaEngine(BaseEngine):
     def random_array(self, shape, min=0.0, max=1.0):
         from ..array_numba import numba_python_matrix
         return numba_python_matrix(shape)
+
+    def is_python_like_engine(self):
+        return True

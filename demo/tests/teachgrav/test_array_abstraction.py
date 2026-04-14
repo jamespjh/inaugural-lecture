@@ -16,6 +16,14 @@ from teachgrav.engines import (
     NumpyEngine,
     PythonEngine,
 )
+from teachgrav.engines.python_engine import (
+    infer_ndim,
+    infer_shape,
+    flatten_array,
+    reshape_array,
+)
+from teachgrav.array_abstraction import move_to_device
+
 from engines import ENGINES_TO_TEST
 
 
@@ -79,6 +87,91 @@ def test_to_numpy_host_python_list():
 def test_to_numpy_host_scalar():
     result = to_numpy_host(42.0)
     assert isinstance(result, np.ndarray)
+
+
+def test_infer_shape_numpy_array():
+    arr = np.zeros((2, 3, 4))
+    assert infer_shape(arr) == (2, 3, 4)
+
+
+def test_infer_shape_nested_list():
+    data = [[[0.0, 0.0], [1.0, 0.0]], [[0.0, 0.0], [0.0, 1.0]]]
+    assert infer_shape(data) == (2, 2, 2)
+
+
+def test_infer_ndim_numpy_array():
+    arr = np.zeros((2, 3, 4))
+    assert infer_ndim(arr) == 3
+
+
+def test_infer_ndim_nested_list():
+    data = [[1.0, 2.0], [3.0, 4.0]]
+    assert infer_ndim(data) == 2
+
+
+def test_infer_ndim_scalar():
+    assert infer_ndim(42.0) == 0
+
+
+def test_engine_method_is_python_like_true_python():
+    assert create_engine('python').is_python_like_engine() is True
+
+
+def test_engine_method_is_python_like_true_numba():
+    assert create_engine('numba').is_python_like_engine() is True
+
+
+def test_engine_method_is_python_like_false_numpy():
+    assert create_engine('numpy').is_python_like_engine() is False
+
+
+def test_move_to_device_python_list_noop_cpu():
+    data = [[1.0, 2.0], [3.0, 4.0]]
+    moved = move_to_device(data, 'cpu')
+    assert moved == data
+
+
+def test_move_to_device_numpy_noop_gpu():
+    data = np.array([[1.0, 2.0], [3.0, 4.0]])
+    moved = move_to_device(data, 'gpu')
+    np.testing.assert_array_equal(moved, data)
+
+
+def test_move_to_device_rejects_invalid_target():
+    with pytest.raises(ValueError, match="target must be 'cpu' or 'gpu'"):
+        move_to_device([1.0, 2.0], 'tpu')
+
+
+def test_flatten_array_numpy():
+    data = np.array([[1.0, 2.0], [3.0, 4.0]])
+    flat = flatten_array(data)
+    np.testing.assert_array_equal(flat, np.array([1.0, 2.0, 3.0, 4.0]))
+
+
+def test_flatten_array_nested_list():
+    data = [[1.0, 2.0], [3.0, 4.0]]
+    flat = flatten_array(data)
+    assert isinstance(flat, list)
+    assert flat == [1.0, 2.0, 3.0, 4.0]
+
+
+def test_reshape_array_numpy():
+    data = np.array([1.0, 2.0, 3.0, 4.0])
+    reshaped = reshape_array(data, (2, 2))
+    np.testing.assert_array_equal(reshaped, np.array([[1.0, 2.0],
+                                                      [3.0, 4.0]]))
+
+
+def test_reshape_array_list():
+    data = [1.0, 2.0, 3.0, 4.0]
+    reshaped = reshape_array(data, (2, 2))
+    assert isinstance(reshaped, list)
+    assert reshaped == [[1.0, 2.0], [3.0, 4.0]]
+
+
+def test_reshape_array_list_invalid_size():
+    with pytest.raises(ValueError, match="Cannot reshape list"):
+        reshape_array([1.0, 2.0, 3.0], (2, 2))
 
 
 # ---------------------------------------------------------------------------
@@ -146,6 +239,20 @@ def test_python_engine_random_array_shape():
     assert all(len(row) == 4 for row in result)
 
 
+def test_python_engine_random_array_shape_1d():
+    engine = create_engine('python', seed=0)
+    result = engine.random_array((5,))
+    assert len(result) == 5
+
+
+def test_python_engine_random_array_shape_3d():
+    engine = create_engine('python', seed=0)
+    result = engine.random_array((2, 3, 4))
+    assert len(result) == 2
+    assert all(len(plane) == 3 for plane in result)
+    assert all(len(row) == 4 for plane in result for row in plane)
+
+
 def test_python_engine_random_array_range():
     engine = create_engine('python', seed=0)
     result = engine.random_array((10, 10), min=2.0, max=5.0)
@@ -157,12 +264,6 @@ def test_python_engine_random_array_too_large():
     engine = create_engine('python', seed=0)
     with pytest.raises(ValueError, match="too large"):
         engine.random_array((1025, 1025))
-
-
-def test_python_engine_random_array_not_2d():
-    engine = create_engine('python', seed=0)
-    with pytest.raises(ValueError, match="2D"):
-        engine.random_array((5,))
 
 
 # ---------------------------------------------------------------------------

@@ -51,10 +51,10 @@ def _load_scenario_class(name: str):
 
 
 class ScenarioFactory:
-    def __init__(self, engine='numpy', seed=None, engine_consistent_seed=True):
+    def __init__(self, engine='numpy', seed=None, via_numpy=True):
         self._engine_name = engine
         self._seed = seed
-        self._engine_consistent_seed = engine_consistent_seed
+        self.via_numpy = via_numpy
         self.engine = ArrayAbstraction(engine, seed=seed)
 
     def create_scenario(self, name: str, **kwargs) -> System:
@@ -63,16 +63,17 @@ class ScenarioFactory:
         The string *name* is resolved to a ``Scenario`` subclass via the
         naming convention described in ``_load_scenario_class``.
 
-        When *engine_consistent_seed* is ``True`` and a seed was provided,
+        When *via_numpy* is ``True``
         the scenario is first generated with a numpy engine (using the same
         seed) and then the resulting arrays are converted to the target engine.
         This ensures identical initial conditions for the same seed regardless
         of which engine is used.
+        And enables scenarios to be generated with engines that don't support
+        all the array operations needed for scenario generation.
         """
         cls = _load_scenario_class(name)
 
-        if (self._engine_consistent_seed
-                and self._seed is not None
+        if (self.via_numpy
                 and self._engine_name != 'numpy'):
             numpy_engine = ArrayAbstraction('numpy', seed=self._seed)
             system = cls(numpy_engine).create(**kwargs)

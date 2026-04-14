@@ -140,7 +140,7 @@ def execute_scenario(args):
     logger.info(f'Loglevel set to {args.log_level}')
     factory = ScenarioFactory(
         args.engine, seed=args.seed,
-        engine_consistent_seed=args.engine_consistent_seed)
+        via_numpy=args.engine_consistent_seed)
 
     if getattr(args, 'train', False):
         _train_model(args, factory)
@@ -256,7 +256,7 @@ def benchmark_scenario(args):
     """Run a single benchmark and return the mean timing in seconds."""
     factory = ScenarioFactory(
         args.engine, seed=args.seed,
-        engine_consistent_seed=getattr(args, 'engine_consistent_seed', True))
+        via_numpy=getattr(args, 'engine_consistent_seed', True))
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies

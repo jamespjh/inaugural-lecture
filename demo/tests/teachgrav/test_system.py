@@ -109,3 +109,40 @@ def test_system_to_engine_preserves_values():
     assert np.array_equal(np.array(dst.data), np.array(src.data))
     assert np.array_equal(np.array(dst.masses), np.array(src.masses))
     assert np.array_equal(np.array(dst.immobile), np.array(src.immobile))
+
+
+def test_system_init_with_nested_lists_sets_dimension_and_length():
+    data = [
+        [[0.0, 0.0], [1.0, 0.0]],
+        [[0.0, 0.0], [0.0, 1.0]],
+    ]
+    masses = [1.0, 1.0]
+    system = System(data, masses)
+
+    assert system.D == 2
+    assert len(system) == 2
+    assert system.immobile == [False, False]
+
+
+def test_system_to_cpu_list_backed_is_noop():
+    data = [
+        [[0.0, 0.0], [1.0, 0.0]],
+        [[0.0, 0.0], [0.0, 1.0]],
+    ]
+    masses = [1.0, 1.0]
+    system = System(data, masses)
+
+    system.to_cpu()
+
+    assert system.data == data
+    assert system.masses == masses
+    assert system.immobile == [False, False]
+
+
+def test_system_to_gpu_numpy_backed_leaves_shape_intact():
+    system = fixture_system
+
+    system.to_gpu()
+
+    assert system.positions().shape == (2, 2)
+    assert system.velocities().shape == (2, 2)

@@ -1,6 +1,11 @@
 import importlib.util
 
 
+# Engines that use plain Python data structures (lists) rather than Array API
+# arrays, and therefore need special handling when constructing scenarios or
+# computing physics laws.
+PYTHON_LIKE_ENGINES = {'python', 'numba'}
+
 jax_engines = ['jax-cpu', 'jax-gpu', 'jax-metal']
 mlx_engines = ['mlx-cpu', 'mlx-gpu']
 torch_engines = ['torch-cpu', 'torch-gpu', 'torch-mps']

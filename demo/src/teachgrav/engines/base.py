@@ -28,16 +28,20 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    def seed_random(self, seed):
+    def seed_random(self, seed) -> None:
         """Seed (or initialise) the random number generator."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def array(self, data):
         """Return an engine-native array created from *data*."""
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def random_array(self, shape, min=0.0, max=1.0):
         """Return a uniformly-distributed random array of *shape*."""
-        pass
+        raise NotImplementedError
+
+    def is_python_like_engine(self) -> bool:
+        """Return True for list-backed engines (python/numba)."""
+        return False

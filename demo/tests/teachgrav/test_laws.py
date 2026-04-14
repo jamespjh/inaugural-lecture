@@ -2,25 +2,46 @@ import pytest
 import logging
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
+from teachgrav.engines.python_engine import infer_shape
+from teachgrav.engine_support import get_available_engines
 from engines import ENGINES_TO_TEST
 logger = logging.getLogger(__name__)
+
+
+def assert_shape(value, expected_shape):
+    """Assert shape for both array-backed and list-backed outputs."""
+    assert infer_shape(value) == expected_shape
+
 
 factory = ScenarioFactory()
 model = TrueLawModel()
 law = model.law
 flat_law = model.flat_law
 
+# Engines that support the pure-Python for-loop gravity law.
+# ScenarioFactory handles python/numba engines transparently by building the
+# scenario with numpy internally; TrueLawModel converts data on the fly.
+ENGINES_WITH_PYTHON_LAW = ENGINES_TO_TEST + [
+    e for e in ['python', 'numba'] if e in get_available_engines()
+]
 
-def test_law():
-    system = factory.create_scenario('moon')
-    derivatives = law(system)
+
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law(engine):
+    sys_factory = ScenarioFactory(engine=engine)
+    system = sys_factory.create_scenario('moon')
+    law_model = TrueLawModel(factory=sys_factory)
+    derivatives = law_model.law(system)
     # 2 bodies, 4 derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt)
-    assert derivatives.shape == (2, 2, 2)
+    assert_shape(derivatives, (2, 2, 2))
 
 
-def test_law_immobile():
-    system = factory.create_scenario('sun')
-    derivatives = law(system)
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law_immobile(engine):
+    sys_factory = ScenarioFactory(engine=engine)
+    system = sys_factory.create_scenario('sun')
+    law_model = TrueLawModel(factory=sys_factory)
+    derivatives = law_model.law(system)
     logger.info(f"Derivatives:\n{derivatives}")
     # The Sun is immobile, so its derivatives should be zero
     assert derivatives[0][0][:].tolist() == [0.0, 0.0]
@@ -31,18 +52,22 @@ def test_law_immobile():
     assert derivatives[1][1][:].tolist() == [-1.0, 0.0]
 
 
-def test_law_scatter():
-    system = factory.create_scenario('scatter', n_bodies=5)
-    derivatives = law(system)
-    assert derivatives.shape == (2, 5, 2)
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law_scatter(engine):
+    sys_factory = ScenarioFactory(engine=engine)
+    system = sys_factory.create_scenario('scatter', n_bodies=5)
+    law_model = TrueLawModel(factory=sys_factory)
+    derivatives = law_model.law(system)
+    assert_shape(derivatives, (2, 5, 2))
 
 
-@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law_scatter_3D(engine):
-    eng_factory = ScenarioFactory(engine=engine)
-    system = eng_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
-    derivatives = law(system)
-    assert derivatives.shape == (2, 5, 3)
+    sys_factory = ScenarioFactory(engine=engine)
+    system = sys_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
+    law_model = TrueLawModel(factory=sys_factory)
+    derivatives = law_model.law(system)
+    assert_shape(derivatives, (2, 5, 3))
 
 
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)

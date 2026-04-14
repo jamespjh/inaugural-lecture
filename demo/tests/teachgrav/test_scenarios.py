@@ -86,7 +86,7 @@ def test_engine_consistent_seed_matches_numpy(engine):
     as the numpy engine regardless of which engine is requested."""
     f_numpy = ScenarioFactory(engine='numpy', seed=42)
     f_other = ScenarioFactory(engine=engine, seed=42,
-                              engine_consistent_seed=True)
+                              via_numpy=True)
     s_numpy = f_numpy.create_scenario('scatter', n_bodies=5)
     s_other = f_other.create_scenario('scatter', n_bodies=5)
     assert np.allclose(
