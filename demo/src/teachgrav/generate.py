@@ -1,5 +1,6 @@
 import argparse
 import csv
+import itertools
 import math
 import re
 import sys
@@ -117,6 +118,42 @@ def _expand_config_arrays(config):
         if key == 'engine' and parsed == "ALL":
             array_params.append((key, get_available_engines()))
     return base_config, array_params
+
+
+class _SafeFormatDict(dict):
+    def __missing__(self, key):
+        return '{' + key + '}'
+
+
+def _expand_non_benchmark_config(config):
+    """Expand one non-benchmark config into concrete invocations.
+
+    Array-valued keys (including range notation) are expanded by Cartesian
+    product. If ``outfile`` contains ``{key}`` placeholders, they are filled
+    from the expanded parameter values.
+    """
+    base_config, array_params = _expand_config_arrays(config)
+    if not array_params:
+        return [base_config]
+
+    keys = [k for k, _ in array_params]
+    values_product = itertools.product(*(vals for _, vals in array_params))
+    expanded = []
+    for combo in values_product:
+        params = dict(zip(keys, combo))
+        config_for_run = dict(base_config)
+        config_for_run.update(params)
+
+        outfile = config_for_run.get('outfile')
+        if isinstance(outfile, str):
+            format_values = dict(config_for_run)
+            config_for_run['outfile'] = outfile.format_map(
+                _SafeFormatDict(format_values)
+            )
+
+        expanded.append(config_for_run)
+
+    return expanded
 
 
 def _build_benchmark_args(base_config, override_params):
@@ -372,7 +409,11 @@ def generate_figures(yaml_file=None, benchmark=False, output=None):
         bm_configs = [c for c in configs if c.get('benchmark')]
 
         if sim_configs:
-            parsed_args = run_batch(sim_configs)
+            expanded_sim_configs = []
+            for config in sim_configs:
+                expanded_sim_configs.extend(_expand_non_benchmark_config(
+                    config))
+            parsed_args = run_batch(expanded_sim_configs)
             for args in parsed_args:
                 entry.execute_scenario(args)
 

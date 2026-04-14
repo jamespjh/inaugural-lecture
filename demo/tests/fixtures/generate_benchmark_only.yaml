@@ -1,0 +1,4 @@
+- scenario: scatter
+  benchmark: true
+  outfile: bench.png
+  n-bodies: [2, 4]

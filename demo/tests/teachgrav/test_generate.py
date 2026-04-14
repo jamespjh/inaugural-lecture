@@ -375,19 +375,9 @@ def test_run_benchmark_outfile_not_warned_for_figure():
 # Tests for generate_figures auto-routing benchmark: true configs
 # ---------------------------------------------------------------------------
 
-def test_generate_figures_auto_routes_benchmark_configs(tmp_path):
+def test_generate_figures_auto_routes_benchmark_configs():
     """benchmark: true in YAML routes to run_benchmark."""
-    yaml_file = tmp_path / "mixed.yaml"
-    yaml_file.write_text(
-        "- scenario: sun\n"
-        "  method: euler\n"
-        "  outfile: sun.mp4\n"
-        "  visualise: trail\n"
-        "- scenario: scatter\n"
-        "  benchmark: true\n"
-        "  outfile: bench.png\n"
-        "  n-bodies: [2, 4]\n"
-    )
+    yaml_file = FIXTURES_DIR / "generate_mixed_benchmark.yaml"
     with patch("teachgrav.generate.run_benchmark") as mock_bench, \
             patch("teachgrav.generate.entry.parse_args") as mock_parse, \
             patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
@@ -403,15 +393,9 @@ def test_generate_figures_auto_routes_benchmark_configs(tmp_path):
     assert configs_arg[0]['scenario'] == 'scatter'
 
 
-def test_generate_figures_benchmark_only_yaml(tmp_path):
+def test_generate_figures_benchmark_only_yaml():
     """A YAML with only benchmark: true configs calls run_benchmark."""
-    yaml_file = tmp_path / "bm_only.yaml"
-    yaml_file.write_text(
-        "- scenario: scatter\n"
-        "  benchmark: true\n"
-        "  outfile: bench.png\n"
-        "  n-bodies: [2, 4]\n"
-    )
+    yaml_file = FIXTURES_DIR / "generate_benchmark_only.yaml"
     with patch("teachgrav.generate.run_benchmark") as mock_bench, \
             patch("teachgrav.generate.entry.parse_args") as mock_parse, \
             patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
@@ -419,6 +403,43 @@ def test_generate_figures_benchmark_only_yaml(tmp_path):
     mock_parse.assert_not_called()
     mock_exec.assert_not_called()
     mock_bench.assert_called_once()
+
+
+def test_generate_figures_expands_non_benchmark_arrays_with_outfile_template(
+        ):
+    yaml_file = FIXTURES_DIR / "generate_templated.yaml"
+
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
+            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+        mock_parse.side_effect = ["args0", "args1"]
+        generate.generate_figures(str(yaml_file))
+
+    assert mock_parse.call_count == 2
+    call0 = mock_parse.call_args_list[0].args[0]
+    call1 = mock_parse.call_args_list[1].args[0]
+    assert "--seed 0" in call0
+    assert "--outfile scatter_0.mp4" in call0
+    assert "--seed 1" in call1
+    assert "--outfile scatter_1.mp4" in call1
+    assert mock_exec.call_count == 2
+
+
+def test_expand_non_benchmark_config_cartesian_product():
+    config = {
+        "scenario": "scatter",
+        "method": ["euler", "RK45"],
+        "seed": [0, 1],
+        "outfile": "run_{method}_{seed}.mp4",
+    }
+    expanded = generate._expand_non_benchmark_config(config)
+    outfiles = sorted(c["outfile"] for c in expanded)
+    assert len(expanded) == 4
+    assert outfiles == [
+        "run_RK45_0.mp4",
+        "run_RK45_1.mp4",
+        "run_euler_0.mp4",
+        "run_euler_1.mp4",
+    ]
 
 
 # ---------------------------------------------------------------------------

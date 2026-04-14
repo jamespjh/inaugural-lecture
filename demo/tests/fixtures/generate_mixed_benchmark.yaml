@@ -1,0 +1,8 @@
+- scenario: sun
+  method: euler
+  outfile: sun.mp4
+  visualise: trail
+- scenario: scatter
+  benchmark: true
+  outfile: bench.png
+  n-bodies: [2, 4]

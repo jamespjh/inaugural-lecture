@@ -1,0 +1,5 @@
+- scenario: scatter
+  method: euler
+  seed: [0, 1]
+  visualise: dot
+  outfile: scatter_{seed}.mp4
