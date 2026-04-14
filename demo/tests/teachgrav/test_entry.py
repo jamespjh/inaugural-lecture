@@ -135,13 +135,13 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         seed = None
         engine_consistent_seed = True
 
+    captured = {}
+
     def fake_benchmark(fn, *args):
         captured['arg_count'] = len(args)
         captured['args'] = args
         fn()
         return 0.1
-
-    captured = {}
 
     monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
     execute_scenario(Args())
