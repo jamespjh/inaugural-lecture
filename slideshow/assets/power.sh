@@ -1,1 +1,1 @@
-teachgrav --train --law power --scenario scatter --n-systems 256 --convergence-video power_law_convergence.mp4 --show-true-law --model-data model.yaml --engine numpy
+teachgrav --train --law power --scenario scatter --n-systems 256 --convergence-video power_law_convergence.mp4 --show-true-law --model-data model.yaml --engine numpy --method LSODA

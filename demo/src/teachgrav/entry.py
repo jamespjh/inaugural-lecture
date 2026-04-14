@@ -234,13 +234,6 @@ def _validate_args(args):
     if args.n_bodies is not None and args.n_bodies < 1:
         raise ValueError("Option --n-bodies must be at least 1.")
 
-    # Enforce law-solver compatibility
-    if args.law in FITTED_LAWS and args.method != 'euler':
-        logger.warning(
-            f"Fitted law '{args.law}' is not compatible with solver "
-            f"'{args.method}'. Switching to euler method.")
-        args.method = 'euler'
-
 
 def benchmark_scenario(args):
     """Run a single benchmark and return the mean timing in seconds."""

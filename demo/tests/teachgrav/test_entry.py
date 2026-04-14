@@ -68,16 +68,6 @@ def test_parse_args_law_option():
     assert args.law == 'constant'
 
 
-@pytest.mark.parametrize('law', ['gaussian', 'power'])
-@pytest.mark.parametrize('method', ['RK45', 'Tsit5'])
-def test_fitted_law_forces_euler_with_warning(caplog, law, method):
-    with caplog.at_level('WARNING', logger='Teachgrav'):
-        args = parse_args(
-            f'--law {law} --method {method} --model-data /tmp/model.yaml')
-    assert args.method == 'euler'
-    assert f"Fitted law '{law}' is not compatible with solver" in caplog.text
-
-
 def test_n_bodies_scatter():
     args = parse_args('--scenario scatter --n-bodies 6')
     assert args.n_bodies == 6
