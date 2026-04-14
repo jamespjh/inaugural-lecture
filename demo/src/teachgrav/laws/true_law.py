@@ -1,6 +1,8 @@
 import math
 import logging
+import numpy as np
 from .pl import PLModel
+from ..array_abstraction import to_numpy_host
 
 logger = logging.getLogger("Teachgrav")
 
@@ -19,16 +21,44 @@ class TrueLawModel(PLModel):
             return False
         return self.factory.engine.engine in PYTHON_LIKE_ENGINES
 
+    def law(self, system):
+        """Compute the derivatives of the state.
+
+        For python/numba engines, system data is converted from any backend
+        (numpy, JAX, etc.) to plain Python before computing with for loops.
+        Returns a numpy array with the same shape as the input system data.
+        """
+        if self._uses_python_engine():
+            numpy_data = to_numpy_host(system.data)
+            data = numpy_data.flatten().tolist()
+            masses = to_numpy_host(system.masses).tolist()
+            immobile = to_numpy_host(system.immobile).tolist()
+            result = self._python_gravity_flat_law(data, masses, immobile)
+            return np.array(result).reshape(numpy_data.shape)
+        return super().law(system)
+
+    @staticmethod
+    def _to_py_list(array_like):
+        """Convert any array-like (numpy, JAX, list, …) to a Python list."""
+        return to_numpy_host(np.asarray(array_like)).ravel().tolist()
+
     def flat_law(self, data, masses, immobile):
         """Compute gravitational derivatives from a flat state vector.
 
-        For python and numba engines the data lives in plain Python lists,
-        so we use an explicit nested-for-loop implementation that requires no
-        numpy array operations.  For all other engines we delegate to the
-        vectorised PLModel implementation.
+        For python and numba engines, inputs are converted from any backend
+        format to plain Python lists before computing with for loops, and
+        the result is returned as a numpy array.
+        For all other engines we delegate to the vectorised PLModel
+        implementation.
         """
         if self._uses_python_engine():
-            return self._python_gravity_flat_law(data, masses, immobile)
+            py_data = self._to_py_list(data)
+            py_masses = self._to_py_list(masses)
+            py_immobile = [bool(x) for x in self._to_py_list(immobile)]
+            return np.array(
+                self._python_gravity_flat_law(
+                    py_data, py_masses, py_immobile)
+            )
         return super().flat_law(data, masses, immobile)
 
     def _python_gravity_flat_law(self, data, masses, immobile):
@@ -45,14 +75,16 @@ class TrueLawModel(PLModel):
           The total acceleration on body i is the sum of a_ij over all j ≠ i.
 
         Args:
-            data:     flat sequence of length 2*N*D — positions first, then
-                      velocities, both in body-major, dimension-minor order.
-            masses:   sequence of N body masses.
-            immobile: sequence of N booleans; True means the body is fixed.
+            data:     flat Python list of length 2*N*D — positions first,
+                      then velocities, both in body-major, dimension-minor
+                      order.
+            masses:   Python list of N body masses.
+            immobile: Python list of N booleans; True means the body is fixed.
 
         Returns:
-            Flat list of length 2*N*D with the time-derivatives of the state:
-            [d_positions, d_velocities] in the same layout as *data*.
+            Flat Python list of length 2*N*D with the time-derivatives of
+            the state: [d_positions, d_velocities] in the same layout as
+            *data*.
         """
         N = len(masses)            # number of bodies
         D = len(data) // (2 * N)  # number of spatial dimensions (e.g. 2 or 3)
