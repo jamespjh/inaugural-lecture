@@ -103,8 +103,8 @@ class PLModel(Model):
         data_flat = self.add_vectorising_dimension_if_needed(data)
         num_vec = data_flat.shape[0]
         data = to_shaped(data_flat, num_vec, num_bodies=len(immobile))
-        G = data.__array_namespace__().array(self.G)
-        power = data.__array_namespace__().array(self.power)
+        G = self.G
+        power = self.power
         dpositions = data[:, 1, :, :]  # Derivative of position is velocity
         # Get the array namespace (e.g., numpy or jax.numpy)
         np = data.__array_namespace__()

@@ -3,6 +3,7 @@ import pytest
 from teachgrav.laws.boids_law import BoidsLawModel
 from teachgrav.scenarios import ScenarioFactory
 from teachgrav.system import System
+from teachgrav.array_abstraction import to_numpy_host
 from engines import ENGINES_TO_TEST
 
 
@@ -43,12 +44,17 @@ def test_boids_immobile_mask_zeroes_derivatives(engine):
     """Immobile boids have zero derivatives."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
     system = eng_factory.create_scenario('boids', n_boids=4)
-    arr = system.data.__array_namespace__()
+    arr = eng_factory.engine
     # Mark the first boid as immobile
     system.immobile = arr.array([True, False, False, False])
     model = BoidsLawModel()
     delta = model.law(system)
-    assert arr.allclose(delta[:, 0, :], arr.zeros((2, 2)), atol=1e-10)
+    np = delta.__array_namespace__()
+    assert np.allclose(
+        delta[:, 0, :],
+        arr.array([[0.0, 0.0], [0.0, 0.0]]),
+        atol=1e-10,
+    )
 
 
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
@@ -136,4 +142,4 @@ def test_boids_various_flock_sizes(engine, n_boids):
     model = BoidsLawModel()
     delta = model.law(system)
     assert delta.shape == (2, n_boids, 2)
-    assert not np.any(np.isnan(np.array(delta)))
+    assert not np.any(np.isnan(to_numpy_host(delta)))
