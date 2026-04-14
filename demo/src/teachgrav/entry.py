@@ -188,6 +188,7 @@ def execute_scenario(args):
         stream = open(args.outfile, 'w') if args.outfile else sys.stdout
         trajectory.write(stream, args.format)
 
+
 def _validate_args(args):
     """Validate parsed args and raise ValueError for incompatible options."""
     if args.method in diffrax_methods and args.engine == 'numpy':
@@ -290,6 +291,7 @@ def _validate_train_args(args):
             "--convergence-video is only supported for --law power.")
     if getattr(args, 'checkpoint_interval', 1) < 1:
         raise ValueError("--checkpoint-interval must be at least 1.")
+
 
 def _resolve_output_format(args):
     """Detect and set output format from file extension."""
