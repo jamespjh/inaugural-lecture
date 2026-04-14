@@ -146,8 +146,8 @@ def test_expand_config_arrays_expands_range_notation():
 def test_run_benchmark_warns_viz_options():
     configs = [{"scenario": "moon", "visualise": "dot"}]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               return_value=0.1):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              return_value=0.1):
         mock_parse.return_value = _make_mock_args()
         with pytest.warns(UserWarning, match="visualise.*ignored"):
             generate.run_benchmark(configs)
@@ -156,8 +156,8 @@ def test_run_benchmark_warns_viz_options():
 def test_run_benchmark_single_no_sweep(capsys):
     configs = [{"scenario": "moon"}]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               return_value=0.042):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              return_value=0.042):
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs)
 
@@ -169,8 +169,8 @@ def test_run_benchmark_single_no_sweep(capsys):
 def test_run_benchmark_single_one_param(capsys):
     configs = [{"scenario": "moon", "method": ["euler", "RK45"]}]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               side_effect=[0.001, 0.002]):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              side_effect=[0.001, 0.002]):
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs)
 
@@ -187,8 +187,8 @@ def test_run_benchmark_single_two_params(capsys):
                 "n-bodies": [2, 4]}]
     times = [0.01, 0.02, 0.03, 0.04]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               side_effect=times):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              side_effect=times):
         mock_parse.return_value = _make_mock_args(scenario='scatter')
         generate.run_benchmark(configs)
 
@@ -209,8 +209,8 @@ def test_run_benchmark_warns_more_than_two_params(capsys):
                 "n-bodies": [2],
                 "engine": ["numpy"]}]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               return_value=0.1):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              return_value=0.1):
         mock_parse.return_value = _make_mock_args(scenario='scatter')
         with pytest.warns(UserWarning, match="More than two array parameters"):
             generate.run_benchmark(configs)
@@ -220,8 +220,8 @@ def test_run_benchmark_multiple_scenarios(capsys):
     yaml_file = FIXTURES_DIR / "benchmark_multi.yaml"
     times = [0.1, 0.2, 0.3, 0.4]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               side_effect=times):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              side_effect=times):
         mock_parse.return_value = _make_mock_args()
         import yaml as _yaml
         with open(str(yaml_file)) as f:

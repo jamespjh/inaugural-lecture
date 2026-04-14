@@ -247,15 +247,23 @@ So this is another aspect of our lesson about what we learn by programming in sc
 
 Another thing tenage me really liked a few years later - I think I saw this in one of my Dad's books but then did an implentation on Archimedes - is that pretty similar code to this can be used - with a different rule for acceleration - to simulate behaviour of flocking sheep. (Remember I'm from Cumbria.) Or indeed flocking birds - with really beautiful videos. 
 
-You can code in rules for formation flying, avoiding predators etc. [Demo should show the Boids]
+You can code in rules for formation flying, avoiding predators etc.
 
 The rules for the Boids:
 
-[Fill in here]
+1. **Cohesion** – fly toward the centre of the flock.
+2. **Separation** – avoid getting too close to neighbours.
+3. **Alignment** – match velocity with nearby boids.
 
 This also really made an impression on me - the kind of understanding-with-rules, where you aren't properly convinced you've understood something until you can get a computer to do it, works in biology and sociology, and history, as well as physics. 
 
 :::
+
+```{=html}
+<video autoplay loop muted playsinline width="100%">
+  <source src="assets/boids_euler.mp4" type="video/mp4">
+</video>
+```
 
 ## 1.1.8 - Effective
 ::: notes

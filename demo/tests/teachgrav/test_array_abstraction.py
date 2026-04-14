@@ -24,18 +24,18 @@ from engines import ENGINES_TO_TEST
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("name,expected", [
-    ('numpy',      'NumpyEngine'),
-    ('python',     'PythonEngine'),
-    ('numba',      'NumbaEngine'),
-    ('cupy',       'CupyEngine'),
-    ('jax-cpu',    'JaxCpuEngine'),
-    ('jax-gpu',    'JaxGpuEngine'),
-    ('jax-metal',  'JaxMetalEngine'),
-    ('mlx-cpu',    'MlxCpuEngine'),
-    ('mlx-gpu',    'MlxGpuEngine'),
-    ('torch-cpu',  'TorchCpuEngine'),
-    ('torch-gpu',  'TorchGpuEngine'),
-    ('torch-mps',  'TorchMpsEngine'),
+    ('numpy', 'NumpyEngine'),
+    ('python', 'PythonEngine'),
+    ('numba', 'NumbaEngine'),
+    ('cupy', 'CupyEngine'),
+    ('jax-cpu', 'JaxCpuEngine'),
+    ('jax-gpu', 'JaxGpuEngine'),
+    ('jax-metal', 'JaxMetalEngine'),
+    ('mlx-cpu', 'MlxCpuEngine'),
+    ('mlx-gpu', 'MlxGpuEngine'),
+    ('torch-cpu', 'TorchCpuEngine'),
+    ('torch-gpu', 'TorchGpuEngine'),
+    ('torch-mps', 'TorchMpsEngine'),
 ])
 def test_engine_name_to_class_name(name, expected):
     assert engine_name_to_class_name(name) == expected

@@ -12,6 +12,12 @@ It's time to turn to a demonstration again, to explain what this is about.
 :::
 
 ## 3.1.2 Physics-free gravity 
+
+{{< video-credit
+  src="assets/power_law_convergence.mp4"
+  alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
+  width="60%" >}}
+
 ::: notes
 
 Let's take our gravity code, and run it lots and lots of times - we're pretending to build up a big dataset of observations, which might have been measured by Tycho Brahe with a telescope.

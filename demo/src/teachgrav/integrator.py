@@ -27,10 +27,25 @@ def integrate_trajectory(
         factory=None,
         dt: float = 0.01,
         until: float = 10,
-        model_data: str = None) -> Trajectory:
-    """Integrate the system state forward in time for a number of steps."""
-    # Create the model based on selected law
-    model = create_law(law, factory=factory, model_data=model_data)
+        model_data: str = None,
+        model=None) -> Trajectory:
+    """Integrate the system state forward in time for a number of steps.
+
+    Args:
+        system: initial system state.
+        method: integration method (e.g. 'euler').
+        law: name of the physics law to use (ignored when *model* is given).
+        factory: ScenarioFactory used by some laws (ignored when *model* is
+                 given).
+        dt: time step size.
+        until: integration end time.
+        model_data: path to a saved model file (ignored when *model* is given).
+        model: pre-created Model instance.  When provided, *law*, *factory*,
+               and *model_data* are all ignored.
+    """
+    # Create the model based on selected law (or use the supplied one)
+    if model is None:
+        model = create_law(law, factory=factory, model_data=model_data)
 
     steps = int(until / dt)
     trajectory = Trajectory(system)

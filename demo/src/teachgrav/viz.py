@@ -7,6 +7,29 @@ logger = logging.getLogger("Teachgrav")
 plt.style.use('dark_background')
 
 
+def _apply_axis_style(ax):
+    """Apply the standard dark-background axis styling shared by all plots."""
+    ax.spines['left'].set_position('zero')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_color('dimgrey')
+    ax.spines['bottom'].set_color('dimgrey')
+    ax.tick_params(labelsize=8, colors='dimgrey')
+
+
+def _save_or_show_animation(ani, output, fps, log_msg=None):
+    """Save *ani* to *output* with FFMpeg, or show interactively if None."""
+    from matplotlib.animation import FFMpegWriter
+    if output:
+        writer = FFMpegWriter(fps=fps)
+        ani.save(filename=output, writer=writer)
+        if log_msg:
+            logger.info(log_msg)
+    else:
+        plt.show()
+
+
 def visualize(trajectory, output, mode='video', options='dot', duration=30):
     trajectory.data = np.array(trajectory.data)
     # Convert to numpy for visualization
@@ -53,14 +76,7 @@ def axes(trajectory, options):
     ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
     ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
 
-    ax.spines['left'].set_position('zero')
-    ax.spines['bottom'].set_position('zero')
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.spines['left'].set_color('dimgrey')
-    ax.spines['bottom'].set_color('dimgrey')
-
-    ax.tick_params(labelsize=8, colors='dimgrey')
+    _apply_axis_style(ax)
 
     # One line or dot per body, with the option to show trails or just current
     # positions
@@ -89,7 +105,7 @@ def axes(trajectory, options):
 
 
 def animate(trajectory, output, options, duration=30):
-    from matplotlib.animation import FuncAnimation, FFMpegWriter
+    from matplotlib.animation import FuncAnimation
     fig, _, lines = axes(trajectory, options)
 
     def init():
@@ -129,11 +145,7 @@ def animate(trajectory, output, options, duration=30):
                         interval=interval,
                         blit=False)
 
-    if output:
-        writer = FFMpegWriter(fps=fps)
-        ani.save(filename=output, writer=writer)
-    else:
-        plt.show()
+    _save_or_show_animation(ani, output, fps)
 
 
 def plot(trajectory, output, options):
@@ -146,3 +158,95 @@ def plot(trajectory, output, options):
         plt.savefig(output)
     else:
         plt.show()
+
+
+def convergence_video(trajectories, output, fps=5, options='trail',
+                      ref_trajectory=None):
+    """Create a video showing trajectory convergence across training steps.
+
+    Each frame shows the full trail of the simulated trajectory produced by
+    one training checkpoint.  An optional reference trajectory (e.g. the true
+    law) is overlaid in a contrasting colour so the viewer can see the fitted
+    law converging toward the ground truth.
+
+    Args:
+        trajectories: sequence of Trajectory objects, one per checkpoint.
+        output: output file path for the MP4 (or None to show interactively).
+        fps: frames per second (default: 5).
+        options: visualisation style; currently only ``'trail'`` is supported.
+        ref_trajectory: optional Trajectory to overlay on every frame in a
+                        different colour (e.g. the true-law trajectory).
+    """
+    from matplotlib.animation import FuncAnimation
+
+    # ------------------------------------------------------------------ #
+    # Determine global axis bounds so all frames share the same scale.    #
+    # ------------------------------------------------------------------ #
+    all_pos = [np.array(t.data)[:, 0, :, :].reshape(-1, 2)
+               for t in trajectories]
+    if ref_trajectory is not None:
+        all_pos.append(
+            np.array(ref_trajectory.data)[:, 0, :, :].reshape(-1, 2))
+    all_flat = np.concatenate(all_pos, axis=0)
+    finite = all_flat[np.isfinite(all_flat).all(axis=1)]
+    if len(finite) == 0:
+        finite = np.array([[-10.0, -10.0], [10.0, 10.0]])
+    mins = np.min(finite, axis=0)
+    maxs = np.max(finite, axis=0)
+    buffer = 1.0
+
+    fig, ax = plt.subplots()
+    ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
+    ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
+    _apply_axis_style(ax)
+
+    num_bodies = trajectories[0].positions().shape[1]
+
+    # Lines for the fitted-law trajectory.
+    fitted_lines = []
+    for _ in range(num_bodies):
+        line, = ax.plot([], [], color='lemonchiffon', alpha=0.9)
+        fitted_lines.append(line)
+
+    # Lines for the reference trajectory (optional).
+    ref_lines = []
+    if ref_trajectory is not None:
+        for _ in range(num_bodies):
+            line, = ax.plot([], [], color='dodgerblue',
+                            alpha=0.7, linestyle='--')
+            ref_lines.append(line)
+
+    all_lines = fitted_lines + ref_lines
+
+    # Pre-compute reference positions so they are not repeated every frame.
+    if ref_trajectory is not None:
+        ref_positions = np.array(ref_trajectory.data)[:, 0, :, :]
+    else:
+        ref_positions = None
+
+    def init():
+        for line in all_lines:
+            line.set_data([], [])
+        return all_lines
+
+    def update(frame_idx):
+        traj = trajectories[frame_idx]
+        positions = np.array(traj.data)[:, 0, :, :]
+        for i, line in enumerate(fitted_lines):
+            line.set_data(positions[:, i, 0], positions[:, i, 1])
+        if ref_positions is not None:
+            for i, line in enumerate(ref_lines):
+                line.set_data(ref_positions[:, i, 0], ref_positions[:, i, 1])
+        return all_lines
+
+    ani = FuncAnimation(
+        fig, update, init_func=init,
+        frames=len(trajectories),
+        interval=int(1000 / fps),
+        blit=False)
+
+    _save_or_show_animation(
+        ani, output, fps,
+        log_msg=f"Convergence video written to {output}")
+
+    plt.close(fig)
