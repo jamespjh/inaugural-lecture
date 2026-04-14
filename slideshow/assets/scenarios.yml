@@ -29,8 +29,7 @@
 - scenario: boids
   method: euler
   law: boids
-  dt: 1
-  until: 600
+  until: 60
   duration: 30
   visualise: dot
   outfile: boids_euler.mp4

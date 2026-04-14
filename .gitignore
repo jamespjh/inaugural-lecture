@@ -36,3 +36,4 @@ test.mp4
 
 # Benchmark generated files (produced by CI, not committed)
 slideshow/assets/benchmark_engines.png
+slideshow/assets/*.mp4
