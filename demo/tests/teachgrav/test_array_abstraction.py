@@ -16,13 +16,14 @@ from teachgrav.engines import (
     NumpyEngine,
     PythonEngine,
 )
-from teachgrav.array_abstraction import (
+from teachgrav.engines.python_engine import (
     infer_ndim,
     infer_shape,
-    move_to_device,
     flatten_array,
     reshape_array,
 )
+from teachgrav.array_abstraction import move_to_device
+
 from engines import ENGINES_TO_TEST
 
 
@@ -238,6 +239,20 @@ def test_python_engine_random_array_shape():
     assert all(len(row) == 4 for row in result)
 
 
+def test_python_engine_random_array_shape_1d():
+    engine = create_engine('python', seed=0)
+    result = engine.random_array((5,))
+    assert len(result) == 5
+
+
+def test_python_engine_random_array_shape_3d():
+    engine = create_engine('python', seed=0)
+    result = engine.random_array((2, 3, 4))
+    assert len(result) == 2
+    assert all(len(plane) == 3 for plane in result)
+    assert all(len(row) == 4 for plane in result for row in plane)
+
+
 def test_python_engine_random_array_range():
     engine = create_engine('python', seed=0)
     result = engine.random_array((10, 10), min=2.0, max=5.0)
@@ -249,12 +264,6 @@ def test_python_engine_random_array_too_large():
     engine = create_engine('python', seed=0)
     with pytest.raises(ValueError, match="too large"):
         engine.random_array((1025, 1025))
-
-
-def test_python_engine_random_array_not_2d():
-    engine = create_engine('python', seed=0)
-    with pytest.raises(ValueError, match="2D"):
-        engine.random_array((5,))
 
 
 # ---------------------------------------------------------------------------

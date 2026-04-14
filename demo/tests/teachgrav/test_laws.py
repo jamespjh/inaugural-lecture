@@ -2,7 +2,7 @@ import pytest
 import logging
 from teachgrav.laws.true_law import TrueLawModel
 from teachgrav.scenarios import ScenarioFactory
-from teachgrav.array_abstraction import infer_shape
+from teachgrav.engines.python_engine import infer_shape
 from teachgrav.engine_support import get_available_engines
 from engines import ENGINES_TO_TEST
 logger = logging.getLogger(__name__)

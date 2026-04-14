@@ -20,11 +20,16 @@
   duration: 5
   visualise: trail
   outfile: sun_rk45_trail.mp4
+- scenario: scatter
+  benchmark: true
+  seed: 42
+  engine: all
+  n-bodies: [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+  outfile: benchmark_engines.png
 - scenario: boids
   method: euler
   law: boids
-  dt: 1
-  until: 600
+  until: 60
   duration: 30
   visualise: dot
   outfile: boids_euler.mp4

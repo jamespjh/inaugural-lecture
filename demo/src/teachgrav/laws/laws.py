@@ -1,4 +1,4 @@
-from ..array_abstraction import (
+from ..engines.python_engine import (
     flatten_array,
     infer_ndim,
     infer_shape,

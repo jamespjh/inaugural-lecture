@@ -50,9 +50,10 @@ def test_boids_immobile_mask_zeroes_derivatives(engine):
     model = BoidsLawModel()
     delta = model.law(system)
     np = delta.__array_namespace__()
+    zeros = np.zeros_like(delta[:, 0, :])
     assert np.allclose(
         delta[:, 0, :],
-        arr.array([[0.0, 0.0], [0.0, 0.0]]),
+        zeros,
         atol=1e-10,
     )
 

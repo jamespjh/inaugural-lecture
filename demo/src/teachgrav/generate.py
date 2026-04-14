@@ -1,5 +1,6 @@
 import argparse
 import csv
+import math
 import re
 import sys
 import warnings
@@ -8,8 +9,32 @@ import numpy as np
 import yaml
 
 from . import entry
+from .engine_support import get_available_engines
 
 _VIZ_KEYS = {'visualise', 'video', 'outfile', 'format', 'duration'}
+_FIGURE_EXTENSIONS = frozenset({'.png', '.svg', '.pdf'})
+
+# Fixed colour palette keyed by engine name.
+_ENGINE_COLORS = {
+    'numpy': '#4878d0',
+    'jax-cpu': '#ee854a',
+    'jax-gpu': '#6acc65',
+    'jax-metal': '#d65f5f',
+    'mlx-cpu': '#956cb4',
+    'mlx-gpu': '#8c613c',
+    'cupy': '#dc7ec0',
+    'torch-cpu': '#797979',
+    'torch-gpu': '#d5bb67',
+    'torch-mps': '#82c6e2',
+}
+
+
+def _is_figure_output(path):
+    """Return True if *path* looks like a figure file path."""
+    if not path:
+        return False
+    ext = '.' + path.rsplit('.', 1)[-1].lower() if '.' in path else ''
+    return ext in _FIGURE_EXTENSIONS
 
 
 def _config_to_force_args(config):
@@ -89,6 +114,8 @@ def _expand_config_arrays(config):
             array_params.append((key, parsed))
         else:
             base_config[key] = parsed
+        if key == 'engine' and parsed == "ALL":
+            array_params.append((key, get_available_engines()))
     return base_config, array_params
 
 
@@ -105,8 +132,57 @@ def _build_benchmark_args(base_config, override_params):
     return entry.parse_args(force_args)
 
 
+def _plot_benchmark_figure(headers, rows, output_path):
+    """Save a log-log benchmark figure to *output_path*.
+
+    *headers* is ``[x_label, series1, series2, ...]``.
+    *rows* is ``[[x_val, t1, t2, ...], ...]``.
+    """
+    import matplotlib.pyplot as plt
+
+    x_label = headers[0]
+    series_labels = headers[1:]
+
+    x_vals = [float(row[0]) for row in rows]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    for col_idx, label in enumerate(series_labels, start=1):
+        times = []
+        for row in rows:
+            try:
+                t = float(row[col_idx])
+            except (ValueError, IndexError):
+                t = float('nan')
+            times.append(t)
+        pairs = [(x, t) for x, t in zip(x_vals, times)
+                 if not math.isnan(t) and t > 0]
+        if not pairs:
+            continue
+        xs, ys = zip(*pairs)
+        color = _ENGINE_COLORS.get(label)
+        ax.loglog(xs, ys, 'o-', label=label, color=color,
+                  linewidth=2, markersize=5)
+
+    ax.set_xlabel(x_label.replace('-', ' ').title(), fontsize=13)
+    ax.set_ylabel('Time per simulation step (s)', fontsize=13)
+    ax.set_title('Gravity simulation performance by engine', fontsize=14)
+    ax.legend(fontsize=11)
+    ax.grid(True, which='both', alpha=0.3)
+    if x_vals:
+        ax.set_xlim(min(x_vals) * 0.8, max(x_vals) * 1.3)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
+
+
 def _write_benchmark_csv(headers, rows, output=None):
-    """Write benchmark results as CSV to a file or stdout."""
+    """Write benchmark results as CSV to a file or stdout.
+
+    If *output* is a recognised figure path (e.g. ``.png``), generate a
+    log-log figure instead of writing CSV.
+    """
+    if _is_figure_output(output):
+        _plot_benchmark_figure(headers, rows, output)
+        return
     if output:
         with open(output, 'w', newline='', encoding='utf-8') as stream:
             writer = csv.writer(stream)
@@ -121,7 +197,7 @@ def _write_benchmark_csv(headers, rows, output=None):
 
 
 def run_benchmark(configs, output=None):
-    """Run benchmark sweeps defined in YAML configs and write CSV output.
+    """Run benchmark sweeps defined in YAML configs and write results.
 
     For a single scenario config, array parameters define the sweep dimensions:
       - First array parameter  -> columns
@@ -131,12 +207,15 @@ def run_benchmark(configs, output=None):
     the 'key' field), and the first array parameter of each scenario forms the
     row axis.
 
+    If the config contains ``outfile`` pointing to a figure path (e.g.
+    ``.png``), a log-log figure is generated instead of CSV output.
+
     Visualization options present in any config trigger a warning and are
-    ignored during benchmarking.
+    ignored during benchmarking (except ``outfile`` for figure output).
 
     Args:
         configs: list of invocation dicts (parsed from YAML)
-        output:  path to output CSV file, or None to write to stdout
+        output:  path to output file (CSV or figure), or None for stdout
     """
     if not isinstance(configs, list):
         raise ValueError("YAML root must be a list of invocation dictionaries")
@@ -144,10 +223,22 @@ def run_benchmark(configs, output=None):
         if not isinstance(config, dict):
             raise ValueError("Each YAML entry must be a dictionary")
 
+    # Extract figure output from config outfile when no explicit output given
+    effective_output = output
+    if effective_output is None:
+        for config in configs:
+            outfile = config.get('outfile', '')
+            if _is_figure_output(outfile):
+                effective_output = outfile
+                break
+
     seen_viz_keys = set()
     for config in configs:
         for key in config:
             if key in _VIZ_KEYS and key not in seen_viz_keys:
+                # outfile is not ignored when it's being used for figure output
+                if key == 'outfile' and _is_figure_output(effective_output):
+                    continue
                 seen_viz_keys.add(key)
                 warnings.warn(
                     f"Visualization option '{key}' is ignored "
@@ -157,9 +248,9 @@ def run_benchmark(configs, output=None):
                 )
 
     if len(configs) > 1:
-        _run_multi_scenario_benchmark(configs, output)
+        _run_multi_scenario_benchmark(configs, effective_output)
     else:
-        _run_single_scenario_benchmark(configs[0], output)
+        _run_single_scenario_benchmark(configs[0], effective_output)
 
 
 def _run_multi_scenario_benchmark(configs, output):
@@ -252,13 +343,15 @@ def generate_figures(yaml_file=None, benchmark=False, output=None):
         parser.add_argument(
             "--output",
             default=None,
-            help="Output CSV file for benchmark results (default: stdout)")
+            help="Output file for benchmark results (CSV or figure path)")
         cli_args = parser.parse_args()
         yaml_file = cli_args.yaml_file
         benchmark = cli_args.benchmark
         output = cli_args.output
 
-    if benchmark and output and not output.endswith('.csv'):
+    if (benchmark and output
+            and not output.endswith('.csv')
+            and not _is_figure_output(output)):
         warnings.warn(
             f"Output file '{output}' does not have a .csv extension. "
             "Results may not be formatted correctly.",
@@ -268,9 +361,20 @@ def generate_figures(yaml_file=None, benchmark=False, output=None):
     with open(yaml_file, "r", encoding="utf-8") as stream:
         configs = yaml.safe_load(stream)
 
+    if not isinstance(configs, list):
+        raise ValueError("YAML root must be a list of invocation dictionaries")
+
     if benchmark:
         run_benchmark(configs, output)
     else:
-        parsed_args = run_batch(configs)
-        for args in parsed_args:
-            entry.execute_scenario(args)
+        # Separate simulation configs from benchmark sweep configs
+        sim_configs = [c for c in configs if not c.get('benchmark')]
+        bm_configs = [c for c in configs if c.get('benchmark')]
+
+        if sim_configs:
+            parsed_args = run_batch(sim_configs)
+            for args in parsed_args:
+                entry.execute_scenario(args)
+
+        if bm_configs:
+            run_benchmark(bm_configs)

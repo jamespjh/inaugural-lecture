@@ -35,7 +35,7 @@ def test_pl_predict(n_bodies):
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_pl_law_vectorised(engine):
-    factory = ScenarioFactory(engine=engine)
+    factory = ScenarioFactory(engine=engine, via_numpy=False)
     N_sys = 5
     N_bodies = 3
     masses = factory.engine.array([1.0, 1.0, 1.0])

@@ -1,4 +1,6 @@
 from teachgrav.scenarios import ScenarioFactory
+from teachgrav.engines.base import to_numpy_host
+import numpy as np
 import pytest
 from engines import ENGINES_TO_TEST
 
@@ -76,3 +78,26 @@ def test_different_seeds_produce_different_scatter(engine):
     assert not np.allclose(s1.positions(), s2.positions())
     assert not np.allclose(s1.velocities(), s2.velocities())
     assert not np.allclose(s1.masses, s2.masses)
+
+
+@pytest.mark.parametrize("engine", ENGINES_TO_TEST)
+def test_engine_consistent_seed_matches_numpy(engine):
+    """With engine_consistent_seed=True, same seed yields identical scatter
+    as the numpy engine regardless of which engine is requested."""
+    f_numpy = ScenarioFactory(engine='numpy', seed=42)
+    f_other = ScenarioFactory(engine=engine, seed=42,
+                              via_numpy=True)
+    s_numpy = f_numpy.create_scenario('scatter', n_bodies=5)
+    s_other = f_other.create_scenario('scatter', n_bodies=5)
+    assert np.allclose(
+        to_numpy_host(s_numpy.positions()),
+        to_numpy_host(s_other.positions()),
+    )
+    assert np.allclose(
+        to_numpy_host(s_numpy.velocities()),
+        to_numpy_host(s_other.velocities()),
+    )
+    assert np.allclose(
+        to_numpy_host(s_numpy.masses),
+        to_numpy_host(s_other.masses),
+    )
