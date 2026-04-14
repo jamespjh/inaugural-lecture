@@ -301,7 +301,32 @@ Well, what if we want to change the programme, or give it to someone else to mak
 
 :::
 
-## 1.2.2 Sharing the load
+## 1.2.2 Performance and complexity
+
+:::: {.two-col}
+::: {}
+* Speed matters in scientific programming
+* It adds to complexity
+* It is necessary
+:::
+::: {}
+{{< video-credit
+  src="assets/placeholder.png"
+  alt="Plot of performance vs matrix engine." >}}
+:::
+::::
+
+::: notes
+
+Speed really matters for this kind of code. Let's look at an example: we can plot how long it takes to run our
+gravity simulation, for various different kinds of tools for doing fast numerical calculations, instead of the
+simple python code. [Demo should show a plot of the time taken for the same calculation using different tools - numpy, numba, torch, jax etc.]
+
+We got a big speed-up from using more sophisticated tools, but there's LOTS AND LOTS of new complexity. Do we understand how to use these tools? Do we understand the tradeoffs between them? Do we understand the new kinds of bugs they can introduce? Do we understand how to debug them? Do we understand how to test them? Do we understand how to make sure they give the same results as our simplest code?
+
+:::
+
+## 1.2.3 Sharing the load
 ::: notes
 
 Let's take this a step further - we're way beyond my teenage example now - but it's another useful bit of the exploration. Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
@@ -331,7 +356,7 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 
 :::
 
-## 1.2.3 Warehouse scale computers as toys and tools
+## 1.2.4 Warehouse scale computers as toys and tools
 ::: notes
 
 We call these 'compute clusters' or 'supercomputers' or 'warehouse scale computers'.
@@ -345,7 +370,7 @@ In order to get to this point of working with computers-that-share-the-work, the
 
 :::
 
-## 1.2.4 The abstraction stack
+## 1.2.5 The abstraction stack
 ::: notes
 
 It's a LOT harder to write the program now. And a lot easier to make mistakes. But calculations are possible that would otherwise not be.

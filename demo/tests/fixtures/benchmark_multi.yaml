@@ -1,0 +1,10 @@
+- key: moon
+  scenario: moon
+  method:
+    - euler
+    - RK45
+- key: sun
+  scenario: sun
+  method:
+    - euler
+    - RK45
