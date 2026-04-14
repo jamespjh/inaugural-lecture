@@ -5,7 +5,7 @@ from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import jax_engines, mlx_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
-from .viz import visualize
+from .viz import visualize, convergence_video
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
 
@@ -34,7 +34,7 @@ def _train_model(args, factory):
     if args.law == 'power':
         from .laws.pl import PLModel
         model = PLModel(factory=factory)
-        model.train(args.n_systems, **scenario_kwargs)
+        checkpoints = model.train(args.n_systems, **scenario_kwargs)
         model.save(args.model_data)
         logger.info(f"Saved power law model to {args.model_data}")
         print(f"Trained power law model: G={model.G:.6f}, "
@@ -44,10 +44,86 @@ def _train_model(args, factory):
         from .laws.gp import GPModel
         model = GPModel(factory=factory)
         model.train(args.n_systems, **scenario_kwargs)
+        checkpoints = []
         model.save(args.model_data)
         logger.info(f"Saved GP model to {args.model_data}")
         print("Trained Gaussian Process model.")
         print(f"Model saved to: {args.model_data}")
+
+    if args.law == 'power' and getattr(args, 'convergence_video', None):
+        _generate_convergence_video(args, checkpoints, scenario_kwargs)
+
+
+def _generate_convergence_video(args, checkpoints, scenario_kwargs):
+    """Generate a convergence video from power-law training checkpoints.
+
+    For each checkpoint, simulate the scatter scenario using Euler integration
+    with the checkpoint parameters and collect the resulting trajectory.
+    These trajectories are combined into a single MP4 that shows the fitted
+    law converging toward the true law.
+
+    Checkpoints whose trajectories contain non-finite values (e.g. due to
+    numerically unstable early-training parameters) are silently skipped.
+
+    Args:
+        args: parsed CLI arguments (needs convergence_video,
+              checkpoint_interval, show_true_law, seed, and n_bodies).
+        checkpoints: list of {'G': float, 'power': float} dicts from training.
+        scenario_kwargs: keyword arguments for create_scenario (e.g. n_bodies).
+    """
+    import numpy as np
+    from .laws.pl import PLModel
+
+    interval = getattr(args, 'checkpoint_interval', 1)
+    selected = checkpoints[::interval]
+    if not selected:
+        logger.warning("No checkpoints to generate convergence video from.")
+        return
+
+    logger.info(
+        f"Generating convergence video from {len(selected)} checkpoints "
+        f"(interval={interval})…")
+
+    # Use a fixed seed for the visualisation scenario so all frames show the
+    # same initial conditions and only the law changes.
+    viz_seed = args.seed if args.seed is not None else 42
+    viz_factory = ScenarioFactory('numpy', seed=viz_seed)
+    system = viz_factory.create_scenario(args.scenario, **scenario_kwargs)
+
+    trajectories = []
+    for ckpt in selected:
+        pl_model = PLModel(factory=None, G=ckpt['G'], power=ckpt['power'])
+        traj = integrate_trajectory(
+            system, method='euler', model=pl_model)
+        traj.data = np.array(traj.data)
+        # Skip trajectories that blew up (common during early optimization).
+        if not np.isfinite(traj.data).all():
+            logger.debug(
+                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
+                f"power={ckpt['power']:.4f} (non-finite trajectory).")
+            continue
+        trajectories.append(traj)
+
+    if not trajectories:
+        logger.warning(
+            "All checkpoint trajectories were numerically unstable; "
+            "convergence video not generated.")
+        return
+
+    logger.info(f"Using {len(trajectories)} stable trajectory frames.")
+
+    ref_trajectory = None
+    if getattr(args, 'show_true_law', False):
+        ref_traj = integrate_trajectory(system, method='euler', law='gravity')
+        ref_traj.data = np.array(ref_traj.data)
+        ref_trajectory = ref_traj
+
+    convergence_video(
+        trajectories,
+        output=args.convergence_video,
+        fps=getattr(args, 'convergence_fps', 5),
+        ref_trajectory=ref_trajectory)
+    print(f"Convergence video saved to: {args.convergence_video}")
 
 
 def execute_scenario(args):
@@ -293,6 +369,33 @@ def benchmark_scenario(args):
     return benchmark_engine(run_once, args.engine)
 
 
+def _validate_train_args(args):
+    """Validate arguments specific to --train mode."""
+    if args.law not in FITTED_LAWS:
+        raise ValueError(
+            f"--train requires a fitted law (gaussian or power). "
+            f"'{args.law}' does not require training.")
+    if args.scenario not in STOCHASTIC_SCENARIOS:
+        valid = ', '.join(STOCHASTIC_SCENARIOS)
+        raise ValueError(
+            f"--train requires a stochastic scenario. "
+            f"'{args.scenario}' is not suitable for training. "
+            f"Valid training scenarios: {valid}.")
+    if args.model_data is None:
+        raise ValueError(
+            "--train requires --model-data to specify the output path "
+            "for the saved model.")
+    if args.video or args.outfile is not None:
+        raise ValueError(
+            "--train cannot be used with visualization options "
+            "(--video, --outfile).")
+    if getattr(args, 'convergence_video', None) and args.law != 'power':
+        raise ValueError(
+            "--convergence-video is only supported for --law power.")
+    if getattr(args, 'checkpoint_interval', 1) < 1:
+        raise ValueError("--checkpoint-interval must be at least 1.")
+
+
 def _validate_args(args):
     """Validate parsed args and raise ValueError for incompatible options."""
     if args.method in diffrax_methods and args.engine == 'numpy':
@@ -315,24 +418,7 @@ def _validate_args(args):
         _resolve_output_format(args)
 
     if args.train:
-        if args.law not in FITTED_LAWS:
-            raise ValueError(
-                f"--train requires a fitted law (gaussian or power). "
-                f"'{args.law}' does not require training.")
-        if args.scenario not in STOCHASTIC_SCENARIOS:
-            valid = ', '.join(STOCHASTIC_SCENARIOS)
-            raise ValueError(
-                f"--train requires a stochastic scenario. "
-                f"'{args.scenario}' is not suitable for training. "
-                f"Valid training scenarios: {valid}.")
-        if args.model_data is None:
-            raise ValueError(
-                "--train requires --model-data to specify the output path "
-                "for the saved model.")
-        if args.video or args.outfile is not None:
-            raise ValueError(
-                "--train cannot be used with visualization options "
-                "(--video, --outfile).")
+        _validate_train_args(args)
 
     if args.duration is not None and not args.video:
         raise ValueError(
@@ -455,6 +541,26 @@ def parse_args(force_args=None):
             'png'],
         help='Output format for trajectory data (e.g. csv, mp4, png).' +
              'Inferred from outfile extension if not specified.')
+    parser.add_argument(
+        '--convergence-video',
+        dest='convergence_video',
+        default=None,
+        help='Output path for a convergence video (used with --train '
+             '--law power).  Each frame shows the trajectory produced by '
+             'the fitted law at one optimization step.')
+    parser.add_argument(
+        '--checkpoint-interval',
+        dest='checkpoint_interval',
+        type=int,
+        default=1,
+        help='Use every Nth training checkpoint when building the convergence '
+             'video (default: 1, i.e. every step).')
+    parser.add_argument(
+        '--show-true-law',
+        dest='show_true_law',
+        action='store_true',
+        help='Overlay the true-law trajectory in each convergence-video frame '
+             'so the viewer can see the fitted law converging toward it.')
     args = parser.parse_args(force_args.split() if force_args else None)
 
     # Validate --train mode before outfile processing so args.outfile
