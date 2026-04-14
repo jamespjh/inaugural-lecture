@@ -76,13 +76,7 @@ def execute_scenario(args):
         logger.info('Running in benchmark mode')
         print(f'Benchmarking scenario: {args.scenario}' +
               f"with method: {args.method}")
-
-        def run_once():
-            return solve(system, args.method, law=args.law,
-                         factory=factory, dt=0.01, until=0.05,
-                         model_data=getattr(args, 'model_data', None))
-
-        time = benchmark_engine(run_once, args.engine)
+        time = benchmark_scenario(args)
         print(f'Benchmark time: {time:.5f} seconds')
         return
 
@@ -109,6 +103,22 @@ def execute_scenario(args):
             f"{args.outfile if args.outfile else 'stdout'}")
         stream = open(args.outfile, 'w') if args.outfile else sys.stdout
         trajectory.write(stream, args.format)
+
+
+def benchmark_scenario(args):
+    """Run a single benchmark and return the mean timing in seconds."""
+    factory = ScenarioFactory(args.engine, seed=args.seed)
+    scenario_kwargs = {}
+    if args.n_bodies is not None:
+        scenario_kwargs['n_bodies'] = args.n_bodies
+    system = factory.create_scenario(args.scenario, **scenario_kwargs)
+
+    def run_once():
+        return solve(system, args.method, law=args.law,
+                     factory=factory, dt=0.01, until=0.05,
+                     model_data=getattr(args, 'model_data', None))
+
+    return benchmark_engine(run_once, args.engine)
 
 
 def _validate_args(args):
