@@ -40,13 +40,6 @@ jobs:
           cd slideshow/assets
           generate-figures scenarios.yml
       
-      - name: Generate benchmark figure
-        run: |
-          source demo/venv/bin/activate
-          cd slideshow/assets
-          generate-figures --benchmark benchmark_engines.yml --output benchmark_engines.csv
-          plot-benchmark benchmark_engines.csv benchmark_engines.png
-      
       - name: Install Quarto
         uses: quarto-dev/quarto-actions/setup@v2
       
