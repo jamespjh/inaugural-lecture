@@ -15,13 +15,13 @@ _FIGURE_EXTENSIONS = frozenset({'.png', '.svg', '.pdf'})
 
 # Fixed colour palette keyed by engine name.
 _ENGINE_COLORS = {
-    'numpy':     '#4878d0',
-    'jax-cpu':   '#ee854a',
-    'jax-gpu':   '#6acc65',
+    'numpy': '#4878d0',
+    'jax-cpu': '#ee854a',
+    'jax-gpu': '#6acc65',
     'jax-metal': '#d65f5f',
-    'mlx-cpu':   '#956cb4',
-    'mlx-gpu':   '#8c613c',
-    'cupy':      '#dc7ec0',
+    'mlx-cpu': '#956cb4',
+    'mlx-gpu': '#8c613c',
+    'cupy': '#dc7ec0',
     'torch-cpu': '#797979',
     'torch-gpu': '#d5bb67',
     'torch-mps': '#82c6e2',

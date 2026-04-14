@@ -282,13 +282,13 @@ def test_generate_figures_figure_output_no_warning():
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("path,expected", [
-    ("out.png",  True),
-    ("out.svg",  True),
-    ("out.pdf",  True),
-    ("out.PNG",  True),   # case-insensitive
-    ("out.csv",  False),
-    ("",         False),
-    (None,       False),
+    ("out.png", True),
+    ("out.svg", True),
+    ("out.pdf", True),
+    ("out.PNG", True),   # case-insensitive
+    ("out.csv", False),
+    ("", False),
+    (None, False),
 ])
 def test_is_figure_output(path, expected):
     assert generate._is_figure_output(path) is expected
@@ -354,7 +354,7 @@ def test_run_benchmark_explicit_output_overrides_config_outfile(tmp_path):
 
 
 def test_run_benchmark_outfile_not_warned_for_figure():
-    """outfile in config should not trigger 'ignored' warning when it is the figure path."""
+    """outfile in config should not trigger 'ignored' warning."""
     configs = [{"scenario": "moon", "outfile": "bench.png"}]
     with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
             patch("teachgrav.generate.entry.benchmark_scenario",
@@ -376,7 +376,7 @@ def test_run_benchmark_outfile_not_warned_for_figure():
 # ---------------------------------------------------------------------------
 
 def test_generate_figures_auto_routes_benchmark_configs(tmp_path):
-    """benchmark: true in YAML routes to run_benchmark without --benchmark flag."""
+    """benchmark: true in YAML routes to run_benchmark."""
     yaml_file = tmp_path / "mixed.yaml"
     yaml_file.write_text(
         "- scenario: sun\n"
@@ -404,7 +404,7 @@ def test_generate_figures_auto_routes_benchmark_configs(tmp_path):
 
 
 def test_generate_figures_benchmark_only_yaml(tmp_path):
-    """A YAML with only benchmark: true configs calls run_benchmark, not run_batch."""
+    """A YAML with only benchmark: true configs calls run_benchmark."""
     yaml_file = tmp_path / "bm_only.yaml"
     yaml_file.write_text(
         "- scenario: scatter\n"
