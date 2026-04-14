@@ -19,16 +19,32 @@ ENGINES_WITH_PYTHON_LAW = ENGINES_TO_TEST + [
 ]
 
 
-def test_law():
-    system = factory.create_scenario('moon')
-    derivatives = law(system)
+def _make_law_and_system(engine, scenario, **kwargs):
+    """Return (law_model, system) for the given engine and scenario.
+
+    Scenarios for python/numba engines are created with numpy (since System
+    requires Array API); TrueLawModel converts input data internally.
+    """
+    scenario_engine = 'numpy' if engine in PYTHON_LIKE_ENGINES else engine
+    sys_factory = ScenarioFactory(engine=scenario_engine)
+    law_factory = ScenarioFactory(engine=engine)
+    system = sys_factory.create_scenario(scenario, **kwargs)
+    law_model = TrueLawModel(factory=law_factory)
+    return law_model, system
+
+
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law(engine):
+    law_model, system = _make_law_and_system(engine, 'moon')
+    derivatives = law_model.law(system)
     # 2 bodies, 4 derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt)
     assert derivatives.shape == (2, 2, 2)
 
 
-def test_law_immobile():
-    system = factory.create_scenario('sun')
-    derivatives = law(system)
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law_immobile(engine):
+    law_model, system = _make_law_and_system(engine, 'sun')
+    derivatives = law_model.law(system)
     logger.info(f"Derivatives:\n{derivatives}")
     # The Sun is immobile, so its derivatives should be zero
     assert derivatives[0][0][:].tolist() == [0.0, 0.0]
@@ -39,22 +55,17 @@ def test_law_immobile():
     assert derivatives[1][1][:].tolist() == [-1.0, 0.0]
 
 
-def test_law_scatter():
-    system = factory.create_scenario('scatter', n_bodies=5)
-    derivatives = law(system)
+@pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
+def test_law_scatter(engine):
+    law_model, system = _make_law_and_system(engine, 'scatter', n_bodies=5)
+    derivatives = law_model.law(system)
     assert derivatives.shape == (2, 5, 2)
 
 
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law_scatter_3D(engine):
-    # Python/numba engines don't support the Array API used by System, so
-    # scenarios are always created with numpy. TrueLawModel converts the
-    # input data internally when the factory uses a python-like engine.
-    scenario_engine = 'numpy' if engine in PYTHON_LIKE_ENGINES else engine
-    sys_factory = ScenarioFactory(engine=scenario_engine)
-    law_factory = ScenarioFactory(engine=engine)
-    system = sys_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
-    law_model = TrueLawModel(factory=law_factory)
+    law_model, system = _make_law_and_system(
+        engine, 'scatter', n_bodies=5, dimensions=3)
     derivatives = law_model.law(system)
     assert derivatives.shape == (2, 5, 3)
 
