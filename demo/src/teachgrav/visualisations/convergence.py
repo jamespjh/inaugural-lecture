@@ -105,6 +105,83 @@ def convergence_video(trajectories, output, fps=20, options='trail',
     plt.close(fig)
 
 
+def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
+    """Return stable checkpoint keyframes with their integrated trajectory."""
+    stable_keyframes = []
+    for ckpt in checkpoints:
+        logger.info(
+            "Integrating trajectory for checkpoint "
+            f"G={ckpt['G']:.4f}, power={ckpt['power']:.4f}…"
+        )
+        try:
+            traj = integrate_power_trajectory(ckpt['G'], ckpt['power'])
+        except Exception as exc:  # pragma: no cover
+            logger.debug(
+                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
+                f"power={ckpt['power']:.4f} (integration failed: {exc!r})."
+            )
+            continue
+        # Skip trajectories that blew up (common during early optimization).
+        if not np.isfinite(traj.data).all():
+            logger.debug(
+                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
+                f"power={ckpt['power']:.4f} (non-finite trajectory).")
+            continue
+        stable_keyframes.append({
+            'G': float(ckpt['G']),
+            'power': float(ckpt['power']),
+            'trajectory': traj,
+        })
+    return stable_keyframes
+
+
+def generate_upsampled_trajectories(stable_keyframes, target_frames,
+                                    integrate_power_trajectory):
+    """Build upsampled trajectories via checkpoint interpolation."""
+    keyframe_count = len(stable_keyframes)
+    keyframe_positions = np.arange(keyframe_count, dtype=float)
+    schedule_positions = np.linspace(0, keyframe_count - 1, target_frames)
+    keyframe_g = np.array([k['G'] for k in stable_keyframes], dtype=float)
+    keyframe_power = np.array(
+        [k['power'] for k in stable_keyframes],
+        dtype=float,
+    )
+    scheduled_g = np.interp(schedule_positions, keyframe_positions,
+                            keyframe_g)
+    scheduled_power = np.interp(schedule_positions, keyframe_positions,
+                                keyframe_power)
+    scheduled_g[0] = keyframe_g[0]
+    scheduled_g[-1] = keyframe_g[-1]
+    scheduled_power[0] = keyframe_power[0]
+    scheduled_power[-1] = keyframe_power[-1]
+
+    logger.info(
+        f"Upsampling convergence frames from {keyframe_count} "
+        f"to {target_frames} by parameter interpolation.")
+
+    trajectories = []
+    for g_value, power_value in zip(scheduled_g, scheduled_power):
+        try:
+            traj = integrate_power_trajectory(g_value, power_value)
+        except Exception as exc:  # pragma: no cover
+            logger.debug(
+                "Skipping scheduled frame "
+                f"G={g_value:.4f}, power={power_value:.4f} "
+                f"(integration failed: {exc!r})."
+            )
+            continue
+        if not np.isfinite(traj.data).all():
+            logger.debug(
+                "Skipping scheduled frame "
+                f"G={g_value:.4f}, power={power_value:.4f} "
+                "(non-finite trajectory)."
+            )
+            continue
+        trajectories.append(traj)
+
+    return trajectories
+
+
 def generate_convergence_video(checkpoints, scenario, output,
                                checkpoint_interval=1,
                                show_true_law=False,
@@ -166,32 +243,8 @@ def generate_convergence_video(checkpoints, scenario, output,
     viz_factory = ScenarioFactory('numpy', seed=viz_seed)
     system = viz_factory.create_scenario(scenario, **scenario_kwargs)
 
-    stable_keyframes = []
-    stable_trajectories = []
-    for ckpt in selected:
-        logger.info(
-            "Integrating trajectory for checkpoint "
-            f"G={ckpt['G']:.4f}, power={ckpt['power']:.4f}…"
-        )
-        try:
-            traj = integrate_power_trajectory(ckpt['G'], ckpt['power'])
-        except Exception as exc:  # pragma: no cover
-            logger.debug(
-                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
-                f"power={ckpt['power']:.4f} (integration failed: {exc!r})."
-            )
-            continue
-        # Skip trajectories that blew up (common during early optimization).
-        if not np.isfinite(traj.data).all():
-            logger.debug(
-                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
-                f"power={ckpt['power']:.4f} (non-finite trajectory).")
-            continue
-        stable_keyframes.append({
-            'G': float(ckpt['G']),
-            'power': float(ckpt['power']),
-        })
-        stable_trajectories.append(traj)
+    stable_keyframes = generate_stable_keyframes(
+        selected, integrate_power_trajectory)
 
     if not stable_keyframes:
         logger.warning(
@@ -202,6 +255,7 @@ def generate_convergence_video(checkpoints, scenario, output,
     keyframe_count = len(stable_keyframes)
     logger.info(
         f"Using {keyframe_count} stable keyframes for frame scheduling.")
+    stable_trajectories = [k['trajectory'] for k in stable_keyframes]
 
     trajectories = []
     if keyframe_count >= target_frames:
@@ -210,46 +264,11 @@ def generate_convergence_video(checkpoints, scenario, output,
         sampled_indices = np.round(sample_positions).astype(int)
         trajectories = [stable_trajectories[idx] for idx in sampled_indices]
     else:
-        # Upsample by interpolating parameters between stable keyframes,
-        # then integrating each scheduled state into a frame trajectory.
-        keyframe_positions = np.arange(keyframe_count, dtype=float)
-        schedule_positions = np.linspace(0, keyframe_count - 1, target_frames)
-        keyframe_g = np.array([k['G'] for k in stable_keyframes], dtype=float)
-        keyframe_power = np.array(
-            [k['power'] for k in stable_keyframes],
-            dtype=float,
+        trajectories = generate_upsampled_trajectories(
+            stable_keyframes,
+            target_frames,
+            integrate_power_trajectory,
         )
-        scheduled_g = np.interp(schedule_positions, keyframe_positions,
-                                keyframe_g)
-        scheduled_power = np.interp(schedule_positions, keyframe_positions,
-                                    keyframe_power)
-        scheduled_g[0] = keyframe_g[0]
-        scheduled_g[-1] = keyframe_g[-1]
-        scheduled_power[0] = keyframe_power[0]
-        scheduled_power[-1] = keyframe_power[-1]
-
-        logger.info(
-            f"Upsampling convergence frames from {keyframe_count} "
-            f"to {target_frames} by parameter interpolation.")
-
-        for g_value, power_value in zip(scheduled_g, scheduled_power):
-            try:
-                traj = integrate_power_trajectory(g_value, power_value)
-            except Exception as exc:  # pragma: no cover
-                logger.debug(
-                    "Skipping scheduled frame "
-                    f"G={g_value:.4f}, power={power_value:.4f} "
-                    f"(integration failed: {exc!r})."
-                )
-                continue
-            if not np.isfinite(traj.data).all():
-                logger.debug(
-                    "Skipping scheduled frame "
-                    f"G={g_value:.4f}, power={power_value:.4f} "
-                    "(non-finite trajectory)."
-                )
-                continue
-            trajectories.append(traj)
 
     if not trajectories:
         logger.warning(
