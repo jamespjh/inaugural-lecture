@@ -5,7 +5,8 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from teachgrav.viz import marker_sizes_from_masses, visualize
+from teachgrav.visualisations.visualize import visualize
+from teachgrav.visualisations.visualize import marker_sizes_from_masses
 
 from teachgrav.scenarios import ScenarioFactory
 factory = ScenarioFactory()
@@ -50,7 +51,7 @@ def test_visualize_passes_fps_to_animate():
     trajectory = integrate_trajectory(
         system, method='euler', dt=0.01, until=1.0)
 
-    with patch('teachgrav.visualisations.convergence.animate') as mock_animate:
+    with patch('teachgrav.visualisations.visualize.animate') as mock_animate:
         visualize(
             trajectory,
             output='out.mp4',

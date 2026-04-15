@@ -5,7 +5,7 @@ from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
-from .viz import visualize
+from .visualisations.visualize import visualize
 from .visualisations.convergence import generate_convergence_video
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
