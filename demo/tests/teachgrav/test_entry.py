@@ -30,7 +30,7 @@ def test_fitted_law_gaussian_without_model_data_raises():
 def test_parse_args():
     args = parse_args(
         '--scenario scatter --method Tsit5 --outfile output.mp4 ' +
-        '--visualise dot --video')
+        '--visualise dot')
     assert args.scenario == 'scatter'
     assert args.method == 'Tsit5'
     assert args.outfile == 'output.mp4'
@@ -51,7 +51,7 @@ def test_default_args():
 
 
 def test_duration_with_video_args():
-    args = parse_args('--video --duration 45 --outfile output.mp4')
+    args = parse_args('--duration 45 --outfile output.mp4')
     assert args.video
     assert args.duration == 45
 

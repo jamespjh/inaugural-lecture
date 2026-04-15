@@ -19,7 +19,7 @@ def entry():
 
 
 def _train_model(args, factory):
-    """Train a fitted law and save the model to args.model_data."""
+    """Train a fitted law and write either model output or video output."""
     checkpoints = []
 
     if args.seed is not None:
@@ -37,40 +37,37 @@ def _train_model(args, factory):
     if args.law == 'power':
         from .laws.pl import PLModel
         model = PLModel(factory=factory)
-        checkpoints = model.train(args.n_systems, **scenario_kwargs)
-        model.save(args.model_data)
-        logger.info(f"Saved power law model to {args.model_data}")
-        print(f"Trained power law model: G={model.G:.6f}, "
-              f"power={model.power:.6f}")
-        print(f"Model saved to: {args.model_data}")
     elif args.law == 'gaussian':
         from .laws.gp import GPModel
         model = GPModel(factory=factory)
-        model.train(args.n_systems, **scenario_kwargs)
-        checkpoints = []
-        model.save(args.model_data)
-        logger.info(f"Saved GP model to {args.model_data}")
-        print("Trained Gaussian Process model.")
-        print(f"Model saved to: {args.model_data}")
+    else:
+        raise ValueError(f"Unsupported law for training: {args.law}")
+    checkpoints = model.train(args.n_systems, **scenario_kwargs)
+    print("Trained model.")
+    if not args.video:
+        model.save(args.outfile)
+        logger.info(f"Saved model to {args.outfile}")
+        print(f"Model saved to: {args.outfile}")
 
-    if args.law == 'power' and getattr(args, 'convergence_video', None):
-        _generate_convergence_video(args, checkpoints, scenario_kwargs)
+    else:
+        _generate_convergence_video(
+            args, checkpoints, scenario_kwargs, output=args.outfile)
 
 
-def _generate_convergence_video(args, checkpoints, scenario_kwargs):
+def _generate_convergence_video(args, checkpoints, scenario_kwargs, output):
     """Translate parsed CLI args into explicit convergence-video inputs."""
     generate_convergence_video(
         checkpoints=checkpoints,
         scenario=args.scenario,
-        output=args.convergence_video,
-        checkpoint_interval=getattr(args, 'checkpoint_interval', 1),
-        show_true_law=getattr(args, 'show_true_law', False),
+        output=output,
+        checkpoint_interval=args.checkpoint_interval,
+        show_true_law=args.show_true_law,
         seed=args.seed,
-        method=getattr(args, 'method', 'euler'),
-        dt=getattr(args, 'dt', 0.01),
-        until=getattr(args, 'until', 10.0),
-        duration=getattr(args, 'duration', 30),
-        fps=getattr(args, 'fps', 20),
+        method=args.method,
+        dt=args.dt,
+        until=args.until,
+        duration=args.duration,
+        fps=args.fps,
         scenario_kwargs=scenario_kwargs,
     )
 
@@ -91,7 +88,7 @@ def execute_scenario(args):
         args.engine, seed=args.seed,
         via_numpy=args.engine_consistent_seed)
 
-    if getattr(args, 'train', False):
+    if args.train:
         _train_model(args, factory)
         return
 
@@ -109,7 +106,7 @@ def execute_scenario(args):
         f'and law: {args.law}')
     trajectory = solve(system, args.method, args.law, factory=factory,
                        dt=args.dt, until=args.until,
-                       model_data=getattr(args, 'model_data', None))
+                       model_data=args.model_data)
 
     if args.visualise:
         logger.info(f'Visualizing results with options: {args.visualise}')
@@ -147,19 +144,22 @@ def _validate_args(args):
         args.engine = args.engine or 'numpy'
         logger.info(f"Using engine: {args.engine}")
 
-    if args.outfile and not args.format and not args.train:
+    if args.outfile:
         logger.info(
-            f"Selecting output format based on file extension: {args.outfile}")
+            f"Selecting output format based on file extension: {
+                args.outfile}")
         _resolve_output_format(args)
 
     if args.train:
         _validate_train_args(args)
 
-    has_convergence_video = bool(
-        getattr(args, 'train', False) and
-        getattr(args, 'convergence_video', None)
-    )
-    if args.duration is not None and not (args.video or has_convergence_video):
+    if not args.outfile:
+        logger.info("No output file specified. Defaulting to stdout text.")
+        args.visualise = None
+        args.format = 'csv'
+        args.video = False
+
+    if args.duration is not None and not args.video:
         raise ValueError(
             "Option --duration can only be used with video output")
 
@@ -167,13 +167,8 @@ def _validate_args(args):
         raise ValueError(
             f"Law '{args.law}' requires a pre-trained model file. "
             f"Use --model-data to specify the path, or run "
-            f"'teachgrav --train --law {args.law} --model-data <path>' "
+            f"'teachgrav --train --law {args.law} --outfile <path>' "
             f"to train a model first.")
-
-    if not args.outfile:
-        logger.info("No output file specified. Defaulting to stdout text.")
-        args.visualise = None
-        args.format = 'csv'
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
     # Default integration timestep and end time.
@@ -193,7 +188,7 @@ def benchmark_scenario(args):
     """Run a single benchmark and return the mean timing in seconds."""
     factory = ScenarioFactory(
         args.engine, seed=args.seed,
-        via_numpy=getattr(args, 'engine_consistent_seed', True))
+        via_numpy=args.engine_consistent_seed)
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
@@ -223,18 +218,18 @@ def _validate_train_args(args):
             f"--train requires a stochastic scenario. "
             f"'{args.scenario}' is not suitable for training. "
             f"Valid training scenarios: {valid}.")
-    if args.model_data is None:
+    if args.outfile is None:
         raise ValueError(
-            "--train requires --model-data to specify the output path "
-            "for the saved model.")
-    if args.video or args.outfile is not None:
+            "--train requires --outfile to specify either the saved model "
+            "path (yaml/joblib) or an .mp4 convergence video path.")
+    if args.model_data is not None:
         raise ValueError(
-            "--train cannot be used with visualization options "
-            "(--video, --outfile).")
-    if getattr(args, 'convergence_video', None) and args.law != 'power':
+            "Use --outfile for --train output; --model-data is only for "
+            "loading fitted laws during simulation.")
+    if args.video and args.law != 'power':
         raise ValueError(
-            "--convergence-video is only supported for --law power.")
-    if getattr(args, 'checkpoint_interval', 1) < 1:
+            "Convergence video output is only supported for --law power.")
+    if args.checkpoint_interval < 1:
         raise ValueError("--checkpoint-interval must be at least 1.")
 
 
@@ -250,11 +245,21 @@ def _resolve_output_format(args):
     elif args.outfile.endswith('.png'):
         args.video = False
         args.format = 'png'
+        args.visualise = None
+    elif args.outfile.endswith('.yaml') or args.outfile.endswith('.yml'):
+        args.video = False
+        args.format = 'yaml'
+        args.visualise = None
+    elif args.outfile.endswith('.joblib'):
+        args.video = False
+        args.format = 'joblib'
+        args.visualise = None
     else:
         logger.warning(
             f"Unknown file extension for output: {args.outfile}" +
             ". Defaulting to stdout text.")
         args.visualise = None
+        args.video = False
         args.format = 'csv'
         args.outfile = None  # Output to stdout
 
@@ -271,12 +276,13 @@ def parse_args(force_args=None):
                                  'power'],
                         help='Physics law/acceleration model to use')
     parser.add_argument('--model-data', dest='model_data', default=None,
-                        help='Path to a trained model file for simulation '
-                             '(required for gaussian and power laws), or '
-                             'output path when used with --train')
+                        help=(
+                            'Path to a trained model file for simulation '
+                            '(required for gaussian and power laws).'))
     parser.add_argument('--train', action='store_true',
-                        help='Train a fitted law model and save it to '
-                             '--model-data instead of running a simulation')
+                        help=(
+                            'Train a fitted law model and write output to '
+                            '--outfile instead of running a simulation'))
     parser.add_argument('--n-systems', dest='n_systems', type=int, default=256,
                         help='Number of training systems (used with --train)')
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
@@ -291,7 +297,11 @@ def parse_args(force_args=None):
     parser.add_argument(
         '--outfile',
         default=None,
-        help='Output file for visualization (e.g. .mp4 or .gif)')
+        help='Output path. Format and behaviour inferred from extension.' +
+        ' Supported extensions: .csv, .png, .mp4, .yaml/.yml (for models), '
+        '.joblib (for models). ' +
+        'If no extension is given, defaults to stdout text output in '
+        'CSV format.')
     parser.add_argument('--visualise', default='trail',
                         choices=['trail', 'dot'], help='Visualization style')
     parser.add_argument('--log-level', '--loglevel', dest='log_level',
@@ -314,10 +324,6 @@ def parse_args(force_args=None):
         help='Generate scenarios via numpy first for cross-engine RNG '
              'consistency when --seed is used (default: enabled).')
     parser.add_argument(
-        '--video',
-        action='store_true',
-        help='Whether to create a video output (implies --visualise)')
-    parser.add_argument(
         '--duration',
         type=int,
         default=None,
@@ -338,22 +344,6 @@ def parse_args(force_args=None):
         default=None,
         help='Simulation end time (default: 10).')
     parser.add_argument(
-        '--format',
-        default=None,
-        choices=[
-            'csv',
-            'mp4',
-            'png'],
-        help='Output format for trajectory data (e.g. csv, mp4, png).' +
-             'Inferred from outfile extension if not specified.')
-    parser.add_argument(
-        '--convergence-video',
-        dest='convergence_video',
-        default=None,
-        help='Output path for a convergence video (used with --train '
-             '--law power).  Each frame shows the trajectory produced by '
-             'the fitted law at one optimization step.')
-    parser.add_argument(
         '--checkpoint-interval',
         dest='checkpoint_interval',
         type=int,
@@ -367,9 +357,6 @@ def parse_args(force_args=None):
         help='Overlay the true-law trajectory in each convergence-video frame '
              'so the viewer can see the fitted law converging toward it.')
     args = parser.parse_args(force_args.split() if force_args else None)
-
-    # Validate --train mode before outfile processing so args.outfile
-    # is still the original user-supplied value.
     _validate_args(args)
 
     return args

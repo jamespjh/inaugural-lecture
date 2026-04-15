@@ -1,10 +1,10 @@
-"""Tests for the convergence video feature (Issue #8).
+"""Tests for convergence video generation during training.
 
 These tests cover:
   * PLModel.train() returning a list of checkpoints.
-  * New CLI arguments: --convergence-video, --checkpoint-interval,
-    --show-true-law.
-  * Validation: --convergence-video only allowed for --law power.
+    * Training output routing via --outfile, plus --checkpoint-interval
+        and --show-true-law.
+    * Validation: convergence video output is only allowed for --law power.
   * _generate_convergence_video() running end-to-end without ffmpeg by
     using a mock/patch so the actual video-write step is skipped.
 """
@@ -70,24 +70,23 @@ def test_train_final_params_match_last_checkpoint():
 # ---------------------------------------------------------------------------
 
 def test_convergence_video_arg_parsed():
-    """--convergence-video should be stored on the parsed namespace."""
+    """An .mp4 --outfile should be accepted in train mode."""
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml '
-                      '--convergence-video /tmp/convergence.mp4')
-    assert args.convergence_video == '/tmp/convergence.mp4'
+                      '--outfile /tmp/convergence.mp4')
+    assert args.outfile == '/tmp/convergence.mp4'
 
 
 def test_checkpoint_interval_default():
     """--checkpoint-interval defaults to 1."""
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml')
+                      '--outfile /tmp/model.yaml')
     assert args.checkpoint_interval == 1
 
 
 def test_checkpoint_interval_custom():
     """--checkpoint-interval can be set to any positive integer."""
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml '
+                      '--outfile /tmp/model.yaml '
                       '--checkpoint-interval 5')
     assert args.checkpoint_interval == 5
 
@@ -95,35 +94,33 @@ def test_checkpoint_interval_custom():
 def test_show_true_law_flag():
     """--show-true-law flag should be parseable."""
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml '
-                      '--convergence-video /tmp/conv.mp4 '
+                      '--outfile /tmp/conv.mp4 '
                       '--show-true-law')
     assert args.show_true_law is True
 
 
 def test_show_true_law_default_false():
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml')
+                      '--outfile /tmp/model.yaml')
     assert args.show_true_law is False
 
 
 def test_duration_allowed_with_convergence_video_training():
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml '
-                      '--convergence-video /tmp/conv.mp4 '
+                      '--outfile /tmp/conv.mp4 '
                       '--duration 15')
     assert args.duration == 15
 
 
 def test_fps_default_for_video_outputs():
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml')
+                      '--outfile /tmp/model.yaml')
     assert args.fps == 20
 
 
 def test_fps_custom_value():
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml '
+                      '--outfile /tmp/model.yaml '
                       '--fps 12')
     assert args.fps == 12
 
@@ -133,17 +130,18 @@ def test_fps_custom_value():
 # ---------------------------------------------------------------------------
 
 def test_convergence_video_rejected_for_gaussian():
-    """--convergence-video should raise for --law gaussian."""
-    with pytest.raises(ValueError, match='only supported for --law power'):
+    """An .mp4 training output should raise for --law gaussian."""
+    with pytest.raises(ValueError,
+                       match='Convergence video output is only '
+                       'supported for --law power.'):
         parse_args('--train --law gaussian --scenario scatter '
-                   '--model-data /tmp/model.joblib '
-                   '--convergence-video /tmp/conv.mp4')
+                   '--outfile /tmp/conv.mp4')
 
 
 def test_checkpoint_interval_must_be_positive():
     with pytest.raises((ValueError, SystemExit)):
         parse_args('--train --law power --scenario scatter '
-                   '--model-data /tmp/model.yaml '
+                   '--outfile /tmp/model.yaml '
                    '--checkpoint-interval 0')
 
 
@@ -152,53 +150,43 @@ def test_checkpoint_interval_must_be_positive():
 # ---------------------------------------------------------------------------
 
 def test_convergence_video_generated_via_execute_scenario():
-    """--train with --convergence-video produces a convergence video."""
-    with (
-        tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as mf,
-        tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as vf,
-    ):
-        model_path = mf.name
+    """--train with an .mp4 --outfile produces a convergence video."""
+    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as vf:
         video_path = vf.name
 
     try:
         args = parse_args(
             f'--train --law power --scenario scatter '
-            f'--model-data {model_path} --n-systems 15 --seed 7 '
-            f'--convergence-video {video_path} --duration 1 --fps 2')
+            f'--outfile {video_path} --n-systems 15 --seed 7 '
+            f'--duration 1 --fps 2')
 
         # Patch FuncAnimation.save so the test does not need ffmpeg installed.
         with patch('matplotlib.animation.FuncAnimation.save'):
             execute_scenario(args)
 
     finally:
-        for path in (model_path, video_path):
-            if os.path.exists(path):
-                os.remove(path)
+        if os.path.exists(video_path):
+            os.remove(video_path)
 
 
 def test_convergence_video_with_true_law_overlay():
     """--show-true-law should not raise errors end-to-end (ffmpeg mocked)."""
-    with (
-        tempfile.NamedTemporaryFile(suffix='.yaml', delete=False) as mf,
-        tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as vf,
-    ):
-        model_path = mf.name
+    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as vf:
         video_path = vf.name
 
     try:
         args = parse_args(
             f'--train --law power --scenario scatter '
-            f'--model-data {model_path} --n-systems 15 --seed 7 '
-            f'--convergence-video {video_path} --show-true-law '
+            f'--outfile {video_path} --n-systems 15 --seed 7 '
+            f'--show-true-law '
             f'--duration 1 --fps 2')
 
         with patch('matplotlib.animation.FuncAnimation.save'):
             execute_scenario(args)
 
     finally:
-        for path in (model_path, video_path):
-            if os.path.exists(path):
-                os.remove(path)
+        if os.path.exists(video_path):
+            os.remove(video_path)
 
 
 def test_convergence_video_with_checkpoint_interval():
@@ -213,11 +201,13 @@ def test_convergence_video_with_checkpoint_interval():
         scenario = 'scatter'
         n_bodies = None
         seed = 42
+        method = 'euler'
         checkpoint_interval = 3
-        convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
         fps = 4
         duration = 1
+        until = 1
+        dt = 0.1
 
     generated_trajectories = []
 
@@ -229,7 +219,12 @@ def test_convergence_video_with_checkpoint_interval():
         'teachgrav.visualisations.convergence.convergence_video',
         capturing_convergence_video,
     ):
-        _generate_convergence_video(FakeArgs(), checkpoints, scenario_kwargs)
+        _generate_convergence_video(
+            FakeArgs(),
+            checkpoints,
+            scenario_kwargs,
+            output='/tmp/fake_convergence.mp4',
+        )
 
     # With 10 checkpoints and interval=3, we expect ceil(10/3)=4 frames
     expected_count = len(checkpoints[::3])
@@ -248,7 +243,6 @@ def test_convergence_video_forwards_solver_flags_to_integrator():
         n_bodies = None
         seed = 42
         checkpoint_interval = 1
-        convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = True
         fps = 2
         duration = 1
@@ -276,7 +270,8 @@ def test_convergence_video_forwards_solver_flags_to_integrator():
         'teachgrav.visualisations.convergence.convergence_video',
         fake_convergence_video,
     ):
-        _generate_convergence_video(FakeArgs(), checkpoints, {})
+        _generate_convergence_video(
+            FakeArgs(), checkpoints, {}, output='/tmp/fake_convergence.mp4')
 
     # 2 checkpoint runs + 1 true-law overlay run
     assert len(calls) == 3
@@ -298,7 +293,6 @@ def test_convergence_video_skips_failed_checkpoint_integrations():
         n_bodies = None
         seed = 42
         checkpoint_interval = 1
-        convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
         fps = 1
         duration = 1
@@ -329,7 +323,8 @@ def test_convergence_video_skips_failed_checkpoint_integrations():
         'teachgrav.visualisations.convergence.convergence_video',
         fake_convergence_video,
     ):
-        _generate_convergence_video(FakeArgs(), checkpoints, {})
+        _generate_convergence_video(
+            FakeArgs(), checkpoints, {}, output='/tmp/fake_convergence.mp4')
 
     assert call_count['n'] == 2
     assert captured['n_frames'] == 1
@@ -347,7 +342,6 @@ def test_convergence_video_upsamples_frames_to_duration_times_fps():
         n_bodies = None
         seed = 42
         checkpoint_interval = 1
-        convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
         fps = 6
         duration = 1
@@ -378,7 +372,8 @@ def test_convergence_video_upsamples_frames_to_duration_times_fps():
         'teachgrav.visualisations.convergence.convergence_video',
         fake_convergence_video,
     ):
-        _generate_convergence_video(FakeArgs(), checkpoints, {})
+        _generate_convergence_video(
+            FakeArgs(), checkpoints, {}, output='/tmp/fake_convergence.mp4')
 
     # target_frames = duration * fps = 6
     assert captured['n_frames'] == 6
@@ -408,7 +403,6 @@ def test_convergence_video_downsamples_frames_to_duration_times_fps():
         n_bodies = None
         seed = 42
         checkpoint_interval = 1
-        convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
         fps = 3
         duration = 1
@@ -435,7 +429,8 @@ def test_convergence_video_downsamples_frames_to_duration_times_fps():
         'teachgrav.visualisations.convergence.convergence_video',
         fake_convergence_video,
     ):
-        _generate_convergence_video(FakeArgs(), checkpoints, {})
+        _generate_convergence_video(
+            FakeArgs(), checkpoints, {}, output='/tmp/fake_convergence.mp4')
 
     # target_frames = duration * fps = 3
     assert captured['n_frames'] == 3

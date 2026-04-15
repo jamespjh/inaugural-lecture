@@ -12,43 +12,49 @@ from teachgrav.entry import parse_args, execute_scenario
 
 def test_train_flag_parsed():
     args = parse_args('--train --law power --scenario scatter '
-                      '--model-data /tmp/model.yaml')
+                      '--outfile /tmp/model.yaml')
     assert args.train is True
 
 
 def test_train_requires_fitted_law():
     with pytest.raises(ValueError, match='does not require training'):
         parse_args('--train --law gravity --scenario scatter '
-                   '--model-data /tmp/model.yaml')
+                   '--outfile /tmp/model.yaml')
 
 
 def test_train_requires_fitted_law_constant():
     with pytest.raises(ValueError, match='does not require training'):
         parse_args('--train --law constant --scenario scatter '
-                   '--model-data /tmp/model.yaml')
+                   '--outfile /tmp/model.yaml')
 
 
 def test_train_requires_stochastic_scenario():
     with pytest.raises(ValueError, match='not suitable for training'):
         parse_args('--train --law power --scenario moon '
-                   '--model-data /tmp/model.yaml')
+                   '--outfile /tmp/model.yaml')
 
 
-def test_train_requires_model_data():
-    with pytest.raises(ValueError, match='--model-data'):
+def test_train_requires_outfile():
+    with pytest.raises(ValueError, match='--outfile'):
         parse_args('--train --law power --scenario scatter')
 
 
-def test_train_rejects_video():
-    with pytest.raises(ValueError, match='visualization options'):
+def test_train_rejects_model_data():
+    with pytest.raises(ValueError, match='Use --outfile'):
         parse_args('--train --law power --scenario scatter '
-                   '--model-data /tmp/model.yaml --video')
+                   '--model-data /tmp/model.yaml --outfile out.yaml')
 
 
-def test_train_rejects_outfile():
-    with pytest.raises(ValueError, match='visualization options'):
-        parse_args('--train --law power --scenario scatter '
-                   '--model-data /tmp/model.yaml --outfile out.mp4')
+def test_train_outfile_routes_model_output():
+    args = parse_args('--train --law power --scenario scatter '
+                      '--outfile /tmp/model.yaml')
+    assert args.outfile == '/tmp/model.yaml'
+
+
+def test_train_outfile_routes_video_output():
+    args = parse_args('--train --law power --scenario scatter '
+                      '--outfile /tmp/convergence.mp4')
+    assert args.outfile == '/tmp/convergence.mp4'
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +67,7 @@ def test_train_power_via_execute_scenario():
         output_path = f.name
     try:
         args = parse_args(f'--train --law power --scenario scatter '
-                          f'--model-data {output_path} --n-systems 20')
+                          f'--outfile {output_path} --n-systems 20')
         execute_scenario(args)
         assert os.path.exists(output_path)
         import yaml
@@ -82,7 +88,7 @@ def test_train_gaussian_via_execute_scenario():
         output_path = f.name
     try:
         args = parse_args(f'--train --law gaussian --scenario scatter '
-                          f'--model-data {output_path} --n-systems 20')
+                          f'--outfile {output_path} --n-systems 20')
         execute_scenario(args)
         assert os.path.exists(output_path)
         import joblib
@@ -101,7 +107,7 @@ def test_train_with_seed():
         output_path = f.name
     try:
         args = parse_args(f'--train --law power --scenario scatter '
-                          f'--model-data {output_path} '
+                          f'--outfile {output_path} '
                           '--n-systems 10 --seed 42')
         execute_scenario(args)
         assert os.path.exists(output_path)
