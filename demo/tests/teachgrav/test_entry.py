@@ -113,6 +113,7 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         engine = 'numpy'
         scenario = 'single'
         benchmark = True
+        benchmark_solve = False
         method = 'euler'
         law = 'constant'
         visualise = None
@@ -147,6 +148,7 @@ def test_benchmark_mode_runs_single_law_step_not_full_solve(monkeypatch):
         engine = 'numpy'
         scenario = 'single'
         benchmark = True
+        benchmark_solve = False
         method = 'euler'
         law = 'gravity'
         visualise = None
@@ -195,3 +197,102 @@ def test_benchmark_mode_runs_single_law_step_not_full_solve(monkeypatch):
         "Expected exactly one call to model.law() in benchmark mode"
     assert solve_call_count['count'] == 0, \
         "Expected no calls to solve() in benchmark mode"
+
+
+def test_benchmark_solve_parse_args():
+    args = parse_args('--benchmark-solve')
+    assert args.benchmark_solve is True
+    assert args.benchmark is False
+
+
+def test_benchmark_and_benchmark_solve_together_raises():
+    with pytest.raises(ValueError, match="cannot be used together"):
+        parse_args('--benchmark --benchmark-solve')
+
+
+def test_benchmark_solve_calls_solve_not_law(monkeypatch):
+    """--benchmark-solve should call solve() once, not model.law()."""
+    class Args:
+        log_level = 'WARNING'
+        log_file = None
+        engine = 'numpy'
+        scenario = 'single'
+        benchmark = False
+        benchmark_solve = True
+        method = 'euler'
+        law = 'gravity'
+        model_data = None
+        visualise = None
+        outfile = None
+        video = False
+        duration = 30
+        format = 'csv'
+        train = False
+        n_bodies = None
+        seed = None
+        engine_consistent_seed = True
+        dt = 0.01
+        until = 0.05
+
+    solve_call_count = {'count': 0}
+
+    def tracking_solve(*a, **kw):
+        solve_call_count['count'] += 1
+        return object()
+
+    monkeypatch.setattr('teachgrav.entry.solve', tracking_solve)
+
+    def fake_benchmark(fn, engine, *args):
+        fn()
+        return 0.1
+
+    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    execute_scenario(Args())
+
+    assert solve_call_count['count'] == 1, \
+        "Expected exactly one call to solve() in benchmark-solve mode"
+
+
+def test_benchmark_solve_respects_until(monkeypatch):
+    """--benchmark-solve should pass --until to solve()."""
+    class Args:
+        log_level = 'WARNING'
+        log_file = None
+        engine = 'numpy'
+        scenario = 'single'
+        benchmark = False
+        benchmark_solve = True
+        method = 'euler'
+        law = 'gravity'
+        model_data = None
+        visualise = None
+        outfile = None
+        video = False
+        duration = 30
+        format = 'csv'
+        train = False
+        n_bodies = None
+        seed = None
+        engine_consistent_seed = True
+        dt = 0.01
+        until = 0.05
+
+    captured = {}
+
+    def tracking_solve(system, method, law, factory=None, dt=0.01,
+                       until=10.0, model_data=None):
+        captured['until'] = until
+        captured['dt'] = dt
+        return object()
+
+    monkeypatch.setattr('teachgrav.entry.solve', tracking_solve)
+
+    def fake_benchmark(fn, engine, *args):
+        fn()
+        return 0.1
+
+    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    execute_scenario(Args())
+
+    assert captured['until'] == 0.05, \
+        "Expected solve() to receive until=0.05 from Args"

@@ -100,6 +100,9 @@ def execute_scenario(args):
     if args.benchmark:
         benchmark_scenario(args)
         return
+    if args.benchmark_solve:
+        benchmark_solve_scenario(args)
+        return
     system = create_scenario(args.scenario, **scenario_kwargs)
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method} '
@@ -130,6 +133,9 @@ def execute_scenario(args):
 
 def _validate_args(args):
     """Validate parsed args and raise ValueError for incompatible options."""
+    if args.benchmark and args.benchmark_solve:
+        raise ValueError(
+            "--benchmark and --benchmark-solve cannot be used together.")
     if args.method in diffrax_methods and args.engine == 'numpy':
         raise ValueError(
             f"Method {args.method} is not compatible"
@@ -202,6 +208,24 @@ def benchmark_scenario(args):
 
     def run_once():
         return model.law(system)
+
+    return benchmark_engine(run_once, args.engine)
+
+
+def benchmark_solve_scenario(args):
+    """Benchmark the full ODE solver and return the mean timing in seconds."""
+    factory = ScenarioFactory(
+        args.engine, seed=args.seed,
+        via_numpy=args.engine_consistent_seed)
+    scenario_kwargs = {}
+    if args.n_bodies is not None:
+        scenario_kwargs['n_bodies'] = args.n_bodies
+    system = factory.create_scenario(args.scenario, **scenario_kwargs)
+
+    def run_once():
+        return solve(system, args.method, args.law, factory=factory,
+                     dt=args.dt, until=args.until,
+                     model_data=getattr(args, 'model_data', None))
 
     return benchmark_engine(run_once, args.engine)
 
@@ -310,7 +334,12 @@ def parse_args(force_args=None):
     parser.add_argument('--log-file', default=None,
                         help='File to save log output')
     parser.add_argument('--benchmark', action='store_true',
-                        help='Whether to run in benchmark mode')
+                        help='Whether to run in benchmark mode (law only)')
+    parser.add_argument('--benchmark-solve', dest='benchmark_solve',
+                        action='store_true',
+                        help=(
+                            'Benchmark the full ODE solver; '
+                            'uses --until to control the duration.'))
     parser.add_argument(
         '--seed',
         type=int,
