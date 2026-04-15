@@ -8,6 +8,31 @@ logger = logging.getLogger("Teachgrav")
 plt.style.use('dark_background')
 
 
+def _equal_aspect_limits(mins, maxs, buffer=1.0):
+    """Compute axis limits that give a 1:1 aspect ratio.
+
+    Takes whichever of the x or y data range is larger and applies it to
+    both axes (centred on the data midpoint), so that circles in data space
+    always appear as circles on screen.
+
+    Args:
+        mins: array-like of length 2, minimum [x, y] values in the data.
+        maxs: array-like of length 2, maximum [x, y] values in the data.
+        buffer: extra padding added outside the data range on each side.
+
+    Returns:
+        Tuple (xlim, ylim) where each is a (lo, hi) tuple.
+    """
+    x_mid = (mins[0] + maxs[0]) / 2.0
+    y_mid = (mins[1] + maxs[1]) / 2.0
+    x_range = maxs[0] - mins[0]
+    y_range = maxs[1] - mins[1]
+    half_range = max(x_range, y_range) / 2.0
+    xlim = (x_mid - half_range - buffer, x_mid + half_range + buffer)
+    ylim = (y_mid - half_range - buffer, y_mid + half_range + buffer)
+    return xlim, ylim
+
+
 def _apply_axis_style(ax):
     """Apply the standard dark-background axis styling shared by all plots."""
     ax.spines['left'].set_position('zero')
@@ -75,8 +100,9 @@ def axes(trajectory, options):
 
     buffer = 1.0
 
-    ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
-    ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
+    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer)
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
 
     _apply_axis_style(ax)
 

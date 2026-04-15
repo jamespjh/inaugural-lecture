@@ -5,6 +5,7 @@ from ..scenarios import ScenarioFactory
 import logging
 from .visualize import _apply_axis_style
 from .visualize import _save_or_show_animation
+from .visualize import _equal_aspect_limits
 
 import matplotlib.pyplot as plt
 
@@ -49,8 +50,9 @@ def convergence_video(trajectories, output, fps=20, options='trail',
     buffer = 1.0
 
     fig, ax = plt.subplots()
-    ax.set_xlim(mins[0] - buffer, maxs[0] + buffer)
-    ax.set_ylim(mins[1] - buffer, maxs[1] + buffer)
+    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer)
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
     _apply_axis_style(ax)
 
     num_bodies = trajectories[0].positions().shape[1]
