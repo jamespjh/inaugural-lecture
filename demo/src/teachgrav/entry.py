@@ -5,7 +5,8 @@ from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
-from .viz import visualize, convergence_video
+from .viz import visualize
+from .visualisations.convergence import generate_convergence_video
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
 
@@ -57,97 +58,21 @@ def _train_model(args, factory):
 
 
 def _generate_convergence_video(args, checkpoints, scenario_kwargs):
-    """Generate a convergence video from power-law training checkpoints.
-
-    For each checkpoint, simulate the scatter scenario using given integration
-    with the checkpoint parameters and collect the resulting trajectory.
-    These trajectories are combined into a single MP4 that shows the fitted
-    law converging toward the true law.
-
-    Checkpoints whose trajectories contain non-finite values (e.g. due to
-    numerically unstable early-training parameters) are silently skipped.
-
-    Args:
-        args: parsed CLI arguments (needs convergence_video,
-              checkpoint_interval, show_true_law, seed, and n_bodies).
-        checkpoints: list of {'G': float, 'power': float} dicts from training.
-        scenario_kwargs: keyword arguments for create_scenario (e.g. n_bodies).
-    """
-    import numpy as np
-    from .laws.pl import PLModel
-
-    interval = getattr(args, 'checkpoint_interval', 1)
-    selected = checkpoints[::interval]
-    if not selected:
-        logger.warning("No checkpoints to generate convergence video from.")
-        return
-
-    logger.info(
-        f"Generating convergence video from {len(selected)} checkpoints "
-        f"(interval={interval})…")
-
-    method = getattr(args, 'method', 'euler')
-    dt = getattr(args, 'dt', 0.01)
-    until = getattr(args, 'until', 10.0)
-
-    # Use a fixed seed for the visualisation scenario so all frames show the
-    # same initial conditions and only the law changes.
-    viz_seed = args.seed if args.seed is not None else 42
-    viz_factory = ScenarioFactory('numpy', seed=viz_seed)
-    system = viz_factory.create_scenario(args.scenario, **scenario_kwargs)
-
-    trajectories = []
-    for ckpt in selected:
-        logger.info(
-            "Integrating trajectory for checkpoint "
-            f"G={ckpt['G']:.4f}, power={ckpt['power']:.4f}…"
-        )
-        pl_model = PLModel(factory=None, G=ckpt['G'], power=ckpt['power'])
-        try:
-            traj = integrate_trajectory(
-                system, method=method, model=pl_model, dt=dt, until=until)
-        except Exception as exc:  # pragma: no cover
-            logger.debug(
-                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
-                f"power={ckpt['power']:.4f} (integration failed: {exc!r})."
-            )
-            continue
-        traj.data = np.array(traj.data)
-        # Skip trajectories that blew up (common during early optimization).
-        if not np.isfinite(traj.data).all():
-            logger.debug(
-                f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
-                f"power={ckpt['power']:.4f} (non-finite trajectory).")
-            continue
-        trajectories.append(traj)
-
-    if not trajectories:
-        logger.warning(
-            "All checkpoint trajectories were numerically unstable; "
-            "convergence video not generated.")
-        return
-
-    logger.info(f"Using {len(trajectories)} stable trajectory frames.")
-
-    ref_trajectory = None
-    if getattr(args, 'show_true_law', False):
-        try:
-            ref_traj = integrate_trajectory(
-                system, method=method, law='gravity', dt=dt, until=until)
-            ref_traj.data = np.array(ref_traj.data)
-            ref_trajectory = ref_traj
-        except Exception as exc:  # pragma: no cover
-            logger.warning(
-                f"Failed to generate true-law overlay trajectory: {exc!r}. "
-                "Continuing without overlay."
-            )
-
-    convergence_video(
-        trajectories,
+    """Translate parsed CLI args into explicit convergence-video inputs."""
+    generate_convergence_video(
+        checkpoints=checkpoints,
+        scenario=args.scenario,
         output=args.convergence_video,
-        fps=args.fps,
-        ref_trajectory=ref_trajectory)
-    print(f"Convergence video saved to: {args.convergence_video}")
+        checkpoint_interval=getattr(args, 'checkpoint_interval', 1),
+        show_true_law=getattr(args, 'show_true_law', False),
+        seed=args.seed,
+        method=getattr(args, 'method', 'euler'),
+        dt=getattr(args, 'dt', 0.01),
+        until=getattr(args, 'until', 10.0),
+        duration=getattr(args, 'duration', 30),
+        fps=getattr(args, 'fps', 20),
+        scenario_kwargs=scenario_kwargs,
+    )
 
 
 def execute_scenario(args):

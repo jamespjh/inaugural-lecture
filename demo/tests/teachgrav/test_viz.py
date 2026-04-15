@@ -1,5 +1,6 @@
 import tempfile
 import os
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -40,3 +41,24 @@ def test_marker_sizes_from_masses_log_linear_mapping():
 def test_marker_sizes_from_masses_rejects_non_positive():
     with pytest.raises(ValueError, match='strictly positive'):
         marker_sizes_from_masses(np.array([1.0, 0.0, 10.0]), 720.0)
+
+
+def test_visualize_passes_fps_to_animate():
+    from teachgrav.integrator import integrate_trajectory
+
+    system = factory.create_scenario('moon')
+    trajectory = integrate_trajectory(
+        system, method='euler', dt=0.01, until=1.0)
+
+    with patch('teachgrav.visualisations.convergence.animate') as mock_animate:
+        visualize(
+            trajectory,
+            output='out.mp4',
+            mode='video',
+            options='trail',
+            duration=2,
+            fps=11,
+        )
+
+    assert mock_animate.call_count == 1
+    assert mock_animate.call_args.kwargs['fps'] == 11
