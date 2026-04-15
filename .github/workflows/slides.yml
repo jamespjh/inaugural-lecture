@@ -39,12 +39,6 @@ jobs:
           source demo/venv/bin/activate
           cd slideshow/assets
           generate-figures scenarios.yml
-
-      - name: Generate power law convergence video
-        run: |
-          source demo/venv/bin/activate
-          cd slideshow/assets
-          bash power.sh
       
       - name: Install Quarto
         uses: quarto-dev/quarto-actions/setup@v2

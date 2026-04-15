@@ -99,6 +99,27 @@ def test_run_batch_rejects_underscore_keys():
         generate.run_batch([{"log_level": "INFO"}])
 
 
+def test_generate_figures_train_scenario():
+    """Test YAML-driven power law convergence training scenario."""
+    yaml_file = FIXTURES_DIR / "generate_train.yaml"
+
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse_args, \
+            patch("teachgrav.generate.entry.execute_scenario") as mock_execute:
+        mock_parse_args.return_value = "parsed_train_args"
+        generate.generate_figures(str(yaml_file))
+
+    mock_parse_args.assert_called_once()
+    call_args = mock_parse_args.call_args[0][0]
+    assert "--train" in call_args
+    assert "--law power" in call_args
+    assert "--scenario scatter" in call_args
+    assert "--outfile power_law_convergence.mp4" in call_args
+    assert "--show-true-law" in call_args
+    assert "--log-level INFO" in call_args
+    assert "--model-data" not in call_args
+    mock_execute.assert_called_once_with("parsed_train_args")
+
+
 # ---------------------------------------------------------------------------
 # Tests for benchmark helper functions and run_benchmark
 # ---------------------------------------------------------------------------

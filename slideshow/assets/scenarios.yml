@@ -34,3 +34,16 @@
   duration: 30
   visualise: dot
   outfile: boids_euler.mp4
+- scenario: scatter
+  train: true
+  law: power
+  n-systems: 256
+  duration: 15
+  until: 1.5
+  outfile: power_law_convergence.mp4
+  show-true-law: true
+  engine: numpy
+  method: RK45
+  seed: 2
+  visualise: trail
+  log-level: INFO

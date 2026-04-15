@@ -1,1 +1,0 @@
-teachgrav --train --law power --scenario scatter --n-systems 256 --duration 15 --until 1.5 --convergence-video power_law_convergence.mp4 --show-true-law --model-data model.yaml --engine numpy --method RK45 --seed 2 --visualise trail --loglevel INFO
