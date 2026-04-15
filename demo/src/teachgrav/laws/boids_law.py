@@ -19,13 +19,15 @@ class BoidsLawModel(Model):
 
     def __init__(self, factory=None,
                  flock_attraction=0.01,
-                 avoidance_radius=10.0,
-                 formation_flying_radius=100.0,
-                 speed_matching_strength=0.125,
+                 avoidance_radius=1000.0,
+                 avoidance_strength=5.0,
+                 formation_flying_radius=1000.0,
+                 speed_matching_strength=0.001,
                  **kwargs):
         self.factory = factory
         self.flock_attraction = flock_attraction
         self.avoidance_radius = avoidance_radius
+        self.avoidance_strength = avoidance_strength
         self.formation_flying_radius = formation_flying_radius
         self.speed_matching_strength = speed_matching_strength
 
@@ -78,7 +80,9 @@ class BoidsLawModel(Model):
         # repelled (subtract displacement, i.e. move away).
         avoidance_mask = (
             distances_sq < (self.avoidance_radius ** 2))  # (C, N, N, 1)
-        separation = -(displacements * avoidance_mask).sum(axis=2)
+        # Repulsion strength law: 1/distance, until avoidance_radius where it becomes zero.
+        repulsion_strengths = self.avoidance_strength/(np.sqrt(distances_sq) + 1e-10)
+        separation = -(displacements * avoidance_mask * repulsion_strengths).sum(axis=2)
 
         # --- Alignment: match velocity with nearby boids ---
         # Velocity differences: vel_j - vel_i, shape (C, N, N, D)
