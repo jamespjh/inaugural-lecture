@@ -30,10 +30,18 @@
 - scenario: boids
   method: euler
   law: boids
-  until: 60
+  until: 240
   duration: 30
   visualise: dot
   outfile: boids_euler.mp4
+- scenario: scatter
+  method: RK45
+  duration: 15
+  until: 1.5
+  outfile: nice.mp4
+  method: RK45
+  seed: 2
+  visualise: dot
 - scenario: scatter
   train: true
   law: power

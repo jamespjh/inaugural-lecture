@@ -115,34 +115,63 @@ def animate(trajectory, output, options, duration=30, fps=20):
             line.set_data([], [])
         return lines
 
+    # Get trajectory data and compute time values
+    positions = trajectory.positions()
+    steps = len(trajectory)
+
+    # Generate time values for each output frame
+    number_of_frames = max(1, int(duration * fps))
+    frame_times = np.linspace(0, steps - 1, number_of_frames)
+
+    def get_interpolated_positions(t):
+        """Interpolate trajectory positions at time t."""
+        # Find the two steps surrounding this time
+        step_idx = int(np.floor(t))
+        step_idx = np.clip(step_idx, 0, steps - 2)
+        alpha = t - step_idx
+
+        # Linear interpolation between step_idx and step_idx+1
+        pos_current = positions[step_idx]
+        pos_next = positions[step_idx + 1]
+        return pos_current * (1 - alpha) + pos_next * alpha
+
     if options == 'trail':
-        def animate(position):
+        def update_frame(t):
+            # For trail, show all positions up to the interpolated time
+            step_idx = int(np.floor(t))
+            step_idx = np.clip(step_idx, 0, steps - 1)
+            interp_positions = get_interpolated_positions(t)
+
             for i, line in enumerate(lines):
-                line.set_data(
-                    *trajectory.positions()[:position, i, :].T)
+                if step_idx == 0:
+                    trail_positions = positions[:1, i, :]
+                else:
+                    trail_positions = positions[:step_idx + 1, i, :]
+                    # Add interpolated final point
+                    if step_idx < steps - 1:
+                        trail_positions = np.vstack(
+                            [trail_positions, [interp_positions[i]]])
+                line.set_data(*trail_positions.T)
             return lines
     elif options == 'dot':
-        def animate(position):
+        def update_frame(t):
+            interp_pos = get_interpolated_positions(t)
             for i, line in enumerate(lines):
-                line.set_data(*trajectory.positions()[position - 1:position,
-                                                      i, :].T)
+                line.set_data(*interp_pos[i:i+1, :].T)
             return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")
 
-    steps = len(trajectory)
     interval = int(1000 / fps)  # milliseconds per frame
-    number_of_frames = max(1, int(duration * fps))
-
-    steps_for_viz = np.linspace(1, steps, number_of_frames, dtype=int)
     logger.info(
         f"Animating trajectory with {steps} steps, " +
-        f"visualizing {number_of_frames} frames at steps {steps_for_viz}")
+        f"visualizing {number_of_frames} frames with linear position "
+        f"interpolation")
 
     ani = FuncAnimation(fig,
-                        animate,
+                        update_frame,
                         init_func=init,
-                        frames=steps_for_viz,
+                        frames=frame_times,
                         interval=interval,
                         blit=False)
 
