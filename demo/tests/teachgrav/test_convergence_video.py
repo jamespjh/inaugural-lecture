@@ -115,6 +115,19 @@ def test_duration_allowed_with_convergence_video_training():
     assert args.duration == 15
 
 
+def test_fps_default_for_video_outputs():
+    args = parse_args('--train --law power --scenario scatter '
+                      '--model-data /tmp/model.yaml')
+    assert args.fps == 20
+
+
+def test_fps_custom_value():
+    args = parse_args('--train --law power --scenario scatter '
+                      '--model-data /tmp/model.yaml '
+                      '--fps 12')
+    assert args.fps == 12
+
+
 # ---------------------------------------------------------------------------
 # Validation
 # ---------------------------------------------------------------------------
@@ -202,7 +215,7 @@ def test_convergence_video_with_checkpoint_interval():
         checkpoint_interval = 3
         convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
-        convergence_fps = 5
+        fps = 20
 
     generated_trajectories = []
 
@@ -234,7 +247,7 @@ def test_convergence_video_forwards_solver_flags_to_integrator():
         checkpoint_interval = 1
         convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = True
-        convergence_fps = 5
+        fps = 20
         method = 'RK45'
         dt = 0.123
         until = 4.5
@@ -280,7 +293,7 @@ def test_convergence_video_skips_failed_checkpoint_integrations():
         checkpoint_interval = 1
         convergence_video = '/tmp/fake_convergence.mp4'
         show_true_law = False
-        convergence_fps = 5
+        fps = 20
         method = 'LSODA'
         dt = 0.01
         until = 2.0

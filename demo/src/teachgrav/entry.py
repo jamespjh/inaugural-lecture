@@ -145,7 +145,7 @@ def _generate_convergence_video(args, checkpoints, scenario_kwargs):
     convergence_video(
         trajectories,
         output=args.convergence_video,
-        fps=getattr(args, 'convergence_fps', 5),
+        fps=args.fps,
         ref_trajectory=ref_trajectory)
     print(f"Convergence video saved to: {args.convergence_video}")
 
@@ -196,7 +196,8 @@ def execute_scenario(args):
             output=args.outfile,
             mode='video' if args.video else 'plot',
             options=args.visualise,
-            duration=args.duration)
+            duration=args.duration,
+            fps=args.fps)
     else:
         logger.info(
             "Outputting trajectory data to " +
@@ -396,6 +397,11 @@ def parse_args(force_args=None):
         type=int,
         default=None,
         help='Video duration in seconds (default: 30).')
+    parser.add_argument(
+        '--fps',
+        type=int,
+        default=20,
+        help='Frames per second for all video outputs (default: 20).')
     parser.add_argument(
         '--dt',
         type=float,

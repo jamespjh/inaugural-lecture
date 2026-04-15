@@ -30,7 +30,8 @@ def _save_or_show_animation(ani, output, fps, log_msg=None):
         plt.show()
 
 
-def visualize(trajectory, output, mode='video', options='dot', duration=30):
+def visualize(trajectory, output, mode='video', options='dot', duration=30,
+              fps=20):
     trajectory.data = np.array(trajectory.data)
     # Convert to numpy for visualization
     if trajectory.D != 2:
@@ -38,7 +39,7 @@ def visualize(trajectory, output, mode='video', options='dot', duration=30):
             "Visualization only supports 2D trajectories, " +
             f"but got D={trajectory.D}")
     if mode == 'video':
-        animate(trajectory, output, options, duration)
+        animate(trajectory, output, options, duration, fps=fps)
     else:
         plot(trajectory, output, options)
 
@@ -104,7 +105,7 @@ def axes(trajectory, options):
     return [fig, ax, lines]
 
 
-def animate(trajectory, output, options, duration=30):
+def animate(trajectory, output, options, duration=30, fps=20):
     from matplotlib.animation import FuncAnimation
     fig, _, lines = axes(trajectory, options)
 
@@ -129,7 +130,6 @@ def animate(trajectory, output, options, duration=30):
         raise ValueError(f"Unknown animation option: {options}")
 
     steps = len(trajectory)
-    fps = 20
     interval = int(1000 / fps)  # milliseconds per frame
     number_of_frames = max(1, int(duration * fps))
 
@@ -160,7 +160,7 @@ def plot(trajectory, output, options):
         plt.show()
 
 
-def convergence_video(trajectories, output, fps=5, options='trail',
+def convergence_video(trajectories, output, fps=20, options='trail',
                       ref_trajectory=None):
     """Create a video showing trajectory convergence across training steps.
 
@@ -172,7 +172,7 @@ def convergence_video(trajectories, output, fps=5, options='trail',
     Args:
         trajectories: sequence of Trajectory objects, one per checkpoint.
         output: output file path for the MP4 (or None to show interactively).
-        fps: frames per second (default: 5).
+        fps: frames per second (default: 20).
         options: visualisation style; currently only ``'trail'`` is supported.
         ref_trajectory: optional Trajectory to overlay on every frame in a
                         different colour (e.g. the true-law trajectory).
