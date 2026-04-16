@@ -80,9 +80,12 @@ class BoidsLawModel(Model):
         # repelled (subtract displacement, i.e. move away).
         avoidance_mask = (
             distances_sq < (self.avoidance_radius ** 2))  # (C, N, N, 1)
-        # Repulsion strength law: 1/distance, until avoidance_radius where it becomes zero.
-        repulsion_strengths = self.avoidance_strength/(np.sqrt(distances_sq) + 1e-10)
-        separation = -(displacements * avoidance_mask * repulsion_strengths).sum(axis=2)
+        # Repulsion strength law: 1/distance, until avoidance_radius where it
+        # becomes zero.
+        repulsion_strengths = self.avoidance_strength / \
+            (np.sqrt(distances_sq) + 1e-10)
+        separation = -(displacements * avoidance_mask *
+                       repulsion_strengths).sum(axis=2)
 
         # --- Alignment: match velocity with nearby boids ---
         # Velocity differences: vel_j - vel_i, shape (C, N, N, D)

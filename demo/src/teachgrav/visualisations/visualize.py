@@ -157,7 +157,7 @@ def animate(trajectory, output, options, duration=30, fps=20):
         def update_frame(t):
             interp_pos = get_interpolated_positions(t)
             for i, line in enumerate(lines):
-                line.set_data(*interp_pos[i:i+1, :].T)
+                line.set_data(*interp_pos[i:i + 1, :].T)
             return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")

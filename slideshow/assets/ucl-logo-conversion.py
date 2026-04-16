@@ -52,7 +52,8 @@ def convert_logo(
     # Decontaminate foreground color by inverting compositing against matte.
     a = alpha / 255.0
     safe_a = np.where(a > 1e-6, a, 1.0)
-    fg = (rgb - (1.0 - a)[:, :, None] * matte[None, None, :]) / safe_a[:, :, None]
+    fg = (rgb - (1.0 - a)[:, :, None] *
+          matte[None, None, :]) / safe_a[:, :, None]
     fg = np.clip(fg, 0.0, 255.0)
 
     # Choke alpha slightly to suppress fringe.
@@ -67,7 +68,7 @@ def convert_logo(
     if side_strip_px > 0:
         strip = min(side_strip_px, w // 2)
         alpha[:, :strip] = 0.0
-        alpha[:, w - strip :] = 0.0
+        alpha[:, w - strip:] = 0.0
 
     out = np.zeros((h, w, 4), dtype=np.uint8)
     out[:, :, :3] = fg.astype(np.uint8)
@@ -83,7 +84,8 @@ def convert_logo(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Convert UCL logo matte to alpha.")
+    parser = argparse.ArgumentParser(
+        description="Convert UCL logo matte to alpha.")
     parser.add_argument(
         "--input",
         default="ucl-logo-original.png",
