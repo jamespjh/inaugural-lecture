@@ -97,7 +97,7 @@ def execute_scenario(args):
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
 
-    if args.benchmark:
+    if args.benchmark or args.benchmark_solve:
         benchmark_scenario(args)
         return
     system = create_scenario(args.scenario, **scenario_kwargs)
@@ -130,6 +130,9 @@ def execute_scenario(args):
 
 def _validate_args(args):
     """Validate parsed args and raise ValueError for incompatible options."""
+    if args.benchmark and args.benchmark_solve:
+        raise ValueError(
+            "--benchmark and --benchmark-solve cannot be used together.")
     if args.method in diffrax_methods and args.engine == 'numpy':
         raise ValueError(
             f"Method {args.method} is not compatible"
@@ -185,7 +188,11 @@ def _validate_args(args):
 
 
 def benchmark_scenario(args):
-    """Run a single benchmark and return the mean timing in seconds."""
+    """Run a benchmark and return the mean timing in seconds.
+
+    If ``args.benchmark`` is set, times a single law evaluation.
+    If ``args.benchmark_solve`` is set, times the full ODE solver.
+    """
     factory = ScenarioFactory(
         args.engine, seed=args.seed,
         via_numpy=args.engine_consistent_seed)
@@ -194,14 +201,20 @@ def benchmark_scenario(args):
         scenario_kwargs['n_bodies'] = args.n_bodies
     system = factory.create_scenario(args.scenario, **scenario_kwargs)
 
-    model = create_law(
-        args.law,
-        factory=factory,
-        model_data=getattr(args, 'model_data', None),
-    )
+    if args.benchmark_solve:
+        def run_once():
+            return solve(system, args.method, args.law, factory=factory,
+                         dt=args.dt, until=args.until,
+                         model_data=getattr(args, 'model_data', None))
+    else:
+        model = create_law(
+            args.law,
+            factory=factory,
+            model_data=getattr(args, 'model_data', None),
+        )
 
-    def run_once():
-        return model.law(system)
+        def run_once():
+            return model.law(system)
 
     return benchmark_engine(run_once, args.engine)
 
@@ -310,7 +323,12 @@ def parse_args(force_args=None):
     parser.add_argument('--log-file', default=None,
                         help='File to save log output')
     parser.add_argument('--benchmark', action='store_true',
-                        help='Whether to run in benchmark mode')
+                        help='Whether to run in benchmark mode (law only)')
+    parser.add_argument('--benchmark-solve', dest='benchmark_solve',
+                        action='store_true',
+                        help=(
+                            'Benchmark the full ODE solver; '
+                            'uses --until to control the duration.'))
     parser.add_argument(
         '--seed',
         type=int,
