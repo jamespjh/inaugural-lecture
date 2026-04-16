@@ -97,11 +97,8 @@ def execute_scenario(args):
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
 
-    if args.benchmark:
+    if args.benchmark or args.benchmark_solve:
         benchmark_scenario(args)
-        return
-    if args.benchmark_solve:
-        benchmark_solve_scenario(args)
         return
     system = create_scenario(args.scenario, **scenario_kwargs)
     logger.info(
@@ -191,7 +188,11 @@ def _validate_args(args):
 
 
 def benchmark_scenario(args):
-    """Run a single benchmark and return the mean timing in seconds."""
+    """Run a benchmark and return the mean timing in seconds.
+
+    If ``args.benchmark`` is set, times a single law evaluation.
+    If ``args.benchmark_solve`` is set, times the full ODE solver.
+    """
     factory = ScenarioFactory(
         args.engine, seed=args.seed,
         via_numpy=args.engine_consistent_seed)
@@ -200,32 +201,20 @@ def benchmark_scenario(args):
         scenario_kwargs['n_bodies'] = args.n_bodies
     system = factory.create_scenario(args.scenario, **scenario_kwargs)
 
-    model = create_law(
-        args.law,
-        factory=factory,
-        model_data=getattr(args, 'model_data', None),
-    )
+    if args.benchmark_solve:
+        def run_once():
+            return solve(system, args.method, args.law, factory=factory,
+                         dt=args.dt, until=args.until,
+                         model_data=getattr(args, 'model_data', None))
+    else:
+        model = create_law(
+            args.law,
+            factory=factory,
+            model_data=getattr(args, 'model_data', None),
+        )
 
-    def run_once():
-        return model.law(system)
-
-    return benchmark_engine(run_once, args.engine)
-
-
-def benchmark_solve_scenario(args):
-    """Benchmark the full ODE solver and return the mean timing in seconds."""
-    factory = ScenarioFactory(
-        args.engine, seed=args.seed,
-        via_numpy=args.engine_consistent_seed)
-    scenario_kwargs = {}
-    if args.n_bodies is not None:
-        scenario_kwargs['n_bodies'] = args.n_bodies
-    system = factory.create_scenario(args.scenario, **scenario_kwargs)
-
-    def run_once():
-        return solve(system, args.method, args.law, factory=factory,
-                     dt=args.dt, until=args.until,
-                     model_data=getattr(args, 'model_data', None))
+        def run_once():
+            return model.law(system)
 
     return benchmark_engine(run_once, args.engine)
 
