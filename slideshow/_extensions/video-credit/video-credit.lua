@@ -36,7 +36,7 @@ return {
       quarto.log.warning("video-credit: 'src' parameter is required but was not provided.")
     end
 
-    local html = '<video controls muted loop playsinline'
+    local html = '<video controls autoplay muted loop playsinline'
       .. ' width="' .. html_escape(width) .. '"'
       .. ' aria-label="' .. html_escape(alt) .. '">\n'
       .. '  <source src="' .. html_escape(src) .. '" type="video/mp4">\n'

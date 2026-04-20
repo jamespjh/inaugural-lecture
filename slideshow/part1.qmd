@@ -194,15 +194,7 @@ def acceleration(position):
 The lesson here that I really want to get across here is that for me, and for many of us, the process of building the code, is a really useful way of making sure **there's none of the science you don't understand**.
 I definitely didn't understand this properly as a kid, but the point of doing this WASN'T to build a gravity simulation. It was to **use the process of programming as a tool to explore whether you've really understood the thing you're trying to put in the computer**. We call this "modelling" - the computer contains a 'model' of the earth going round the sun. The process of writing the code *even pseudocode* - especially pseudocode - has really forced us to tighten up our thinking.
 
-We don't gain that much more tight thinking from the real code than the pseudocode - but there's a lot more "noise" - this might be the only ACTUAL CODE you see in this lecture:
-
-``` python
-def acceleration(position):
-    r = np.sqrt(position[0]*position[0] + position[1]*position[1])
-    G = 100.0  # Gravitational constant
-    g = G / (r * r)  # Gravitational acceleration
-    return - g * (position / r) # Make it point toward origin
-```
+We don't gain that much more tight thinking from the real code than the pseudocode - but there's a lot more "noise" - this might be the only ACTUAL CODE you see.
 
 Now, let's think through this a little carefully:
 
@@ -243,6 +235,21 @@ So this is another aspect of our lesson about what we learn by programming in sc
 
 ## 1.1.7 - Birds and sheep are particles too
 
+:::: {.two-col}
+::: {}
+The rules for the Boids:
+
+1. **Cohesion** – fly toward the centre of the flock.
+2. **Separation** – avoid getting too close to neighbours.
+3. **Alignment** – match velocity with nearby boids.
+:::
+::: {}
+{{< video-credit
+  src="assets/boids_euler.mp4"
+  alt="Craig Reynolds's Boids simulation" >}}
+:::
+::::
+
 ::: notes
 
 Another thing tenage me really liked a few years later - I think I saw this in one of my Dad's books but then did an implentation on Archimedes - is that pretty similar code to this can be used - with a different rule for acceleration - to simulate behaviour of flocking sheep. (Remember I'm from Cumbria.) Or indeed flocking birds - with really beautiful videos. 
@@ -259,13 +266,21 @@ This also really made an impression on me - the kind of understanding-with-rules
 
 :::
 
-```{=html}
-<video autoplay loop muted playsinline width="100%">
-  <source src="assets/boids_euler.mp4" type="video/mp4">
-</video>
-```
-
 ## 1.1.8 - Effective
+
+:::: {.two-col}
+::: {}
+{{< image-credit 
+  src="assets/effective_class.png"
+  alt="Class structure of my PhD thesis code"
+>}}
+::: {}
+{{< image-credit 
+  src="assets/effective_results.png"
+  alt="Some results from the thesis code">}}
+::: 
+::::
+
 ::: notes
 
 My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
@@ -281,20 +296,22 @@ I wanted to try to write something which generalised this, so you could specify 
 ## 1.2 Speed - readability tradeoffs
 ## 1.2.1 Avoiding an unnecessary square root
 
-::: notes
-
 Some of you will have noticed that the gravity programme is inefficient:
 
-```
+``` default
     distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
     amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
 ```
 
 could be:
 
-```
+``` default
     amount_to_accelerate = gravity_strength_constant / (x^2 + y^2)
 ```
+
+::: notes
+
+Some of you will have noticed that the gravity programme is inefficient:
 
 ...we've saved ourself doing a square root and then a square. Do we want to make that change? The new programme will be faster, but it will be harder to understand. Does that matter?
 Well, what if we want to change the programme, or give it to someone else to make changes? My grandad was also into this kind of thing, and it was nice to be able to show him the code.
@@ -320,21 +337,19 @@ Well, what if we want to change the programme, or give it to someone else to mak
 
 Speed really matters for this kind of code. Let's look at an example: we can plot how long it takes to run our
 gravity simulation, for various different kinds of tools for doing fast numerical calculations, instead of the
-simple python code. [Demo should show a plot of the time taken for the same calculation using different tools - numpy, numba, torch, jax etc.]
+simple python code.
 
-We got a big speed-up from using more sophisticated tools, but there's LOTS AND LOTS of new complexity. Do we understand how to use these tools? Do we understand the tradeoffs between them? Do we understand the new kinds of bugs they can introduce? Do we understand how to debug them? Do we understand how to test them? Do we understand how to make sure they give the same results as our simplest code?
+We can get a big speed-up from using more sophisticated tools, but there's LOTS AND LOTS of new complexity. Do we understand how to use these tools? Do we understand the tradeoffs between them? Do we understand the new kinds of bugs they can introduce? Do we understand how to debug them? Do we understand how to test them? Do we understand how to make sure they give the same results as our simplest code?
 
 :::
 
 ## 1.2.3 Sharing the load
-::: notes
 
-Let's take this a step further - we're way beyond my teenage example now - but it's another useful bit of the exploration. Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
-and we have to use lots of computers together to solve it.
+:::: {.two-col}
+::: {}
+We could take this further, and use multiple computers. We might do:
 
-They need to pass messages between each other, like this:
-
-```
+``` default
 On each computer:
    Loop:
       Do-the-gravity-thing
@@ -345,24 +360,57 @@ On each computer:
         Any particles getting to me I need to take care of
         And the information about the 'smudged up' mass
 ```
+:::
+::: {}
+{{< image-credit
+  src="https://en.wikipedia.org/wiki/Galaxy_merger#/media/File:NGC4676.jpg"
+  alt="Colliding galaxies NGC 4676, the 'Mice'."
+  credit="By NASA, H. Ford (JHU), G. Illingworth (UCSC/LO), M.Clampin (STScI), G. Hartig (STScI), the ACS Science Team, and ESA - APOD 2004-06-12, Public Domain."
+  credit-url="https://commons.wikimedia.org/w/index.php?curid=539276" >}}
+:::
+::::
+
+
+
+
+::: notes
+
+Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
+and we have to use lots of computers together to solve it.
+
+I've not implemented this 'distributed memory parallelism' / message passing version of the gravity code for this demo lecture. 
 
 (In doing this, there's some nice maths about how to do the 'smudging up' about why it's safe, but we're focusing on the computing here.)
 
-[Demo should show a particle being passed over between two simulation domains, and some pretty results for a big system - I might steal something rather than code from scratch depending on time.]
-
-We got a big speed-up from using a supercomputer, but there's LOTS AND LOTS of new complexity. Do our networks work for passing all that information around? How do we do the book keeping of who takes charge of which particle? How do we divide up space between the computers? Does everyone need to talk to everyone? Or can I get away with only talking to my neighbours? Otherwise once I have enough computers, the programme will spend *all it's effort in conversations and no time actually doing gravity maths*. 
+We can get a big speed-up from using a supercomputer, but there's LOTS AND LOTS of new complexity. Do our networks work for passing all that information around? How do we do the book keeping of who takes charge of which particle? How do we divide up space between the computers? Does everyone need to talk to everyone? Or can I get away with only talking to my neighbours? Otherwise once I have enough computers, the programme will spend *all it's effort in conversations and no time actually doing gravity maths*. 
 
 This will always happen - anything that doesn't go down as fast as the bit you can properly "parallelise" - i.e. spread across N computers so each takes one Nth of the time - will end up taking all the time! This is called Amdahl's law.
 
 :::
 
 ## 1.2.4 Warehouse scale computers as toys and tools
+
+:::: {.two-col}
+::: {}
+{{< image-credit
+  src="assets/ncr-announce.png"
+  alt="UCL announces award of National Compute Resource grant" >}}
+:::
+::: {}
+{{< image-credit
+  src="https://etedge-insights.com/wp-content/uploads/2020/07/Data-Center_NxtGen_HPE-770x470.jpg"
+  alt="Artistic image of warehouse-scale computer."
+  credit="Hewlett Packard Enterprise."
+  credit-url="https://www.hpe.com/uk/en/home.html" >}}
+::::
+
+
+
+
+
 ::: notes
 
 We call these 'compute clusters' or 'supercomputers' or 'warehouse scale computers'.
-
-[Illustration - dragonfly network]
-[illustration - our datacentre]
 
 Even getting them built is a serious challenge, there's physical complexity in things like getting the heat out of the computer - these things now have fluid pipes that run through them - computer blood - for managing heat! 
 
