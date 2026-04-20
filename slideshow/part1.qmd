@@ -272,12 +272,12 @@ This also really made an impression on me - the kind of understanding-with-rules
 ::: {}
 {{< image-credit 
   src="assets/effective_class.png"
-  alt="Class structure of my PhD thesis code"
->}}
+  alt="Class structure of my PhD thesis code" >}}
+:::
 ::: {}
 {{< image-credit 
   src="assets/effective_results.png"
-  alt="Some results from the thesis code">}}
+  alt="Some results from the thesis code" >}}
 ::: 
 ::::
 
@@ -353,9 +353,11 @@ We could take this further, and use multiple computers. We might do:
 On each computer:
    Loop:
       Do-the-gravity-thing
-        And take into account the particles on the other computers, but 'smudged up' rather than one by one.
+        Take into account the stars on the other computers, 
+        but 'smudged up' rather than one by one.
       For any particles getting to the edge of "my bit":
-        Pass them to the computer responsible for the part of the world it's going to.
+        Pass them to the computer responsible 
+        for the part of the world it's going to.
       Receive from the other computers:
         Any particles getting to me I need to take care of
         And the information about the 'smudged up' mass
@@ -363,7 +365,7 @@ On each computer:
 :::
 ::: {}
 {{< image-credit
-  src="https://en.wikipedia.org/wiki/Galaxy_merger#/media/File:NGC4676.jpg"
+  src="https://upload.wikimedia.org/wikipedia/commons/d/db/NGC4676.jpg"
   alt="Colliding galaxies NGC 4676, the 'Mice'."
   credit="By NASA, H. Ford (JHU), G. Illingworth (UCSC/LO), M.Clampin (STScI), G. Hartig (STScI), the ACS Science Team, and ESA - APOD 2004-06-12, Public Domain."
   credit-url="https://commons.wikimedia.org/w/index.php?curid=539276" >}}
@@ -402,6 +404,7 @@ This will always happen - anything that doesn't go down as fast as the bit you c
   alt="Artistic image of warehouse-scale computer."
   credit="Hewlett Packard Enterprise."
   credit-url="https://www.hpe.com/uk/en/home.html" >}}
+:::
 ::::
 
 
