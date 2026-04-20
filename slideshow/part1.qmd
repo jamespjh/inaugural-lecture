@@ -343,7 +343,13 @@ We can get a big speed-up from using more sophisticated tools, but there's LOTS 
 
 :::
 
-## 1.2.3 Sharing the load
+## 1.2.3 A nice example
+
+{{< image-credit 
+src="assets/nice.png"
+alt="A four-body simulation." >}}
+
+## 1.2.4 Sharing the load
 
 :::: {.two-col}
 ::: {}
@@ -390,7 +396,7 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 
 :::
 
-## 1.2.4 Warehouse scale computers as toys and tools
+## 1.2.5 Warehouse scale computers as toys and tools
 
 :::: {.two-col}
 ::: {}
@@ -419,7 +425,7 @@ In order to get to this point of working with computers-that-share-the-work, the
 
 :::
 
-## 1.2.5 The abstraction stack
+## 1.2.6 The abstraction stack
 
 
 

@@ -36,6 +36,7 @@
   outfile: boids_euler.mp4
 - scenario: scatter
   method: RK45
+  aspect: page
   duration: 15
   until: 1.5
   outfile: nice.mp4
@@ -48,6 +49,7 @@
   n-systems: 256
   duration: 15
   until: 1.5
+  aspect: page
   outfile: power_law_convergence.mp4
   show-true-law: true
   engine: numpy
