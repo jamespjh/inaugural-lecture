@@ -27,6 +27,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
       
+      - name: Install Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+      
       - name: Install teachgrav
         run: |
           cd demo
@@ -39,6 +44,11 @@ jobs:
           source demo/venv/bin/activate
           cd slideshow/assets
           generate-figures scenarios.yml
+      
+      - name: Render DOT diagrams
+        run: |
+          cd slideshow/assets
+          ./render_diagrams.sh
       
       - name: Install Quarto
         uses: quarto-dev/quarto-actions/setup@v2

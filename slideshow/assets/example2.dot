@@ -1,0 +1,20 @@
+digraph example2 {
+    // Use dot layout engine for this diagram
+    graph [layout="dot", rankdir="TB", splines="ortho", bgcolor="white"];
+    
+    // Node definitions
+    node [shape="ellipse", style="filled", fillcolor="lightgreen", fontcolor="black"];
+    
+    // Edge definitions  
+    edge [color="darkgreen", fontcolor="darkgreen", arrowsize=0.8];
+    
+    // Diagram content - hierarchical structure
+    "Root" -> "Child1";
+    "Root" -> "Child2";
+    "Child1" -> "Grandchild1";
+    "Child1" -> "Grandchild2";
+    "Child2" -> "Grandchild3";
+    
+    // Connections between siblings
+    "Grandchild1" -> "Grandchild3";
+}
