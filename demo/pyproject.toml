@@ -53,7 +53,8 @@ cuda = [
     "jax[cuda13]"
 ]
 quarto = [
-    "quarto"
+    "quarto",
+    "quarto-cli"
 ]
 
 [project.scripts]
