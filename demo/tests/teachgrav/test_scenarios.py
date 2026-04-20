@@ -44,7 +44,7 @@ def test_create_scenario_boids_3d():
 
 def test_create_scenario_boids_invalid_dimensions():
     import pytest
-    with pytest.raises(ValueError, match="dimensions must be 2 or 3"):
+    with pytest.raises(ValueError, match="dimensions must be 2 or 3, got 4"):
         factory.create_scenario('boids', dimensions=4)
 
 

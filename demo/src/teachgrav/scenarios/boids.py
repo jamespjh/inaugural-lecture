@@ -16,7 +16,7 @@ class BoidsScenario(Scenario):
         """
         if dimensions not in (2, 3):
             raise ValueError(
-                f"dimensions must be 2 or 3, got {dimensions}.")
+                f"dimensions must be 2 or 3, got {dimensions}")
         pos_components = [
             self.engine.random_array((n_boids,), -450.0, -350.0),
             self.engine.random_array((n_boids,), 300.0, 600.0),

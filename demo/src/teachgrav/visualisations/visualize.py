@@ -239,7 +239,11 @@ def axes(trajectory, options, figsize):
     """Create figure and line artists for a 2-D or 3-D trajectory."""
     if trajectory.D == 3:
         return _axes_3d(trajectory, options, figsize)
-    return _axes_2d(trajectory, options, figsize)
+    if trajectory.D == 2:
+        return _axes_2d(trajectory, options, figsize)
+    raise ValueError(
+        f"Visualization supports 2D and 3D trajectories only, "
+        f"but got D={trajectory.D}")
 
 
 def animate(trajectory, output, options, figsize, duration=30, fps=20):
