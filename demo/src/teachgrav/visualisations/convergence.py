@@ -13,7 +13,7 @@ logger = logging.getLogger("Teachgrav")
 
 
 def convergence_video(trajectories, output, fps=20, options='trail',
-                      ref_trajectory=None):
+                      ref_trajectory=None, figsize=(6.4, 7.2)):
     """Create a video showing trajectory convergence across training steps.
 
     Each frame shows the full trail of the simulated trajectory produced by
@@ -28,6 +28,8 @@ def convergence_video(trajectories, output, fps=20, options='trail',
         options: visualisation style; currently only ``'trail'`` is supported.
         ref_trajectory: optional Trajectory to overlay on every frame in a
                         different colour (e.g. the true-law trajectory).
+        figsize: (width_inches, height_inches) of the figure (default: half a
+                 16:9 projector column, ``(6.4, 7.2)``).
     """
     from matplotlib.animation import FuncAnimation
 
@@ -49,8 +51,8 @@ def convergence_video(trajectories, output, fps=20, options='trail',
     maxs = np.max(finite, axis=0)
     buffer = 1.0
 
-    fig, ax = plt.subplots()
-    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer)
+    fig, ax = plt.subplots(figsize=figsize)
+    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
     _apply_axis_style(ax)
@@ -193,7 +195,8 @@ def generate_convergence_video(checkpoints, scenario, output,
                                until=10.0,
                                duration=30,
                                fps=20,
-                               scenario_kwargs=None):
+                               scenario_kwargs=None,
+                               figsize=(6.4, 7.2)):
     """Generate a convergence video from power-law training checkpoints.
 
     For each checkpoint, simulate the scatter scenario using given integration
@@ -304,5 +307,6 @@ def generate_convergence_video(checkpoints, scenario, output,
         trajectories,
         output=output,
         fps=fps,
-        ref_trajectory=ref_trajectory)
+        ref_trajectory=ref_trajectory,
+        figsize=figsize)
     print(f"Convergence video saved to: {output}")

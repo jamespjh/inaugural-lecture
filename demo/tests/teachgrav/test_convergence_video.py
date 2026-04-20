@@ -208,6 +208,7 @@ def test_convergence_video_with_checkpoint_interval():
         duration = 1
         until = 1
         dt = 0.1
+        figsize = (6.4, 7.2)
 
     generated_trajectories = []
 
@@ -249,6 +250,7 @@ def test_convergence_video_forwards_solver_flags_to_integrator():
         method = 'RK45'
         dt = 0.123
         until = 4.5
+        figsize = (6.4, 7.2)
 
     class FakeTraj:
         def __init__(self):
@@ -299,6 +301,7 @@ def test_convergence_video_skips_failed_checkpoint_integrations():
         method = 'LSODA'
         dt = 0.01
         until = 2.0
+        figsize = (6.4, 7.2)
 
     class FakeTraj:
         def __init__(self):
@@ -348,6 +351,7 @@ def test_convergence_video_upsamples_frames_to_duration_times_fps():
         method = 'RK45'
         dt = 0.01
         until = 1.0
+        figsize = (6.4, 7.2)
 
     class FakeTraj:
         def __init__(self):
@@ -409,6 +413,7 @@ def test_convergence_video_downsamples_frames_to_duration_times_fps():
         method = 'RK45'
         dt = 0.01
         until = 1.0
+        figsize = (6.4, 7.2)
 
     class FakeTraj:
         def __init__(self):

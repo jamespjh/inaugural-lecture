@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from teachgrav import generate
+from teachgrav.visualisations.visualize import figsize_from_aspect
 
 
 FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
@@ -316,26 +317,30 @@ def test_is_figure_output(path, expected):
 
 
 # ---------------------------------------------------------------------------
-# Tests for figure output routing in _write_benchmark_csv
+# Tests for figure output routing in benchmark functions
 # ---------------------------------------------------------------------------
 
-def test_write_benchmark_csv_routes_to_figure(tmp_path):
-    """_write_benchmark_csv calls _plot_benchmark_figure for .png output."""
+def test_run_single_scenario_benchmark_routes_to_figure(tmp_path):
+    """_run_single_scenario_benchmark calls _plot_benchmark_figure for .png."""
     output = str(tmp_path / "out.png")
-    headers = ["n-bodies", "numpy", "jax-cpu"]
-    rows = [[2, 0.001, 0.002], [4, 0.002, 0.003]]
-    with patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
-        generate._write_benchmark_csv(headers, rows, output)
-    mock_plot.assert_called_once_with(headers, rows, output)
+    config = {'scenario': 'moon', 'benchmark': True}
+    with patch("teachgrav.generate._plot_benchmark_figure") as mock_plot, \
+         patch("teachgrav.generate.entry.benchmark_scenario",
+               return_value=0.001):
+        generate._run_single_scenario_benchmark(config, output)
+    assert mock_plot.call_count == 1
+    _, _, called_output = mock_plot.call_args.args
+    assert called_output == output
+    assert mock_plot.call_args.kwargs['figsize'] == figsize_from_aspect('column')
 
 
 def test_write_benchmark_csv_does_not_write_file_for_figure(tmp_path):
-    """_write_benchmark_csv must not create a CSV file when output is .png."""
-    output = str(tmp_path / "out.png")
+    """_write_benchmark_csv writes CSV only, never figures."""
+    output = str(tmp_path / "out.csv")
     headers = ["n-bodies", "numpy"]
     rows = [[2, 0.001]]
-    with patch("teachgrav.generate._plot_benchmark_figure"):
-        generate._write_benchmark_csv(headers, rows, output)
+    generate._write_benchmark_csv(headers, rows, output)
+    assert (tmp_path / "out.csv").exists()
     assert not (tmp_path / "out.png").exists()
 
 

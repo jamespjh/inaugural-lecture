@@ -11,6 +11,7 @@ import yaml
 
 from . import entry
 from .engine_support import get_available_engines
+from .visualisations.visualize import figsize_from_aspect
 
 _VIZ_KEYS = {'visualise', 'video', 'outfile', 'format', 'duration'}
 _FIGURE_EXTENSIONS = frozenset({'.png', '.svg', '.pdf'})
@@ -169,11 +170,13 @@ def _build_benchmark_args(base_config, override_params):
     return entry.parse_args(force_args)
 
 
-def _plot_benchmark_figure(headers, rows, output_path):
+def _plot_benchmark_figure(headers, rows, output_path, figsize):
     """Save a log-log benchmark figure to *output_path*.
 
     *headers* is ``[x_label, series1, series2, ...]``.
     *rows* is ``[[x_val, t1, t2, ...], ...]``.
+    *figsize* is ``(width_inches, height_inches)`` (default: half a 16:9
+    projector column).
     """
     import matplotlib.pyplot as plt
 
@@ -182,7 +185,7 @@ def _plot_benchmark_figure(headers, rows, output_path):
 
     x_vals = [float(row[0]) for row in rows]
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=figsize)
     for col_idx, label in enumerate(series_labels, start=1):
         times = []
         for row in rows:
@@ -212,14 +215,7 @@ def _plot_benchmark_figure(headers, rows, output_path):
 
 
 def _write_benchmark_csv(headers, rows, output=None):
-    """Write benchmark results as CSV to a file or stdout.
-
-    If *output* is a recognised figure path (e.g. ``.png``), generate a
-    log-log figure instead of writing CSV.
-    """
-    if _is_figure_output(output):
-        _plot_benchmark_figure(headers, rows, output)
-        return
+    """Write benchmark results as CSV to a file or stdout."""
     if output:
         with open(output, 'w', newline='', encoding='utf-8') as stream:
             writer = csv.writer(stream)
@@ -296,6 +292,7 @@ def _run_multi_scenario_benchmark(configs, output):
     Scenarios become columns (labeled by 'key'); the first array parameter
     of each scenario becomes the row axis.
     """
+    figsize = figsize_from_aspect(configs[0].get('aspect'))
     scenario_labels = []
     scenario_base_configs = []
     scenario_array_params = []
@@ -325,18 +322,21 @@ def _run_multi_scenario_benchmark(configs, output):
             row.append(entry.benchmark_scenario(args))
         rows.append(row)
 
-    _write_benchmark_csv(headers, rows, output)
+    if _is_figure_output(output):
+        _plot_benchmark_figure(headers, rows, output, figsize=figsize)
+    else:
+        _write_benchmark_csv(headers, rows, output)
 
 
 def _run_single_scenario_benchmark(config, output):
     """Handle benchmarking for a single scenario config."""
+    figsize = figsize_from_aspect(config.get('aspect'))
     base_config, array_params = _expand_config_arrays(config)
 
     if len(array_params) == 0:
         args = _build_benchmark_args(base_config, {})
         time_val = entry.benchmark_scenario(args)
-        _write_benchmark_csv(['time'], [[time_val]], output)
-
+        headers, rows = ['time'], [[time_val]]
     elif len(array_params) == 1:
         param_name, param_values = array_params[0]
         headers = [param_name, 'time']
@@ -344,8 +344,6 @@ def _run_single_scenario_benchmark(config, output):
         for val in param_values:
             args = _build_benchmark_args(base_config, {param_name: val})
             rows.append([val, entry.benchmark_scenario(args)])
-        _write_benchmark_csv(headers, rows, output)
-
     else:
         if len(array_params) > 2:
             warnings.warn(
@@ -365,6 +363,10 @@ def _run_single_scenario_benchmark(config, output):
                 args = _build_benchmark_args(base_config, override)
                 row.append(entry.benchmark_scenario(args))
             rows.append(row)
+
+    if _is_figure_output(output):
+        _plot_benchmark_figure(headers, rows, output, figsize=figsize)
+    else:
         _write_benchmark_csv(headers, rows, output)
 
 

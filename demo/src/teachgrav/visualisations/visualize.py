@@ -7,18 +7,26 @@ logger = logging.getLogger("Teachgrav")
 
 plt.style.use('dark_background')
 
+_ASPECT_FIGSIZE = {'page': (12.8, 7.2), 'column': (6.4, 7.2)}
 
-def _equal_aspect_limits(mins, maxs, buffer=1.0):
-    """Compute axis limits that give a 1:1 aspect ratio.
 
-    Takes whichever of the x or y data range is larger and applies it to
-    both axes (centred on the data midpoint), so that circles in data space
-    always appear as circles on screen.
+def figsize_from_aspect(aspect):
+    return _ASPECT_FIGSIZE.get(aspect, _ASPECT_FIGSIZE['column'])
+
+
+def _equal_aspect_limits(mins, maxs, buffer=1.0, figsize=None):
+    """Compute axis limits that preserve physical aspect ratio.
+
+    The y axis is sized to contain all data (plus buffer).  The x axis is
+    then scaled proportionally to the figure width-to-height ratio so that
+    one data unit spans the same number of pixels in both directions.
 
     Args:
         mins: array-like of length 2, minimum [x, y] values in the data.
         maxs: array-like of length 2, maximum [x, y] values in the data.
         buffer: extra padding added outside the data range on each side.
+        figsize: (width_inches, height_inches) of the figure.  When None a
+            square figure is assumed (aspect ratio 1).
 
     Returns:
         Tuple (xlim, ylim) where each is a (lo, hi) tuple.
@@ -27,9 +35,21 @@ def _equal_aspect_limits(mins, maxs, buffer=1.0):
     y_mid = (mins[1] + maxs[1]) / 2.0
     x_range = maxs[0] - mins[0]
     y_range = maxs[1] - mins[1]
-    half_range = max(x_range, y_range) / 2.0
-    xlim = (x_mid - half_range - buffer, x_mid + half_range + buffer)
-    ylim = (y_mid - half_range - buffer, y_mid + half_range + buffer)
+
+    if figsize is not None:
+        fig_w, fig_h = figsize
+        aspect = fig_w / fig_h if fig_h > 0 else 1.0
+    else:
+        aspect = 1.0
+
+    # Choose y_half large enough to contain y data and, via the aspect ratio,
+    # x data as well.  x_half is then derived so that one data unit spans the
+    # same number of pixels on both axes.
+    y_half = max(y_range / 2.0 + buffer,
+                 (x_range / 2.0 + buffer) / aspect)
+    x_half = y_half * aspect
+    xlim = (x_mid - x_half, x_mid + x_half)
+    ylim = (y_mid - y_half, y_mid + y_half)
     return xlim, ylim
 
 
@@ -57,7 +77,7 @@ def _save_or_show_animation(ani, output, fps, log_msg=None):
 
 
 def visualize(trajectory, output, mode='video', options='dot', duration=30,
-              fps=20):
+              fps=20, figsize=(6.4, 7.2)):
     trajectory.data = np.array(trajectory.data)
     # Convert to numpy for visualization
     if trajectory.D != 2:
@@ -65,9 +85,10 @@ def visualize(trajectory, output, mode='video', options='dot', duration=30,
             "Visualization only supports 2D trajectories, " +
             f"but got D={trajectory.D}")
     if mode == 'video':
-        animate(trajectory, output, options, duration, fps=fps)
+        animate(trajectory, output, options, duration=duration, fps=fps,
+                figsize=figsize)
     else:
-        plot(trajectory, output, options)
+        plot(trajectory, output, options, figsize=figsize)
 
 
 def marker_sizes_from_masses(masses, fig_width_points):
@@ -91,16 +112,16 @@ def marker_sizes_from_masses(masses, fig_width_points):
     return min_marker_size + normalized * (max_marker_size - min_marker_size)
 
 
-def axes(trajectory, options):
+def axes(trajectory, options, figsize):
     # Animate the trajectory
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=figsize)
 
     mins = np.min(trajectory.positions(), axis=(0, 1))
     maxs = np.max(trajectory.positions(), axis=(0, 1))
 
     buffer = 1.0
 
-    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer)
+    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
 
@@ -132,9 +153,9 @@ def axes(trajectory, options):
     return [fig, ax, lines]
 
 
-def animate(trajectory, output, options, duration=30, fps=20):
+def animate(trajectory, output, options, figsize, duration=30, fps=20):
     from matplotlib.animation import FuncAnimation
-    fig, _, lines = axes(trajectory, options)
+    fig, _, lines = axes(trajectory, options, figsize=figsize)
 
     def init():
         for line in lines:
@@ -204,8 +225,8 @@ def animate(trajectory, output, options, duration=30, fps=20):
     _save_or_show_animation(ani, output, fps)
 
 
-def plot(trajectory, output, options):
-    fig, ax, lines = axes(trajectory, options=options)
+def plot(trajectory, output, options, figsize):
+    fig, ax, lines = axes(trajectory, options=options, figsize=figsize)
     position = len(trajectory) - 1
     for i, line in enumerate(lines):
         line.set_data(

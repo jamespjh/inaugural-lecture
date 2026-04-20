@@ -5,7 +5,7 @@ from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
-from .visualisations.visualize import visualize
+from .visualisations.visualize import visualize, _ASPECT_FIGSIZE, figsize_from_aspect
 from .visualisations.convergence import generate_convergence_video
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
@@ -69,6 +69,7 @@ def _generate_convergence_video(args, checkpoints, scenario_kwargs, output):
         duration=args.duration,
         fps=args.fps,
         scenario_kwargs=scenario_kwargs,
+        figsize=args.figsize,
     )
 
 
@@ -119,7 +120,8 @@ def execute_scenario(args):
             mode='video' if args.video else 'plot',
             options=args.visualise,
             duration=args.duration,
-            fps=args.fps)
+            fps=args.fps,
+            figsize=args.figsize)
     else:
         logger.info(
             "Outputting trajectory data to " +
@@ -172,6 +174,9 @@ def _validate_args(args):
             f"Use --model-data to specify the path, or run "
             f"'teachgrav --train --law {args.law} --outfile <path>' "
             f"to train a model first.")
+    # Resolve --aspect to a figsize tuple.
+    args.figsize = figsize_from_aspect(args.aspect)
+
     # Default to 30 seconds for video duration.
     args.duration = args.duration or 30
     # Default integration timestep and end time.
@@ -368,6 +373,12 @@ def parse_args(force_args=None):
         default=1,
         help='Use every Nth training checkpoint when building the convergence '
              'video (default: 1, i.e. every step).')
+    parser.add_argument(
+        '--aspect',
+        default='column',
+        choices=['page', 'column'],
+        help='Figure size preset: "column" (6.4×7.2 in, default) or '
+             '"page" (12.8×7.2 in).')
     parser.add_argument(
         '--show-true-law',
         dest='show_true_law',
