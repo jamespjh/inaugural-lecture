@@ -52,7 +52,9 @@ cuda = [
     "cupy",
     "jax[cuda13]"
 ]
-
+quarto = [
+    "quarto"
+]
 
 [project.scripts]
 teachgrav = "teachgrav.entry:entry"

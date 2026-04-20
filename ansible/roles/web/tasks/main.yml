@@ -1,11 +1,4 @@
 ---
-- name: Git clone the web content to the server
-  # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
-  ansible.builtin.git:
-    repo: https://github.com/jamespjh/inaugural-lecture.git
-    dest: builds/clone
-  register: clone
-
 - name: Copy from the local build of the site to a folder named for the sha
   # We are building up every deployment as separate folders, so we don't overwrite them
   ansible.builtin.copy:
