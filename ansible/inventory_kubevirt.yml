@@ -1,0 +1,8 @@
+---
+plugin: kubevirt.core.kubevirt
+namespaces:
+  - arc-proj-jh-ns
+create_groups: true
+compose:
+  ansible_user: "'almalinux'"
+  ansible_ssh_common_args: "'-o StrictHostKeyChecking=no -J condenser'"

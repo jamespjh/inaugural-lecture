@@ -1,0 +1,36 @@
+---
+- name: Git clone the web content to the server
+  # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/git_module.html
+  ansible.builtin.git:
+    repo: https://github.com/jamespjh/inaugural-lecture.git
+    dest: builds/clone
+  register: clone
+
+- name: Copy from the local build of the site to a folder named for the sha
+  # We are building up every deployment as separate folders, so we don't overwrite them
+  ansible.builtin.copy:
+    src: ../_site/
+    dest: builds/{{ clone.after }}
+
+- name: Repoint the symlink to the latest clone
+  ansible.builtin.file:
+    src: /home/almalinux/builds/{{ clone.after }}
+    dest: /var/www/html/inaugural
+    state: link
+  notify: Restart httpd
+  become: true
+
+- name: Tell SELinux that the linked folder is A-OK
+  ansible.builtin.command: chcon -R -t httpd_sys_content_t /var/www/html/inaugural
+  become: true
+
+- name: Set up the apache config
+  become: true
+  ansible.builtin.copy:
+    src: web.conf
+    dest: /etc/httpd/conf.d/inaugural.conf
+  notify: Restart httpd
+
+
+
+

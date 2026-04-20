@@ -400,10 +400,8 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 :::
 ::: {}
 {{< image-credit
-  src="https://etedge-insights.com/wp-content/uploads/2020/07/Data-Center_NxtGen_HPE-770x470.jpg"
-  alt="Artistic image of warehouse-scale computer."
-  credit="Hewlett Packard Enterprise."
-  credit-url="https://www.hpe.com/uk/en/home.html" >}}
+  src="https://ucl-arc.slack.com/files/U03SQ2ZFZ/F0ATU6RNDNF/michael.png"
+  alt="UCL's existing national service, Michael." >}}
 :::
 ::::
 
@@ -422,6 +420,9 @@ In order to get to this point of working with computers-that-share-the-work, the
 :::
 
 ## 1.2.5 The abstraction stack
+
+
+
 ::: notes
 
 It's a LOT harder to write the program now. And a lot easier to make mistakes. But calculations are possible that would otherwise not be.

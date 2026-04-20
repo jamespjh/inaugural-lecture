@@ -1,0 +1,4 @@
+- name: Set up Web vm
+  hosts: label_harvesterhci_io_vmName_web #or Whatever!
+  roles:
+    - web
