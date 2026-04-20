@@ -8,6 +8,8 @@ import pytest
 from teachgrav.visualisations.visualize import visualize
 from teachgrav.visualisations.visualize import marker_sizes_from_masses
 from teachgrav.visualisations.visualize import _equal_aspect_limits
+from teachgrav.visualisations.visualize import _equal_3d_limits
+from teachgrav.visualisations.visualize import _set_line_positions
 
 from teachgrav.scenarios import ScenarioFactory
 factory = ScenarioFactory()
@@ -147,3 +149,93 @@ def test_visualize_passes_fps_to_animate():
     assert mock_animate.call_count == 1
     assert mock_animate.call_args.kwargs['fps'] == 11
     assert mock_animate.call_args.kwargs['figsize'] == (8.0, 4.0)
+
+
+def test_equal_3d_limits_equal_range():
+    """All three axes should span the same range."""
+    mins = np.array([0.0, 0.0, 0.0])
+    maxs = np.array([4.0, 4.0, 4.0])
+    xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer=0.0)
+    for lo, hi in (xlim, ylim, zlim):
+        assert np.isclose(hi - lo, 4.0)
+
+
+def test_equal_3d_limits_dominant_axis():
+    """When one axis spans more than the others, all limits match it."""
+    mins = np.array([0.0, 0.0, 0.0])
+    maxs = np.array([10.0, 2.0, 2.0])
+    xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer=0.0)
+    x_span = xlim[1] - xlim[0]
+    y_span = ylim[1] - ylim[0]
+    z_span = zlim[1] - zlim[0]
+    assert np.isclose(x_span, 10.0)
+    assert np.isclose(y_span, 10.0)
+    assert np.isclose(z_span, 10.0)
+
+
+def test_equal_3d_limits_buffer():
+    """Buffer is added outside the data range on each side."""
+    mins = np.array([0.0, 0.0, 0.0])
+    maxs = np.array([4.0, 4.0, 4.0])
+    xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer=1.0)
+    for lo, hi in (xlim, ylim, zlim):
+        # 4 data span + 2*buffer = 6
+        assert np.isclose(hi - lo, 6.0)
+
+
+def test_axes_3d_returns_3d_axes():
+    """axes() on a 3-D trajectory should return a 3-D Axes object."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    from teachgrav.visualisations.visualize import axes
+    from teachgrav.system import System, Trajectory
+
+    data = np.array([
+        [[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]],
+         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]],
+        [[[0.0, 1.0, 2.0], [1.0, 1.0, 1.0]],
+         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]],
+    ])
+    masses = np.array([1.0, 1.0])
+    system = System(data[0], masses)
+    traj = Trajectory(system)
+    traj.data = data
+
+    fig, ax, lines = axes(traj, options='trail', figsize=(6.4, 7.2))
+    assert ax.name == '3d', f"Expected 3d axes, got {ax.name}"
+    assert len(lines) == 2
+    plt.close(fig)
+
+
+def test_set_line_positions_2d():
+    """_set_line_positions sets x/y data on a 2-D line."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+    positions = np.array([[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]])
+    _set_line_positions(line, positions, is_3d=False)
+    x_data, y_data = line.get_data()
+    assert np.allclose(x_data, positions[:, 0])
+    assert np.allclose(y_data, positions[:, 1])
+    plt.close(fig)
+
+
+def test_set_line_positions_3d():
+    """_set_line_positions sets x/y/z data on a 3-D line."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    line, = ax.plot([], [], [])
+    positions = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]])
+    _set_line_positions(line, positions, is_3d=True)
+    assert np.allclose(line.get_data()[0], positions[:, 0])
+    assert np.allclose(line.get_data()[1], positions[:, 1])
+    assert np.allclose(line.get_data_3d()[2], positions[:, 2])
+    plt.close(fig)

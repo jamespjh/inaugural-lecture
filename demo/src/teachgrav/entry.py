@@ -30,6 +30,8 @@ def _train_model(args, factory):
     scenario_kwargs = {}
     if args.scenario == 'scatter' and args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
+    if args.scenario in ('scatter', 'boids'):
+        scenario_kwargs['dimensions'] = args.dimension
 
     logger.info(f"Training {args.law} model on {args.n_systems} "
                 f"'{args.scenario}' systems...")
@@ -97,6 +99,8 @@ def execute_scenario(args):
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
+    if args.scenario in ('scatter', 'boids'):
+        scenario_kwargs['dimensions'] = args.dimension
 
     if args.benchmark or args.benchmark_solve:
         benchmark_scenario(args)
@@ -191,6 +195,12 @@ def _validate_args(args):
     if args.n_bodies is not None and args.n_bodies < 1:
         raise ValueError("Option --n-bodies must be at least 1.")
 
+    # Enforce --dimension 3 is only used with scenarios that support it
+    if args.dimension == 3 and args.scenario not in ('scatter', 'boids'):
+        raise ValueError(
+            f"Option --dimension 3 can only be used with the scatter or "
+            f"boids scenarios, not '{args.scenario}'.")
+
 
 def benchmark_scenario(args):
     """Run a benchmark and return the mean timing in seconds.
@@ -204,6 +214,8 @@ def benchmark_scenario(args):
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
+    if args.scenario in ('scatter', 'boids'):
+        scenario_kwargs['dimensions'] = args.dimension
     system = factory.create_scenario(args.scenario, **scenario_kwargs)
 
     if args.benchmark_solve:
@@ -306,6 +318,13 @@ def parse_args(force_args=None):
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
+    parser.add_argument(
+        '--dimension',
+        type=int,
+        default=2,
+        choices=[2, 3],
+        help='Number of spatial dimensions for scenarios that support it '
+             '(scatter, boids). Defaults to 2.')
     # Add CUPY, Torch and MLX later.
     parser.add_argument(
         '--engine',

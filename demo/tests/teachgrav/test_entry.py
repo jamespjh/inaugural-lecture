@@ -86,6 +86,30 @@ def test_n_bodies_non_scatter_raises(scenario):
         parse_args(f'--scenario {scenario} --n-bodies 5')
 
 
+def test_dimension_default_is_2():
+    args = parse_args('--scenario scatter')
+    assert args.dimension == 2
+
+
+def test_dimension_3_with_scatter():
+    args = parse_args('--scenario scatter --dimension 3')
+    assert args.dimension == 3
+
+
+def test_dimension_3_with_boids():
+    args = parse_args('--scenario boids --dimension 3 --law boids')
+    assert args.dimension == 3
+
+
+@pytest.mark.parametrize('scenario', ['moon', 'sun', 'single'])
+def test_dimension_3_non_supported_raises(scenario):
+    with pytest.raises(
+            ValueError,
+            match="Option --dimension 3 can only be used with the scatter or "
+                  "boids scenarios"):
+        parse_args(f'--scenario {scenario} --dimension 3')
+
+
 def test_parse_args_seed_option():
     args = parse_args('--seed 42')
     assert args.seed == 42
