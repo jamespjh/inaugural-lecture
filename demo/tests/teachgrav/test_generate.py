@@ -325,13 +325,14 @@ def test_run_single_scenario_benchmark_routes_to_figure(tmp_path):
     output = str(tmp_path / "out.png")
     config = {'scenario': 'moon', 'benchmark': True}
     with patch("teachgrav.generate._plot_benchmark_figure") as mock_plot, \
-         patch("teachgrav.generate.entry.benchmark_scenario",
-               return_value=0.001):
+        patch("teachgrav.generate.entry.benchmark_scenario",
+              return_value=0.001):
         generate._run_single_scenario_benchmark(config, output)
     assert mock_plot.call_count == 1
     _, _, called_output = mock_plot.call_args.args
     assert called_output == output
-    assert mock_plot.call_args.kwargs['figsize'] == figsize_from_aspect('column')
+    assert mock_plot.call_args.kwargs['figsize'] == figsize_from_aspect(
+        'column')
 
 
 def test_write_benchmark_csv_does_not_write_file_for_figure(tmp_path):

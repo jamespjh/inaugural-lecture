@@ -10,6 +10,8 @@ def to_numpy_host(x):
         x = x.cpu()
     if hasattr(x, "numpy"):
         return x.numpy()
+    if hasattr(x, "get"):
+        return x.get()
     return np.asarray(x)
 
 
