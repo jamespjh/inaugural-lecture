@@ -88,7 +88,7 @@ def _apply_axis_style(ax):
 
 def _apply_axis_style_3d(ax):
     """Apply minimal dark-background styling to a 3-D axes object."""
-    ax.tick_params(labelsize=8, colors='dimgrey')
+    _apply_axis_style(ax)
     ax.xaxis.pane.fill = False
     ax.yaxis.pane.fill = False
     ax.zaxis.pane.fill = False
@@ -119,8 +119,7 @@ def _set_line_positions(line, positions, is_3d):
         is_3d: True when *line* is a 3-D artist.
     """
     if is_3d:
-        line.set_data(positions[:, 0], positions[:, 1])
-        line.set_3d_properties(positions[:, 2])
+        line.set_data_3d(positions[:, 0], positions[:, 1], positions[:, 2])
     else:
         line.set_data(*positions.T)
 
@@ -156,94 +155,59 @@ def marker_sizes_from_masses(masses, fig_width_points):
     return min_marker_size + normalized * (max_marker_size - min_marker_size)
 
 
-def _axes_2d(trajectory, options, figsize):
-    """Create a 2-D figure and initialise one line artist per body."""
-    fig, ax = plt.subplots(figsize=figsize)
-
-    mins = np.min(trajectory.positions(), axis=(0, 1))
-    maxs = np.max(trajectory.positions(), axis=(0, 1))
-
-    buffer = 1.0
-
-    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-
-    _apply_axis_style(ax)
-
-    lines = []
-    num_bodies = trajectory.positions().shape[1]
-
-    if options == 'trail':
-        for _ in range(num_bodies):
-            line, = ax.plot([], [], color='lemonchiffon')
-            lines.append(line)
-    elif options == 'dot':
-        points_per_inch = 72.0
-        fig_width_points = fig.get_figwidth() * points_per_inch
-        marker_sizes = marker_sizes_from_masses(
-            trajectory.masses,
-            fig_width_points)
-        for i in range(num_bodies):
-            line, = ax.plot([], [], 'o', color='lemonchiffon',
-                            markersize=marker_sizes[i])
-            lines.append(line)
-    else:
-        raise ValueError(f"Unknown animation option: {options}")
-
-    return [fig, ax, lines]
-
-
-def _axes_3d(trajectory, options, figsize):
-    """Create a 3-D figure and initialise one line artist per body."""
-    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111, projection='3d')
-
-    mins = np.min(trajectory.positions(), axis=(0, 1))
-    maxs = np.max(trajectory.positions(), axis=(0, 1))
-
-    buffer = 1.0
-
-    xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer)
-    ax.set_xlim3d(*xlim)
-    ax.set_ylim3d(*ylim)
-    ax.set_zlim3d(*zlim)
-
-    _apply_axis_style_3d(ax)
-
-    lines = []
-    num_bodies = trajectory.positions().shape[1]
-
-    if options == 'trail':
-        for _ in range(num_bodies):
-            line, = ax.plot([], [], [], color='lemonchiffon')
-            lines.append(line)
-    elif options == 'dot':
-        points_per_inch = 72.0
-        fig_width_points = fig.get_figwidth() * points_per_inch
-        marker_sizes = marker_sizes_from_masses(
-            trajectory.masses,
-            fig_width_points)
-        for i in range(num_bodies):
-            line, = ax.plot([], [], [], 'o', color='lemonchiffon',
-                            markersize=marker_sizes[i])
-            lines.append(line)
-    else:
-        raise ValueError(f"Unknown animation option: {options}")
-
-    return [fig, ax, lines]
-
-
 def axes(trajectory, options, figsize):
     """Create figure and line artists for a 2-D or 3-D trajectory."""
-    if trajectory.D == 3:
-        return _axes_3d(trajectory, options, figsize)
-    if trajectory.D == 2:
-        return _axes_2d(trajectory, options, figsize)
-    raise ValueError(
-        f"Visualization supports 2D and 3D trajectories only, "
-        f"but got D={trajectory.D}")
+    if trajectory.D not in (2, 3):
+        raise ValueError(
+            f"Visualization supports 2D and 3D trajectories only, "
+            f"but got D={trajectory.D}")
+    is_3d = trajectory.D == 3
+
+    if is_3d:
+        from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        fig, ax = plt.subplots(figsize=figsize)
+
+    mins = np.min(trajectory.positions(), axis=(0, 1))
+    maxs = np.max(trajectory.positions(), axis=(0, 1))
+    buffer = 1.0
+
+    if is_3d:
+        xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer)
+        ax.set_xlim3d(*xlim)
+        ax.set_ylim3d(*ylim)
+        ax.set_zlim3d(*zlim)
+        _apply_axis_style_3d(ax)
+    else:
+        xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        _apply_axis_style(ax)
+
+    lines = []
+    num_bodies = trajectory.positions().shape[1]
+    plot_args = ([], [], []) if is_3d else ([], [])
+
+    if options == 'trail':
+        for _ in range(num_bodies):
+            line, = ax.plot(*plot_args, color='lemonchiffon')
+            lines.append(line)
+    elif options == 'dot':
+        points_per_inch = 72.0
+        fig_width_points = fig.get_figwidth() * points_per_inch
+        marker_sizes = marker_sizes_from_masses(
+            trajectory.masses,
+            fig_width_points)
+        for i in range(num_bodies):
+            line, = ax.plot(*plot_args, 'o', color='lemonchiffon',
+                            markersize=marker_sizes[i])
+            lines.append(line)
+    else:
+        raise ValueError(f"Unknown animation option: {options}")
+
+    return [fig, ax, lines]
 
 
 def animate(trajectory, output, options, figsize, duration=30, fps=20):
@@ -252,12 +216,9 @@ def animate(trajectory, output, options, figsize, duration=30, fps=20):
     fig, _, lines = axes(trajectory, options, figsize=figsize)
 
     def init():
+        empty = np.empty((0, trajectory.D))
         for line in lines:
-            if is_3d:
-                line.set_data([], [])
-                line.set_3d_properties([])
-            else:
-                line.set_data([], [])
+            _set_line_positions(line, empty, is_3d)
         return lines
 
     # Get trajectory data and compute time values
