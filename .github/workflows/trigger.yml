@@ -1,0 +1,30 @@
+name: Trigger Infrastructure deploy workflow
+on:
+  workflow_run:
+    workflows: ["Prepare demo generation code"]
+    types:
+    - completed
+
+jobs:
+  trigger-deploy:
+    if: github.event.workflow_run.conclusion == 'success' # Run only when workflow run has succeeded, i.e. all jobs have succeeded
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.INFRA }} # Fine-grained GitHub PAT that was saved as repository secret
+          script: |
+            try {
+              const result = await github.rest.actions.createWorkflowDispatch({
+                owner: 'jamespjh',
+                repo: 'jh-infrastructure',
+                workflow_id: 'deploy_inaugural.yml',
+                ref: 'main'
+                })     
+              console.log(result);
+              } 
+            catch(error) {
+              console.error(error);
+              core.setFailed(error);
+            }
+                
