@@ -400,7 +400,7 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 :::
 ::: {}
 {{< image-credit
-  src="https://ucl-arc.slack.com/files/U03SQ2ZFZ/F0ATU6RNDNF/michael.png"
+  src="assets/michael.png"
   alt="UCL's existing national service, Michael." >}}
 :::
 ::::
