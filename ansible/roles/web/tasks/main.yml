@@ -1,26 +1,30 @@
 ---
-- name: Copy from the local build of the site to a folder named for the sha
+- name: Copy from the local build of the site to the remote
   # We are building up every deployment as separate folders, so we don't overwrite them
   ansible.builtin.copy:
     src: ../_site/
-    dest: builds/{{ clone.after }}
+    dest: builds/web/inaugural
 
 - name: Repoint the symlink to the latest clone
   ansible.builtin.file:
-    src: /home/almalinux/builds/{{ clone.after }}
+    src: /home/almalinux/builds/web/inaugural
     dest: /var/www/html/inaugural
     state: link
   notify: Restart httpd
   become: true
 
 - name: Tell SELinux that the linked folder is A-OK
+  ansible.builtin.command: chcon -R -t httpd_sys_content_t /home/almalinux/builds/web/inaugural/
+  become: true
+
+- name: Tell SELinux that the linking folder is A-OK
   ansible.builtin.command: chcon -R -t httpd_sys_content_t /var/www/html/inaugural
   become: true
 
 - name: Set up the apache config
   become: true
   ansible.builtin.copy:
-    src: web.conf
+    src: inaugural.conf
     dest: /etc/httpd/conf.d/inaugural.conf
   notify: Restart httpd
 
