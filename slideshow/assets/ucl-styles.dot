@@ -1,0 +1,3 @@
+    graph [bgcolor="#3c1657"];
+    node  [shape="box", style="filled", fillcolor="#f5f5f5", fontcolor="#a433ff"];
+    edge  [color="#a433ff", arrowsize=0.8];
