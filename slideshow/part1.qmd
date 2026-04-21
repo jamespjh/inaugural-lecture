@@ -432,7 +432,7 @@ And hard to understand.
 :::
 ::: {}
 {{< image-credit
-  src="assets/stack.png"
+  src="assets/stack.svg"
   alt="A diagram of the abstraction stack in scientific computing." >}}
 :::
 ::::
@@ -458,7 +458,7 @@ This is our second deep lesson: **because in science we use computers to underst
 ## 1.15 Simulation and Modelling
 
 {{< image-credit
-  src="assets/model_spectrum.png"
+  src="assets/model_spectrum.svg"
   alt="A diagram of the model spectrum." >}}
 
 ::: notes
