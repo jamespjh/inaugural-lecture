@@ -1,6 +1,6 @@
 # Part two: Reproducibility and Reliability in Computational Science
-## 2.1 Some examples
-## 2.1.1 The Avoiding Mass Extinctions Engine
+
+## 2.1 The Avoiding Mass Extinctions Engine
 ::: notes
 
 Fast forward a few years, to 2009. I'm outside academia for a while, working for a startup doing climate impact modelling - the name of the company was AMEE - the "Avoiding Mass Extinctions Engine". It's a for-profit social enterprise - with a mission to save the world, and make a bob or two doing it. [AMEE bug logo] [Climate matrix symbol]
@@ -11,7 +11,7 @@ What our product does is not model the climate - we model polluters. E.g. a comp
 
 :::
 
-## 2.1.2 Climategate
+## 2.2 Climategate
 ::: notes
 
 In 2009, a group of researchers building computer models of climate at UEA were hacked by climate denialists. In addition to taking various email comments out of context to undermine the science, the hackers exploited bug reports in those emails. Issues with developing computer simulations - part of the work I described in the previous section - were played up to undermine trust in climate science.
@@ -25,7 +25,7 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 
 :::
 
-## 2.1.3 The Joint Biosecurity Centre
+## 2.3 The Joint Biosecurity Centre
 ::: notes
 
 As another example of the importance of trustworthiness in scientific code, during the covid crisis I was a senior advisor at the Joint Biosecurity Centre, building the team that did the modelling that put together
@@ -42,7 +42,7 @@ higher education sector.
 
 :::
 
-## 2.2.1 The reproducibility crisis
+## 2.4 The reproducibility crisis
 ::: notes
 
 Given the complexity of the task of effectively using computers in research, it is no wonder we run into these challenges.
@@ -63,8 +63,8 @@ So we have learned: **we need to build our computer systems for science carefull
 
 :::
 
-## 2.3 What is engineering?
-## 2.3.1 A definition
+
+## 2.5 What is engineering?
 ::: notes
 
 There is a name for the methods humans have come up with to allow us to build things reliably: Engineering.
@@ -83,7 +83,7 @@ As engineers, we are concerned not just with wisely using our understanding to m
 
 :::
 
-## 2.3.2 Software Engineering
+## 2.6 Software Engineering
 ::: notes
 
 Software systems now govern our lives, and, as a society, in practice we are *terrible* at it.
@@ -100,7 +100,7 @@ techniques grew up within software engineering.
 
 :::
 
-## 2.5.3 Not just *software* engineering
+## 2.7 Not just *software* engineering
 ::: notes
 
 Now, software is not the only aspect of computational science - we've talked about the hardware and network engineering of warehouse-scale computers. 
@@ -116,7 +116,7 @@ All of these are just as critical to effective computational science and are in 
 
 :::
 
-## 2.3.3 Ethics and Engineering
+## 2.8 Ethics and Engineering
 ::: notes
 
 A key part of any engineering practice is a sustained ethical framework, and mechanisms for professional practice that ensure that these ethics are upheld. 
@@ -129,7 +129,7 @@ I won't go into details in public, but as a data scientist working in the covid 
 
 :::
 
-## 2.3.4 The Research Software Engineer and the rise of UCL ARC
+## 2.9 The Research Software Engineer and the rise of UCL ARC
 ::: notes
 
 In 2012 - following some postdocing, and the mathworks, and the climate start up failed, and, needing a job, I came back to academia to do the brain blood flow postdoc with Peter.
@@ -146,7 +146,7 @@ Probably a lot of the reason I'm standing here is the success of this idea - we'
 
 :::
 
-## 2.3.5 The data empowered society
+## 2.10 The data empowered society
 ::: notes
 
 Considered thus, engineering is part of management science, and a social science. 
@@ -161,7 +161,7 @@ with the challenge of making the role of data and computers and software in soci
 
 :::
 
-## 2.4 Science and Engineering
+## 2.11 Science and Engineering
 ::: notes
 
 In the previous section, we talked about professional engineering. I gave examples of long standing and emerging professions in computing - information technology. These professions exist outside the
@@ -171,7 +171,7 @@ I want to dig for a moment into the relationship of science and engineering, tou
 
 :::
 
-## 2.4.1 Science-for-engineering
+## 2.12 Science-for-engineering
 ::: notes
 
 People often think about the question of science-for-engineering: using an understanding of the world, built up from the tools of science, to build useful things to help us manage and control the world.
@@ -188,7 +188,7 @@ You'll see that my forays into application are usually driven by a sense of acco
 
 :::
 
-## 2.4.2 Engineering-for-science
+## 2.13 Engineering-for-science
 ::: notes
 
 It's also the case that advances in scientific understanding are often driven by engineering goals. Our Boids example - the flocking behaviour - was motivated first by the need to make things that *look like* flocks of birds, for special effects in movies, and then only later applied to animal behaviour as a science!
@@ -199,7 +199,7 @@ This is also highly motivating - the role of the application is not only to deli
 
 :::
 
-## 2.4.3 Engineering studied scientifically
+## 2.14 Engineering studied scientifically
 ::: notes
 
 There's a different flavour of science-for-engineering. Not the use of understanding that emerged from science to help with engineering challenges, but rather, the application of the scientific method to discover which tools, practices and systems of engineering, are effective. We can use rigorous methods to investigate questions of which kind of CAD tool is best for building cars, or which structure of an engineering
@@ -207,7 +207,7 @@ company delivers most reliably. We'll extensively discuss such approaches in a m
 
 :::
 
-## 2.4.4 Engineering applied to science
+## 2.15 Engineering applied to science
 ::: notes
 
 While all four of these touch my research practice, the fourth category is the one I'm most interested in: the application of engineering to the tools of science? Sometimes this is called "instrument science": 
@@ -218,8 +218,7 @@ trustworthy computer code to be applied as part of the scientific endeavour, and
 
 :::
 
-## 2.5 Engineering Computational Science
-## 2.5.1 Definition
+## 2.16 Definition
 ::: notes
 
 So now we're ready to define what I'm interested in - what I claim to be a professor of!
@@ -240,7 +239,7 @@ So now you know what I do.
 
 :::
 
-## 2.5.2 Why is this particularly interesting?
+## 2.17 Why is this particularly interesting?
 ::: notes
 
 Science and scholarship are more interesting than most other things people do... (I would be happy to be into programming for the arts or sport, but not selling widgets...), and you get to study those things when trying to make software about them, including some quite hard maths, which I like, given my background in theoretical physics.
@@ -260,8 +259,7 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 
 :::
 
-## 2.6 How do we study engineering for computational science?
-## 2.6.1 Epistemic cultures
+## 2.18 Epistemic cultures
 ::: notes
 
 We need to think for a moment about how we might study of this field.
@@ -279,7 +277,7 @@ Over-obsession with a particular epistemology - theory of knowledge - way of bui
 
 :::
 
-## 2.6.2 Epistemic pluralism
+## 2.19 Epistemic pluralism
 ::: notes
 
 The randomised clinical trial is by far from the only valid research methodology. Don't get me wrong, I love RCTs, and there are colleagues who are making great progress by finding new ways to apply them outside medicine.
@@ -300,7 +298,7 @@ As we discover new research disciplines, we therefore need to ask, what will be 
 
 :::
 
-## 2.6.2 The Empirical Software Engineering epistemology
+## 2.20 The Empirical Software Engineering epistemology
 ::: notes
 
 One powerful approach, but one I do not make use of in my own work - not because I don't believe in it, but just because it doesn't suit my temperament - is the empirical software engineering approach. I need to
@@ -313,7 +311,7 @@ One can also deliberately make interventions - such as give a subset of projects
 
 :::
 
-## 2.6.3 The Tinkerer's epistemology
+## 2.21 The Tinkerer's epistemology
 ::: notes
 
 The primary methodology applied within the computational science cultures I grew up in - theoretical physics, high performance computing, and computational biology - is what I call the Tinkerer's Epistemology.
@@ -326,7 +324,7 @@ are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is fl
 
 :::
 
-## 2.6.4 The Service Provider's epistemology
+## 2.22 The Service Provider's epistemology
 ::: notes
 
 I can therefore now turn to *why*, in 2012, when working on the brain bloodflow codes, I formed the research software group in UCL as part of what many would frame as "IT support", of all things.
@@ -347,7 +345,7 @@ Diamond Light Source, or the European Molecular Biology Laboratory - have been d
 
 :::
 
-## 2.6.5 Research IT and instrument science
+## 2.23 Research IT and instrument science
 ::: notes
 
 However, there's been a challenge in doing this in the context of software-as-a-research-instrument. There's been an evolution in universities for core IT - the IT that manages the payroll and does the email -
@@ -360,7 +358,7 @@ academic mission in other areas besides IT from the success of UCL ARC.
 
 :::
 
-## 2.6.5 My appointment and the validation of these epistemologies
+## 2.24 My appointment and the validation of these epistemologies
 ::: notes
 
 It's been a challenging journey to establish the research-IT-as-academic-and-professional identity in the institutions I've worked for. 

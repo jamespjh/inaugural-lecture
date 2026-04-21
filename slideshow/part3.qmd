@@ -1,6 +1,5 @@
 # Part three: Some futures
-## 3.1 The fourth paradigm. 
-## 3.1.1 Why Data?
+## 3.1 Why Data?
 ::: notes
 
 My tagline - data and computers and code and people - centres data. But we've not really talked about data yet. I want now to turn to the recent past and the future of engineering computational science.
@@ -11,7 +10,7 @@ It's time to turn to a demonstration again, to explain what this is about.
 
 :::
 
-## 3.1.2 Physics-free gravity 
+## 3.2 Physics-free gravity 
 
 {{< video-credit
   src="assets/power_law_convergence.mp4"
@@ -32,7 +31,7 @@ from around the mid-2010s. These days we can do it fairly quickly.
 
 :::
 
-## 3.1.3 The triumph of stamp collecting.
+## 3.3 The triumph of stamp collecting.
 ::: notes
 
 This is really interesting. 
@@ -57,7 +56,7 @@ on the number of lines in an out of date version of Excel being used in the NHS.
 
 :::
 
-## 3.1.3 Open science
+## 3.4 Open science
 ::: notes
 
 One significant part of the cultural change that is being driven by the adoption of this research approach is the growing distance from data collection to data exploitation. This is another aspect of the growth
@@ -80,7 +79,7 @@ as a better and more careful response to the needs of the fourth paradigm. This 
 
 :::
 
-## 3.1.4 Interpretability
+## 3.5 Interpretability
 ::: notes
 
 This approach has been hugely powerful in science-for-engineering : if we build models that accurately predict how the universe will behave, that's very useful for things like - in the case of protein folding - making drugs.
@@ -93,7 +92,7 @@ There's a lot to be investigated here - with my PhD student Lewis O'Donnell we'r
 
 :::
 
-## 3.1.5 VIABS and the Beacon Project
+## 3.6 VIABS and the Beacon Project
 ::: notes
 
 I first started working in formal data management as part of my first postdoc. This was my first foray outside physics - looking at using maths and computers and data to understand diabetes. I was lucky enough
@@ -107,7 +106,7 @@ Now, what was the data that we were building management tools - ontologies - for
 
 :::
 
-## 3.1.6 Models as data
+## 3.7 Models as data
 ::: notes
 
 A computer program:
@@ -134,8 +133,7 @@ We can apply the fourth paradigm to the language - whether computer language or 
 
 :::
 
-## 3.2 The fifth paradigm
-## 3.2.1 Large language models
+## 3.8 Large language models
 ::: notes
 
 I've always loved linguistics. As a kid I borrowed one by one every "teach yourself language" book in Kendal library, not to learn the languages, but to read about how all the different grammars work.
@@ -156,7 +154,7 @@ and colleagues and I have tried to take a different path.
 
 :::
 
-## 3.2.2 Research software engineering and LLM coding
+## 3.9 Research software engineering and LLM coding
 ::: notes
 
 Now, you'll all by now have heard about LLMs and software engineering, and all the programmers losing their jobs, and thinking that all of this sounds completely moot - we had a good run with the research software
@@ -169,7 +167,7 @@ might be able to know LLM-generated scientific software is reliable.
 
 :::
 
-## 3.2.3 Models-as-diagrams and the Mathworks
+## 3.10 Models-as-diagrams and the Mathworks
 ::: notes
 
 There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.

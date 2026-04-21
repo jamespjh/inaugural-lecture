@@ -9,8 +9,8 @@ In the third, I look at some possible futures for this field in the context of t
 
 :::
 
-## 1.1 Pseudocode and the path to scientific understanding
-## 1.1.1 A young person's guide to programming gravity
+
+## 1.1 A young person's guide to programming gravity
 
 :::: {.two-col}
 ::: {}
@@ -34,7 +34,7 @@ on my new-ish home computer, and I feel like there's bits of it I haven't unders
 
 :::
 
-## 1.1.2 - The rules of gravity
+## 1.2 - The rules of gravity
 
 - Change your velocity toward anything heavy:
   - The heavier it is → the more you accelerate
@@ -77,7 +77,7 @@ Suppose there's no gravity, and we have some speed, and the current speed is vx 
 
 :::
 
-## 1.1.3 An introduction to pseudocode
+## 1.3 An introduction to pseudocode
 
 :::: {.two-col}
 ::: {}
@@ -115,7 +115,7 @@ If we show this animation, we get a dot, moving in a straight line! [Demo]
 
 :::
 
-## 1.1.4 Adding gravity
+## 1.4 Adding gravity
 
 :::: {.two-col}
 ::: {}
@@ -172,7 +172,7 @@ We type this in, and watch the video, and it looks like it's working! [Demo]
 
 :::
 
-## 1.1.5 Pseudocode as an intuition builder
+## 1.5 Pseudocode as an intuition builder
 
 - Code helps us build our understanding of the science
 - If I can't code it, I didn't really understand it.
@@ -208,7 +208,7 @@ This will be important.
 
 :::
 
-## 1.1.6 Simple isn't always correct
+## 1.6 Simple isn't always correct
 
 :::: {.two-col}
 ::: {}
@@ -233,7 +233,7 @@ So this is another aspect of our lesson about what we learn by programming in sc
 
 :::
 
-## 1.1.7 - Birds and sheep are particles too
+## 1.7 - Birds and sheep are particles too
 
 :::: {.two-col}
 ::: {}
@@ -266,7 +266,7 @@ This also really made an impression on me - the kind of understanding-with-rules
 
 :::
 
-## 1.1.8 - Effective
+## 1.8 - Effective
 
 :::: {.two-col}
 ::: {}
@@ -293,8 +293,7 @@ I wanted to try to write something which generalised this, so you could specify 
 
 :::
 
-## 1.2 Speed - readability tradeoffs
-## 1.2.1 Avoiding an unnecessary square root
+## 1.9 Speed - readability tradeoffs
 
 Some of you will have noticed that the gravity programme is inefficient:
 
@@ -318,7 +317,7 @@ Well, what if we want to change the programme, or give it to someone else to mak
 
 :::
 
-## 1.2.2 Performance and complexity
+## 1.10 Performance and complexity
 
 :::: {.two-col}
 ::: {}
@@ -343,13 +342,13 @@ We can get a big speed-up from using more sophisticated tools, but there's LOTS 
 
 :::
 
-## 1.2.3 A nice example
+## 1.11 A nice example
 
 {{< image-credit 
 src="assets/nice.png"
 alt="A four-body simulation." >}}
 
-## 1.2.4 Sharing the load
+## 1.12 Sharing the load
 
 :::: {.two-col}
 ::: {}
@@ -396,7 +395,7 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 
 :::
 
-## 1.2.5 Warehouse scale computers as toys and tools
+## 1.13 Warehouse scale computers as toys and tools
 
 :::: {.two-col}
 ::: {}
@@ -411,10 +410,6 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 :::
 ::::
 
-
-
-
-
 ::: notes
 
 We call these 'compute clusters' or 'supercomputers' or 'warehouse scale computers'.
@@ -425,9 +420,22 @@ In order to get to this point of working with computers-that-share-the-work, the
 
 :::
 
-## 1.2.6 The abstraction stack
+## 1.14 The abstraction stack
 
+:::: {.two-col}
+::: {}
+By working with programs that use other programs that use other programs, we are much more capable.
 
+But the systems become much more complex.
+
+And hard to understand.
+:::
+::: {}
+{{< image-credit
+  src="assets/stack.png"
+  alt="A diagram of the abstraction stack in scientific computing." >}}
+:::
+::::
 
 ::: notes
 
@@ -447,8 +455,10 @@ This is our second deep lesson: **because in science we use computers to underst
 
 :::
 
-## 1.3 The Third Paradigm
-## 1.3.2 Simulation and Modelling
+## 1.15 Simulation and Modelling
+
+
+
 ::: notes
 
 When we describe the rules of a system and work out the consequences with a computer, we might be doing "the software is expected to precisely describe the real world, to the point where we could use it to build and
@@ -460,7 +470,7 @@ The more toward the model end of things, the more the learning comes from the pr
 
 :::
 
-## 1.3.1 Complexity Science
+## 1.16 Complexity Science
 ::: notes
 
 The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
@@ -474,7 +484,7 @@ I was heading off to uni - I would later have the author of that book as a postd
 
 :::
 
-## 1.3.2 Software as a research tool and the third paradigm.
+## 1.17 Software as a research tool and the third paradigm.
 ::: notes
 
 These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
