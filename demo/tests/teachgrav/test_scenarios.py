@@ -148,6 +148,32 @@ def test_solar_system_moon_velocities():
     assert np.isclose(moon_vy, expected_moon_vy)
 
 
+def test_solar_system_invalid_M():
+    """M <= 1 should raise ValueError."""
+    with pytest.raises(ValueError, match="M must be > 1"):
+        factory.create_scenario('solar_system', M=1.0)
+
+
+def test_solar_system_invalid_k():
+    """k <= 1 should raise ValueError."""
+    with pytest.raises(ValueError, match="k must be > 1"):
+        factory.create_scenario('solar_system', k=0.5)
+
+
+def test_solar_system_invalid_h():
+    """h <= 0 should raise ValueError."""
+    with pytest.raises(ValueError, match="h must be > 0"):
+        factory.create_scenario('solar_system', h=0.0)
+
+
+def test_solar_system_negative_moon_count():
+    """Negative moon counts should raise ValueError."""
+    with pytest.raises(ValueError, match="non-negative"):
+        factory.create_scenario(
+            'solar_system', moons_per_planet=[1, -1]
+        )
+
+
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_same_seed_produces_same_scatter(engine):
     """Same seed should produce identical scatter scenarios across engines."""
