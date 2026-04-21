@@ -1,5 +1,4 @@
 import math
-from typing import List, Optional
 
 from .base import Scenario
 from ..system import System
@@ -22,7 +21,7 @@ class SolarSystemScenario(Scenario):
 
     def create(
         self,
-        moons_per_planet: Optional[List[int]] = None,
+        moons_per_planet: list[int] | None = None,
         M: float = 1000.0,
         k: float = 1.2,
         h: float = 0.1,

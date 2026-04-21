@@ -12,7 +12,7 @@ authors = [
 ]
 description = "A pedagogical programming exercise based on a gravity simulation"
 readme = "Readme.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
