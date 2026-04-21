@@ -14,65 +14,24 @@ def figsize_from_aspect(aspect):
     return _ASPECT_FIGSIZE.get(aspect, _ASPECT_FIGSIZE['column'])
 
 
-def _equal_aspect_limits(mins, maxs, buffer=1.0, figsize=None):
-    """Compute axis limits that preserve physical aspect ratio.
+def _equal_limits(mins, maxs, buffer=1.0):
+    """Compute equal-aspect axis limits for a plot of any dimensionality.
 
-    The y axis is sized to contain all data (plus buffer).  The x axis is
-    then scaled proportionally to the figure width-to-height ratio so that
-    one data unit spans the same number of pixels in both directions.
-
-    Args:
-        mins: array-like of length 2, minimum [x, y] values in the data.
-        maxs: array-like of length 2, maximum [x, y] values in the data.
-        buffer: extra padding added outside the data range on each side.
-        figsize: (width_inches, height_inches) of the figure.  When None a
-            square figure is assumed (aspect ratio 1).
-
-    Returns:
-        Tuple (xlim, ylim) where each is a (lo, hi) tuple.
-    """
-    x_mid = (mins[0] + maxs[0]) / 2.0
-    y_mid = (mins[1] + maxs[1]) / 2.0
-    x_range = maxs[0] - mins[0]
-    y_range = maxs[1] - mins[1]
-
-    if figsize is not None:
-        fig_w, fig_h = figsize
-        aspect = fig_w / fig_h if fig_h > 0 else 1.0
-    else:
-        aspect = 1.0
-
-    # Choose y_half large enough to contain y data and, via the aspect ratio,
-    # x data as well.  x_half is then derived so that one data unit spans the
-    # same number of pixels on both axes.
-    y_half = max(y_range / 2.0 + buffer,
-                 (x_range / 2.0 + buffer) / aspect)
-    x_half = y_half * aspect
-    xlim = (x_mid - x_half, x_mid + x_half)
-    ylim = (y_mid - y_half, y_mid + y_half)
-    return xlim, ylim
-
-
-def _equal_3d_limits(mins, maxs, buffer=1.0):
-    """Compute equal-aspect axis limits for a 3D plot.
-
-    All three axes share the same half-range so that one data unit spans
-    the same distance in every direction.
+    All axes share the same half-range so that one data unit spans the same
+    distance in every direction.  Works for 2-D (returns xlim, ylim) and
+    3-D (returns xlim, ylim, zlim) trajectories alike.
 
     Args:
-        mins: array-like of length 3, minimum [x, y, z] values.
-        maxs: array-like of length 3, maximum [x, y, z] values.
+        mins: array-like of length D, minimum values in each dimension.
+        maxs: array-like of length D, maximum values in each dimension.
         buffer: extra padding added outside the data range on each side.
 
     Returns:
-        Tuple (xlim, ylim, zlim) where each is a (lo, hi) tuple.
+        Tuple of (lo, hi) pairs, one per dimension.
     """
     centres = (np.asarray(mins) + np.asarray(maxs)) / 2.0
     half_range = np.max(np.asarray(maxs) - np.asarray(mins)) / 2.0 + buffer
-    limits = []
-    for c in centres:
-        limits.append((c - half_range, c + half_range))
-    return tuple(limits)
+    return tuple((c - half_range, c + half_range) for c in centres)
 
 
 def _apply_axis_style(ax):
@@ -175,13 +134,13 @@ def axes(trajectory, options, figsize):
     buffer = 1.0
 
     if is_3d:
-        xlim, ylim, zlim = _equal_3d_limits(mins, maxs, buffer)
+        xlim, ylim, zlim = _equal_limits(mins, maxs, buffer)
         ax.set_xlim3d(*xlim)
         ax.set_ylim3d(*ylim)
         ax.set_zlim3d(*zlim)
         _apply_axis_style_3d(ax)
     else:
-        xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
+        xlim, ylim = _equal_limits(mins, maxs, buffer)
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
         _apply_axis_style(ax)
