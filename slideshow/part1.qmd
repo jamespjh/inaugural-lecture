@@ -457,7 +457,9 @@ This is our second deep lesson: **because in science we use computers to underst
 
 ## 1.15 Simulation and Modelling
 
-
+{{< image-credit
+  src="assets/model_spectrum.png"
+  alt="A diagram of the model spectrum." >}}
 
 ::: notes
 
@@ -466,31 +468,38 @@ manage an aircraft" - a simulation or 'digital twin' - to "the software is expec
 
 The more toward the simulation end of things we are, the more the objective is to be able to use it as a tool, but also, the way in which we verify our science is by comparison with experiment.
 
-The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations - the "intuition pump" again.
+The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations.
 
 :::
 
 ## 1.16 Complexity Science
+
+:::: {.two-col}
+::: {}
+Modelling allows us to use simple rules to build human understanding of complex systems.
+
+Simulation allows us to build detailed models to predict how
+the world will behave.
+
+Both are important.
+:::
+::: {}
+<{{< image-credit
+  src="images/coveney.png"
+  alt="Front cover of 'Frontiers of Complexity' by Peter Coveney and Roger Highfield."
+  credit="Peter Coveney and Roger Highfield"
+  credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/" >}}
+:::
+::::
+
 ::: notes
 
 The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
 understand the resulting behaviour by exploring the modelling process and observing the results of the model - is an important part of the background that got me into this. Ecological systems modelling leading
 to nice chaotic fractals. 
 
-<illustration>
-
 It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
 I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
 
 :::
 
-## 1.17 Software as a research tool and the third paradigm.
-::: notes
-
-These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
-
-In this model, the first paradigm is experiment, the second is mathematical analysis, and the third is modelling and simulation.
-
-We'll hear about the fourth and fifth later in the lecture.
-
-:::

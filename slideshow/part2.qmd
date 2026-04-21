@@ -1,6 +1,24 @@
 # Part two: Reproducibility and Reliability in Computational Science
 
 ## 2.1 The Avoiding Mass Extinctions Engine
+
+:::: {.two-col}
+::: {}
+* Save the world and make a bob or two doing it.
+* Sustainable change.
+* Socio-technical solutions.
+:::
+::: {}
+{{< image-credit
+  src="https://dgen.net/0/wp-content/uploads/2013/02/AMEE-bug_300x300_whiteBG.png"
+  alt="AMEE logo"
+  credit="Gavin Starks et al"
+  creditlink="https://dgen.net/0/2017/03/10/the-amee-story-part-one/" >}}
+:::
+::::
+
+
+
 ::: notes
 
 Fast forward a few years, to 2009. I'm outside academia for a while, working for a startup doing climate impact modelling - the name of the company was AMEE - the "Avoiding Mass Extinctions Engine". It's a for-profit social enterprise - with a mission to save the world, and make a bob or two doing it. [AMEE bug logo] [Climate matrix symbol]
@@ -11,7 +29,14 @@ What our product does is not model the climate - we model polluters. E.g. a comp
 
 :::
 
-## 2.2 Climategate
+## 2.2 Computational science as a political football
+
+{{< image-credit
+  src="assets/political_football.png"
+  alt="A cartoon illustrating science as a political football."
+  credit="Generated with the DALL·E image model, OpenAI, accessed via ChatGPT (April 2026)."
+  creditlink="https://chatgpt.com/share/69e76f67-4a50-838c-b795-e36b987493d9" >}}
+
 ::: notes
 
 In 2009, a group of researchers building computer models of climate at UEA were hacked by climate denialists. In addition to taking various email comments out of context to undermine the science, the hackers exploited bug reports in those emails. Issues with developing computer simulations - part of the work I described in the previous section - were played up to undermine trust in climate science.
@@ -26,6 +51,16 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 :::
 
 ## 2.3 The Joint Biosecurity Centre
+
+:::: {.two-col}
+::: {}
+* Image from the register about Neil's code
+::: 
+::: {}
+Image illustrating a SIR model
+:::
+::::
+
 ::: notes
 
 As another example of the importance of trustworthiness in scientific code, during the covid crisis I was a senior advisor at the Joint Biosecurity Centre, building the team that did the modelling that put together
@@ -43,6 +78,18 @@ higher education sector.
 :::
 
 ## 2.4 The reproducibility crisis
+
+
+:::: {.two-col}
+::: {}
+* Reproducibility is a key part of how science views itself.
+* This ideal is far from realised
+* We should be able to do well in computational science.
+:::
+::: {}
+A diagram showing automated deployment for this lecture.
+:::
+
 ::: notes
 
 Given the complexity of the task of effectively using computers in research, it is no wonder we run into these challenges.
@@ -61,10 +108,26 @@ If you work in computational science you'll have come across loads of these. Gen
 
 So we have learned: **we need to build our computer systems for science carefully**, to ensure our science is trustworthy.
 
+In computational science, we have developed practices to 
+enable our workflows to be fully automatically reproducible.
+
+For example, this lecture is a computer programme to generate it. If I make any changes to the exemplar simulation code or text, the simulations will all run on UCL HPC clusters, and the website you're viewing it on will automatically update. It is not a powerpoint.
+
 :::
 
 
 ## 2.5 What is engineering?
+
+:::: {.two-col}
+::: {}
+**the tools, practices and systems that enable repeatable, reliable, safe and scalable technical construction**
+:::
+::: {}
+Image: a link to a city with some buildings fallen down from
+an earthquake, and some still standing.
+:::
+::::
+
 ::: notes
 
 There is a name for the methods humans have come up with to allow us to build things reliably: Engineering.
@@ -84,6 +147,9 @@ As engineers, we are concerned not just with wisely using our understanding to m
 :::
 
 ## 2.6 Software Engineering
+
+Image: the post office scandal.
+
 ::: notes
 
 Software systems now govern our lives, and, as a society, in practice we are *terrible* at it.
@@ -114,18 +180,11 @@ The data itself, is also a key part of this - librarianship is a long-standing p
 
 All of these are just as critical to effective computational science and are in scope of the emerging discipline we're trying to describe here.
 
-:::
-
-## 2.8 Ethics and Engineering
-::: notes
-
 A key part of any engineering practice is a sustained ethical framework, and mechanisms for professional practice that ensure that these ethics are upheld. 
 
 I would like to imagine that you haven't reached real professional status as an engineer until you've refused to build something in ways that violate these codes.
 
 I won't go into details in public, but as a data scientist working in the covid response in the UK government, I have achieved this.
-
-[Illustration - phrenology]
 
 :::
 
@@ -140,14 +199,7 @@ We hypothesised that a professional community of engineers would be necessary fo
 
 There are now thousands of people around the world employed as part of this set of professions I helped to invent, and a team of a bit less than 150 at UCL, in the UCL Advanced Research Computing Centre, which I lead.
 
-[illustration]
-
 Probably a lot of the reason I'm standing here is the success of this idea - we'll talk more in a moment about whether that's a scientific achievement or not. 
-
-:::
-
-## 2.10 The data empowered society
-::: notes
 
 Considered thus, engineering is part of management science, and a social science. 
 
@@ -162,17 +214,15 @@ with the challenge of making the role of data and computers and software in soci
 :::
 
 ## 2.11 Science and Engineering
+
+Four-part diagram showing the different ways science can touch engineering.
+
 ::: notes
 
 In the previous section, we talked about professional engineering. I gave examples of long standing and emerging professions in computing - information technology. These professions exist outside the
 scientific context - in software and data companies selling cars and T-shirts, in news websites and in the civil service.
 
 I want to dig for a moment into the relationship of science and engineering, touching on four aspects of the relationship.
-
-:::
-
-## 2.12 Science-for-engineering
-::: notes
 
 People often think about the question of science-for-engineering: using an understanding of the world, built up from the tools of science, to build useful things to help us manage and control the world.
 
@@ -186,29 +236,12 @@ We've seen that in the model-simulation continuum, simulation is of primary util
 
 You'll see that my forays into application are usually driven by a sense of accountability - where the technologies that are related to the science have risks or benefits that matter enough to the world that we have a duty as scientists to be concerned with them.
 
-:::
-
-## 2.13 Engineering-for-science
-::: notes
-
 It's also the case that advances in scientific understanding are often driven by engineering goals. Our Boids example - the flocking behaviour - was motivated first by the need to make things that *look like* flocks of birds, for special effects in movies, and then only later applied to animal behaviour as a science!
 
 This is also highly motivating - the role of the application is not only to deliver a technology, but to act as a driver of science. This is a highly signficant feedback loop, and a major part of the real story of how science proceeds.
 
-[Building up a diagram as we go]
-
-:::
-
-## 2.14 Engineering studied scientifically
-::: notes
-
 There's a different flavour of science-for-engineering. Not the use of understanding that emerged from science to help with engineering challenges, but rather, the application of the scientific method to discover which tools, practices and systems of engineering, are effective. We can use rigorous methods to investigate questions of which kind of CAD tool is best for building cars, or which structure of an engineering
 company delivers most reliably. We'll extensively discuss such approaches in a moment.
-
-:::
-
-## 2.15 Engineering applied to science
-::: notes
 
 While all four of these touch my research practice, the fourth category is the one I'm most interested in: the application of engineering to the tools of science? Sometimes this is called "instrument science": 
 how best do we build a telescope? A supercollider?
@@ -219,6 +252,10 @@ trustworthy computer code to be applied as part of the scientific endeavour, and
 :::
 
 ## 2.16 Definition
+
+**Engineering Computational Science is the development and application of tools, practices and systems for the efficient,
+trustworthy, ethical and safe use of information technologies as part of trying to produce knowledge about the world.**
+
 ::: notes
 
 So now we're ready to define what I'm interested in - what I claim to be a professor of!
@@ -236,11 +273,6 @@ Engineering Computational Science is, therefore, the development and application
 trustworthy, ethical and safe use of information technologies as part of trying to understand the world.
 
 So now you know what I do.
-
-:::
-
-## 2.17 Why is this particularly interesting?
-::: notes
 
 Science and scholarship are more interesting than most other things people do... (I would be happy to be into programming for the arts or sport, but not selling widgets...), and you get to study those things when trying to make software about them, including some quite hard maths, which I like, given my background in theoretical physics.
 
