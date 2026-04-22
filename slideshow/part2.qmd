@@ -256,8 +256,6 @@ People often think about the question of science-for-engineering: using an under
 
 We've seen examples of this already with climate modelling and covid modelling. It's actually a moderately controversial point as to whether science is that important for engineering. A lot of technologies have been built by trial and error without understanding the science behind them.
 
-[Diagrammatic models of the science-engineering relationship]
-
 Personally, in my work I'm primarily motivated by computational science for science - understanding the world - rather than computational science as a means to technology.
 
 We've seen that in the model-simulation continuum, simulation is of primary utility for engineering, while modelling is of primary utility for science, though this is *not* clear cut.
