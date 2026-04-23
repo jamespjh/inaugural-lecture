@@ -3,43 +3,43 @@
   method: euler
   duration: 5
   visualise: dot
-  outfile: generated/sun_euler.mp4
+  outfile: sun_euler.mp4
 - scenario: single
   method: euler
   law: constant
   duration: 5
   visualise: dot
-  outfile: generated/constant_euler.mp4
+  outfile: constant_euler.mp4
 - scenario: sun
   method: euler
   duration: 5
   visualise: trail
-  outfile: generated/sun_euler_trail.mp4
+  outfile: sun_euler_trail.mp4
 - scenario: sun
   method: RK45
   duration: 5
   visualise: trail
-  outfile: generated/sun_rk45_trail.mp4
+  outfile: sun_rk45_trail.mp4
 - scenario: scatter
   benchmark: true
   seed: 42
   engine: ALL
   engine-consistent-seed: true
   n-bodies: [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
-  outfile: generated/benchmark_engines.png
+  outfile: benchmark_engines.png
 - scenario: boids
   method: euler
   law: boids
   until: 240
   duration: 30
   visualise: dot
-  outfile: generated/boids_euler.mp4
+  outfile: boids_euler.mp4
 - scenario: scatter
   method: RK45
   aspect: page
   duration: 15
   until: 1.5
-  outfile: generated/nice.mp4
+  outfile: nice.mp4
   method: RK45
   seed: 2
   visualise: dot
@@ -50,7 +50,7 @@
   duration: 15
   until: 1.5
   aspect: page
-  outfile: generated/power_law_convergence.mp4
+  outfile: power_law_convergence.mp4
   show-true-law: true
   engine: numpy
   method: RK45

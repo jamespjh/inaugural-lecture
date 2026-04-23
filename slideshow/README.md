@@ -13,26 +13,18 @@ To generate assets locally:
 ```bash
 cd slideshow/assets
 source ../../demo/venv/bin/activate
-mkdir -p generated
-generate-figures sources/teachgrav/scenarios.yml
+generate-figures scenarios.yml
 ```
 
 Before this works, ensure teachgrav is installed via `pip install -e ../../demo/`.
 
-To render Graphviz diagrams:
-
-```bash
-cd slideshow/assets
-./sources/graphviz/render_diagrams.sh
-```
-
 ## UCL Logo Conversion
 
-Run from repo root to regenerate `assets/stored/ucl-logo.png` from `assets/stored/ucl-logo-original.png`:
+Run from repo root to regenerate `assets/ucl-logo.png` from `assets/ucl-logo-original.png`:
 
 ```bash
 set -e
-cd slideshow/assets
-source ../../demo/venv/bin/activate
-python sources/ucl-logo-conversion.py --input stored/ucl-logo-original.png --output stored/ucl-logo.png
+cd /Users/jamespjh/devel/inaugural/slideshow/assets
+source /Users/jamespjh/devel/inaugural/demo/venv/bin/activate
+python ucl-logo-conversion.py --input ucl-logo-original.png --output ucl-logo.png
 ```

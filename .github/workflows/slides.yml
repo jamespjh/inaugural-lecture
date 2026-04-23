@@ -43,13 +43,12 @@ jobs:
         run: |
           source demo/venv/bin/activate
           cd slideshow/assets
-          mkdir -p generated
-          generate-figures sources/teachgrav/scenarios.yml
-
+          generate-figures scenarios.yml
+      
       - name: Render DOT diagrams
         run: |
           cd slideshow/assets
-          ./sources/graphviz/render_diagrams.sh
+          ./render_diagrams.sh
       
       - name: Install Quarto
         uses: quarto-dev/quarto-actions/setup@v2
