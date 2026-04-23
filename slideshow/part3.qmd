@@ -3,7 +3,7 @@
 ## 3.2 Physics-free gravity 
 
 {{< video-credit
-  src="assets/power_law_convergence.mp4"
+  src="assets/generated/power_law_convergence.mp4"
   alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
   width="100%" >}}
 
@@ -28,7 +28,7 @@ from around the mid-2010s. These days we can do it fairly quickly.
 ## 3.3 The triumph of stamp collecting.
 
 {{< image-credit
-src="assets/stamp.jpg"
+src="assets/stored/stamp.jpg"
 alt="A magnifying glass inspecting a stamp collection" 
 credit="Wikimedia commons, Heptagon, CC-SA"
 credit-url="https://commons.wikimedia.org/wiki/File:Magnifying_glass2.jpg"
@@ -118,7 +118,7 @@ In the context of an insecure world, where research can be used for harm as well
 :::: {.two-col}
 ::: {}
 {{< image-credit
-src="assets/Viabs.png"
+src="assets/stored/Viabs.png"
 alt="An entity relationship diagram for computational models of systems biology."
 credit="Finkelstein, Hetherington, Li, Margoninsky, Saffrey, Seymour and Warner, IEEE Computer"
 credit-url="https://discovery.ucl.ac.uk/id/eprint/13292/1/13292.pdf"
@@ -126,7 +126,7 @@ credit-url="https://discovery.ucl.ac.uk/id/eprint/13292/1/13292.pdf"
 :::
 ::: {}
 {{< image-credit
-src="assets/simulink.png"
+src="assets/stored/simulink.png"
 alt="A simulink model."
 credit="The Mathworks, Inc."
 credit-url="https://ctms.engin.umich.edu/CTMS/?example=Introduction&section=SimulinkControl"
@@ -174,7 +174,7 @@ We can apply the fourth paradigm to the language - whether computer language or 
 ## 3.8 Living with Machines
 
 {{< image-credit
-src="assets/LWM.png"
+src="assets/stored/LWM.png"
 alt="18th Century factory workers with a large engine"
 credit="Living With Machines project, Alan Turing Institute and British Library"
 credit-url="https://livingwithmachines.ac.uk/"
@@ -201,7 +201,7 @@ and colleagues and I have tried to take a different path.
 ## 3.9 Research software engineering and LLM coding
 
 {{< video-credit
-  src="assets/AI_coder.mp4"
+  src="assets/generated/AI_coder.mp4"
   alt="Qwen-coder open source AI model running on UCL cluster and building a gravity simulator."
   width="100%" >}}
 

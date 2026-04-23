@@ -23,3 +23,5 @@ People
 {{< include part2.qmd >}}
 
 {{< include part3.qmd >}}
+
+{{< include part4.qmd >}}

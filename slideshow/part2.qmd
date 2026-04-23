@@ -32,7 +32,7 @@ What our product does is not model the climate - we model polluters. E.g. a comp
 ## 2.2 Computational science as a political football
 
 {{< image-credit
-  src="assets/political_football.png"
+  src="assets/stored/political_football.png"
   alt="A cartoon illustrating science as a political football."
   credit="Generated with the DALL·E image model, OpenAI, accessed via ChatGPT (April 2026)"
   credit_url="https://chatgpt.com/share/69e76f67-4a50-838c-b795-e36b987493d9" >}}
@@ -55,14 +55,14 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 :::: {.two-col}
 ::: {}
 {{< image-credit
-  src="assets/mrc.png"
+  src="assets/stored/mrc.png"
   alt="The MRC-IDE codebase from the Imperial College London laboratory."
   credit="Screenshot from Github.com April 2026"
   credit_url="https://github.com/mrc-ide/covid-sim" >}}
 ::: 
 ::: {}
 {{< image-credit
-  src="assets/SIR.svg"
+  src="assets/generated/SIR.svg"
   alt="The SIR compartmental model of epidemiology."
   width="100%" >}}
 :::
@@ -95,7 +95,7 @@ higher education sector.
 :::
 ::: {}
 {{< image-credit
-  src="assets/lecture.svg"
+  src="assets/generated/lecture.svg"
   alt="Illustration of the CI/CD workflow building this lecture" >}}
 :::
 ::::
@@ -134,7 +134,7 @@ For example, this lecture is a computer programme to generate it. If I make any 
 :::
 ::: {}
 {{< image-credit 
-src="assets/earthquake.png" alt="Illustration of an earthquake damaging only some buildings." >}}
+src="assets/stored/earthquake.png" alt="Illustration of an earthquake damaging only some buildings." >}}
 :::
 ::::
 
@@ -159,7 +159,7 @@ As engineers, we are concerned not just with wisely using our understanding to m
 ## 2.6 Software Engineering
 
 {{< image-credit
-src="assets/postoffice.jpg"
+src="assets/stored/postoffice.jpg"
 alt="Protesting sub-postmasters outside the Royal Court of Justice"
 credit="Photo by PA Media, accessed via the BBC" 
 credit_url="https://www.bbc.co.uk/news/articles/cev4mw43w13o" >}}
@@ -181,7 +181,7 @@ techniques grew up within software engineering.
 ## 2.7 Not just *software* engineering
 
 {{< image-credit
-src="assets/Turing.jpg"
+src="assets/stored/Turing.jpg"
 alt="A photo of the entrance to the Alan Turing Institute, in the British Library"
 credit="The Alan Turing Institute"
 credit_url="https://www.turing.ac.uk/" >}}
@@ -210,7 +210,7 @@ I won't go into details in public, but as a data scientist working in the covid 
 ## 2.9 The Research Software Engineer
 
 {{< image-credit
-src="assets/ScholarAndCraftsman.jpg"
+src="assets/stored/ScholarAndCraftsman.jpg"
 alt="Black and white historical photographs of an
 academic and a smith working in a forge"
 credit="Beineke Library, used by permission, composed by the Software Sustainability Institute"
@@ -244,7 +244,7 @@ with the challenge of making the role of data and computers and software in soci
 ## 2.11 Science and Engineering
 
 {{< image-credit
-src="assets/science_and_engineering.svg"
+src="assets/generated/science_and_engineering.svg"
 alt="Diagram showing the relationship between science and engineering"
 width="100%" >}}
 
@@ -323,7 +323,7 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 ## 2.18 Epistemic cultures
 
 {{< image-credit
-src="assets/epistemologies.png"
+src="assets/stored/epistemologies.png"
 alt="A cartoon illustrating different cultures of knowledge production, from humanities to astronomy." >}}
 
 ::: notes
@@ -374,12 +374,12 @@ Now, many code changes can have multiple effects on different metrics - reducing
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
 :::
 
-# 2.19 Service provision as an academic practice
+## 2.19 Service provision as an academic practice
 
 :::: {.two-col}
 ::: {}
 {{< image-credit
-src="assets/arc.svg"
+src="assets/generated/arc.svg"
 alt="UCL ARC's hybrid academic-service model"
 width="100%" >}}
 :::

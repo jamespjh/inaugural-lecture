@@ -12,8 +12,8 @@
 }
 
 .reveal {
-  --r-main-color: var(--ucl-light-purple);
-  --r-heading-color: var(--ucl-white);
+  --r-main-color: var(--ucl-white);
+  --r-heading-color: var(--ucl-light-purple);
   --r-link-color: var(--ucl-light-purple);
   --r-link-color-hover: var(--ucl-white);
 }
