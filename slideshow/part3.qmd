@@ -212,7 +212,7 @@ engineers, but now we're all about to get replaced by AIs.
 
 The truth is much more interesting, and is going to be, I think, an area where getting it right, will be a fascinating research area for the rest of my career, and one where the service-provider epistemology is key.
 
-I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Idil Ozdemir <verify she accepts> we're going to be looking at how we
+I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Thomas Ghorbanian starting in September we're going to be looking at how we
 might be able to know LLM-generated scientific software is reliable.
 
 There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.

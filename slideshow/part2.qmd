@@ -374,12 +374,23 @@ Now, many code changes can have multiple effects on different metrics - reducing
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
 :::
 
-# 2.19 Service provision as a research methodology
+# 2.19 Service provision as an academic practice
 
+:::: {.two-col}
+::: {}
 {{< image-credit
 src="assets/arc.svg"
 alt="UCL ARC's hybrid academic-service model"
-width="50%" >}}
+width="100%" >}}
+:::
+::: {}
+* Utility
+* Curiosity
+* Community
+:::
+::::
+
+
 
 ::: notes
 I can therefore now turn to *why*, in 2012, when working on the brain bloodflow codes, I formed the research software group in UCL as part of what many would frame as "IT support", of all things.
