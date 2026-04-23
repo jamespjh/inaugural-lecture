@@ -372,7 +372,16 @@ With existing tools, this approach can often have the nice property of being sel
 
 Now, many code changes can have multiple effects on different metrics - reducing lucidity (and thus maintainability, trustworthiness or pedagogical value) - while improving performance. And such additional concerns
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
+:::
 
+# 2.19 Service provision as a research methodology
+
+{{< image-credit
+src="assets/arc.svg"
+alt="UCL ARC's hybrid academic-service model"
+width="50%" >}}
+
+::: notes
 I can therefore now turn to *why*, in 2012, when working on the brain bloodflow codes, I formed the research software group in UCL as part of what many would frame as "IT support", of all things.
 
 I was feeling that I needed a bit more verifiable utility and impact in work on computational science tools, and needed the rigor that **customers** bring to the evidence basis.
