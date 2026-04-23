@@ -344,8 +344,8 @@ We can get a big speed-up from using more sophisticated tools, but there's LOTS 
 
 ## 1.11 A nice example
 
-{{< image-credit 
-src="assets/nice.png"
+{{< video-credit 
+src="assets/nice.mp4"
 alt="A four-body simulation." >}}
 
 ## 1.12 Sharing the load
@@ -459,7 +459,8 @@ This is our second deep lesson: **because in science we use computers to underst
 
 {{< image-credit
   src="assets/model_spectrum.svg"
-  alt="A diagram of the model spectrum." >}}
+  alt="A diagram of the model spectrum."
+  width="100%" >}}
 
 ::: notes
 
@@ -484,8 +485,8 @@ the world will behave.
 Both are important.
 :::
 ::: {}
-<{{< image-credit
-  src="images/coveney.png"
+{{< image-credit
+  src="assets/coveney.jpg"
   alt="Front cover of 'Frontiers of Complexity' by Peter Coveney and Roger Highfield."
   credit="Peter Coveney and Roger Highfield"
   credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/" >}}

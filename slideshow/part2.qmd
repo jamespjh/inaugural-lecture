@@ -63,7 +63,8 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 ::: {}
 {{< image-credit
   src="assets/SIR.svg"
-  alt="The SIR compartmental model of epidemiology." >}}
+  alt="The SIR compartmental model of epidemiology."
+  width="100%" >}}
 :::
 ::::
 
@@ -213,7 +214,8 @@ src="assets/ScholarAndCraftsman.jpg"
 alt="Black and white historical photographs of an
 academic and a smith working in a forge"
 credit="Beineke Library, used by permission, composed by the Software Sustainability Institute"
-credit_url="https://www.software.ac.uk/blog/craftsperson-and-scholar" >}}
+credit_url="https://www.software.ac.uk/blog/craftsperson-and-scholar"
+width="100%" >}}
 
 ::: notes
 
@@ -243,7 +245,8 @@ with the challenge of making the role of data and computers and software in soci
 
 {{< image-credit
 src="assets/science_and_engineering.svg"
-alt="Diagram showing the relationship between science and engineering" >}}
+alt="Diagram showing the relationship between science and engineering"
+width="100%" >}}
 
 ::: notes
 

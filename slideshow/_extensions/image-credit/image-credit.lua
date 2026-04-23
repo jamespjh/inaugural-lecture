@@ -12,6 +12,7 @@
 --   alt        (optional) – accessible description / alt text
 --   credit     (optional) – human-readable credit string (e.g. author or organisation)
 --   credit-url (optional) – URL to link the credit text to
+--   width      (optional) – CSS width value (e.g. "50%", "300px")
 
 -- Return the string value of a shortcode kwarg, or a default when absent/empty.
 local function kwarg(kwargs, key, default)
@@ -36,13 +37,15 @@ return {
     local alt        = kwarg(kwargs, "alt",        "")
     local credit     = kwarg(kwargs, "credit",     nil)
     local credit_url = kwarg(kwargs, "credit-url", nil)
+    local width      = kwarg(kwargs, "width",      nil)
 
     if src == "" then
       quarto.log.warning("image-credit: 'src' parameter is required but was not provided.")
     end
 
     -- Build the image element
-    local img_html = '<img src="' .. html_escape(src) .. '" alt="' .. html_escape(alt) .. '">'
+    local width_attr = width and (' style="width:' .. html_escape(width) .. '"') or ""
+    local img_html = '<img src="' .. html_escape(src) .. '" alt="' .. html_escape(alt) .. '"' .. width_attr .. '>'
 
     -- Build optional credit line
     local credit_html = ""
