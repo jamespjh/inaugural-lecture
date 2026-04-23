@@ -98,7 +98,7 @@ It is **pseudocode**: code-like text designed to pull out the key idea.
 :::
 ::: {}
 {{< video-credit
-  src="assets/constant_euler.mp4"
+  src="assets/generated/constant_euler.mp4"
   alt="Single-particle straight-line motion with constant velocity" >}}
 :::
 ::::
@@ -139,7 +139,7 @@ end of loop
 ::: {}
 
 {{< video-credit
-  src="assets/sun_euler.mp4"
+  src="assets/generated/sun_euler.mp4"
   alt="Sun orbit simulation with Euler integration" >}}
 
 :::
@@ -213,12 +213,12 @@ This will be important.
 :::: {.two-col}
 ::: {}
 {{< video-credit
-  src="assets/sun_euler_trail.mp4"
+  src="assets/generated/sun_euler_trail.mp4"
   alt="Sun orbit with Euler integration: trail shows non-closing, drifting path" >}}
 :::
 ::: {}
 {{< video-credit
-  src="assets/sun_rk45_trail.mp4"
+  src="assets/generated/sun_rk45_trail.mp4"
   alt="Sun orbit with RK45 integration: trail shows closed, stable orbit" >}}
 :::
 ::::
@@ -245,7 +245,7 @@ The rules for the Boids:
 :::
 ::: {}
 {{< video-credit
-  src="assets/boids_euler.mp4"
+  src="assets/generated/boids_euler.mp4"
   alt="Craig Reynolds's Boids simulation" >}}
 :::
 ::::
@@ -271,12 +271,12 @@ This also really made an impression on me - the kind of understanding-with-rules
 :::: {.two-col}
 ::: {}
 {{< image-credit 
-  src="assets/effective_class.png"
+  src="assets/stored/effective_class.png"
   alt="Class structure of my PhD thesis code" >}}
 :::
 ::: {}
 {{< image-credit 
-  src="assets/effective_results.png"
+  src="assets/stored/effective_results.png"
   alt="Some results from the thesis code" >}}
 ::: 
 ::::
@@ -328,7 +328,7 @@ Well, what if we want to change the programme, or give it to someone else to mak
 :::
 ::: {}
 {{< image-credit
-  src="assets/benchmark_engines.png"
+  src="assets/generated/benchmark_engines.png"
   alt="Log-log plot of gravity law evaluation time vs number of bodies for numpy and jax-cpu engines." >}}
 :::
 ::::
@@ -346,7 +346,7 @@ We can get a big speed-up from using more sophisticated tools, but there's LOTS 
 ## 1.2.3 A nice example
 
 {{< image-credit 
-src="assets/nice.png"
+src="assets/generated/nice.png"
 alt="A four-body simulation." >}}
 
 ## 1.2.4 Sharing the load
@@ -401,12 +401,12 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 :::: {.two-col}
 ::: {}
 {{< image-credit
-  src="assets/ncr-announce.png"
+  src="assets/stored/NCR-announce.png"
   alt="UCL announces award of National Compute Resource grant" >}}
 :::
 ::: {}
 {{< image-credit
-  src="assets/michael.png"
+  src="assets/stored/michael.png"
   alt="UCL's existing national service, Michael." >}}
 :::
 ::::

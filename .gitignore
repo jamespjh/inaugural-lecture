@@ -37,3 +37,6 @@ test.mp4
 # Benchmark generated files (produced by CI, not committed)
 slideshow/assets/benchmark_engines.png
 slideshow/assets/*.mp4
+# Generated slide assets (recreated by CI)
+slideshow/assets/generated/*
+!slideshow/assets/generated/.gitkeep

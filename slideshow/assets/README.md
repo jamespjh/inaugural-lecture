@@ -1,30 +1,14 @@
-# Graphviz Diagrams
+# Assets
 
-This directory contains Graphviz DOT files and a script to render them to SVG format.
+This directory holds all slide assets, organised into three subdirectories:
 
-## Files
+- `generated/` — files produced by CI (videos, images, SVGs). Not committed; recreated on every build.
+- `stored/` — permanently stored files (images, logos, placeholders) that are committed to the repo.
+- `sources/` — source files organised by type, used to generate assets:
+  - `sources/teachgrav/scenarios.yml` — scenario definitions for `generate-figures`
+  - `sources/graphviz/` — Graphviz DOT files and `render_diagrams.sh`
+  - `sources/ucl-logo-conversion.py` — script to regenerate `stored/ucl-logo.png` from `stored/ucl-logo-original.png`
 
-- `example1.dot` - Network diagram using neato layout engine
-- `example2.dot` - Hierarchical diagram using dot layout engine
-- `render_diagrams.sh` - Shell script to convert all .dot files to SVG
+## Generating assets
 
-## Usage
-
-To render all diagrams:
-```bash
-chmod +x render_diagrams.sh
-./render_diagrams.sh
-```
-
-This will generate SVG files for each DOT file in the directory.
-
-## DOT File Features
-
-Each DOT file contains:
-- Layout engine specification using the `layout` attribute
-- Styling information embedded directly in the file
-- Clear node and edge definitions
-
-The layout engine is specified in the graph attributes:
-- `layout="neato"` for spring-based layouts
-- `layout="dot"` for hierarchical layouts
+See `../README.md` for instructions.
