@@ -215,7 +215,7 @@ alt="Black and white historical photographs of an
 academic and a smith working in a forge"
 credit="Beineke Library, used by permission, composed by the Software Sustainability Institute"
 credit_url="https://www.software.ac.uk/blog/craftsperson-and-scholar"
-width="100%" >}}
+width="80%" >}}
 
 ::: notes
 
@@ -324,6 +324,7 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 
 {{< image-credit
 src="assets/stored/epistemologies.png"
+width="80%"
 alt="A cartoon illustrating different cultures of knowledge production, from humanities to astronomy." >}}
 
 ::: notes

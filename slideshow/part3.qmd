@@ -234,6 +234,7 @@ In the limit that the timestep is small, and the floating point precision is hig
 {{< image-credit src="assets/stored/lean.svg"
 alt="The logo of the LEAN programming language"
 credit="Lean Focused Research Organization (FRO)"
+width-"60%"
 credit-url="https://lean-lang.org" >}}
 
 ::: notes
