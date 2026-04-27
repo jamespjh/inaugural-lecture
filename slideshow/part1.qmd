@@ -400,12 +400,12 @@ This will always happen - anything that doesn't go down as fast as the bit you c
 :::: {.two-col}
 ::: {}
 {{< image-credit
-  src="assets/ncr-announce.png"
+  src="assets/stored/NCR-announce.png"
   alt="UCL announces award of National Compute Resource grant" >}}
 :::
 ::: {}
 {{< image-credit
-  src="assets/michael.png"
+  src="assets/stored/michael.png"
   alt="UCL's existing national service, Michael." >}}
 :::
 ::::
@@ -432,7 +432,7 @@ And hard to understand.
 :::
 ::: {}
 {{< image-credit
-  src="assets/stack.svg"
+  src="assets/generated/stack.svg"
   alt="A diagram of the abstraction stack in scientific computing." >}}
 :::
 ::::
@@ -458,7 +458,7 @@ This is our second deep lesson: **because in science we use computers to underst
 ## 1.15 Simulation and Modelling
 
 {{< image-credit
-  src="assets/model_spectrum.svg"
+  src="assets/generated/model_spectrum.svg"
   alt="A diagram of the model spectrum."
   width="100%" >}}
 
@@ -486,7 +486,7 @@ Both are important.
 :::
 ::: {}
 {{< image-credit
-  src="assets/coveney.jpg"
+  src="assets/stored/coveney.jpg"
   alt="Front cover of 'Frontiers of Complexity' by Peter Coveney and Roger Highfield."
   credit="Peter Coveney and Roger Highfield"
   credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/" >}}
