@@ -31,6 +31,7 @@ from around the mid-2010s. These days we can do it fairly quickly.
 src="assets/stored/stamp.jpg"
 alt="A magnifying glass inspecting a stamp collection" 
 credit="Wikimedia commons, Heptagon, CC-SA"
+width="80%"
 credit-url="https://commons.wikimedia.org/wiki/File:Magnifying_glass2.jpg"
 >}}
 
@@ -212,14 +213,34 @@ engineers, but now we're all about to get replaced by AIs.
 
 The truth is much more interesting, and is going to be, I think, an area where getting it right, will be a fascinating research area for the rest of my career, and one where the service-provider epistemology is key.
 
-I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Thomas Ghorbanian starting in September we're going to be looking at how we
-might be able to know LLM-generated scientific software is reliable.
+I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - while tracking reproducibility and the need for F.A.I.R. approaches carefully.
 
 There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.
 
 It's always been part of the goal of computer science to minimise the distance between our careful description of the algorithm and the computer representation. Code like our python examples is translated into machine code by a compiler. No one (actually, some do) bewails the fact that we no longer toggle our computer programmes into the computer using binary switches. (Punch cards were a fad.)
 
 I began this talk with pseudocode - natural language carefully representing the steps we want to take. It's reasoning these steps out, that has always been the point of the software engineer, not the syntax of the particular language. 
+
+:::
+
+## 3.10 Mathematical assertions as AI specs and automated tests
+
+```default
+In the limit that the timestep is small, and the floating point precision is high:
+      orbits should be ellipses with the sun at one focus, 
+      with orbital periods squared proportional to major axis cubed
+```
+
+{{< image-credit src="assets/stored/lean.svg"
+alt="The logo of the LEAN programming language"
+credit="Lean Focused Research Organization (FRO)"
+credit-url="https://lean-lang.org" >}}
+
+::: notes
+
+ With my PhD student Thomas Ghorbanian starting in September we're going to be looking at how we
+might be able to know LLM-generated scientific software is reliable.
+
 
 Research software engineers have always been trying to reduce the distance from the maths to the computer representation - to make it as lucid as possible. While I was at the Mathworks I worked on how we represent
 models as diagrams, and automatically translate these into code, for just this reason.

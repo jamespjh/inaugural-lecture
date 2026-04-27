@@ -174,7 +174,6 @@ We type this in, and watch the video, and it looks like it's working! [Demo]
 
 ## 1.5 Pseudocode as an intuition builder
 
-- Code helps us build our understanding of the science
 - If I can't code it, I didn't really understand it.
 
 Most of that benefit is in pseudocode, not real code.
@@ -482,7 +481,6 @@ Modelling allows us to use simple rules to build human understanding of complex 
 Simulation allows us to build detailed models to predict how
 the world will behave.
 
-Both are important.
 :::
 ::: {}
 {{< image-credit
