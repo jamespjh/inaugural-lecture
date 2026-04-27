@@ -1,6 +1,6 @@
 # Part three: Some futures
 
-## 3.2 Physics-free gravity 
+## 3.1 Physics-free gravity 
 
 {{< video-credit
   src="assets/generated/power_law_convergence.mp4"
@@ -25,7 +25,7 @@ from around the mid-2010s. These days we can do it fairly quickly.
 
 :::
 
-## 3.3 The triumph of stamp collecting.
+## 3.2 The triumph of stamp collecting.
 
 {{< image-credit
 src="assets/stored/stamp.jpg"
@@ -67,7 +67,7 @@ There's a lot to be investigated here - with my PhD student Lewis O'Donnell we'r
 
 :::
 
-## 3.4 FAIR and Open science
+## 3.3 FAIR and Open science
 
 * Findable
 * Accessible
@@ -114,7 +114,7 @@ In the context of an insecure world, where research can be used for harm as well
 :::
 
 
-## 3.6 Models as data
+## 3.5 Models as data
 
 :::: {.two-col}
 ::: {}
@@ -172,7 +172,7 @@ We can apply the fourth paradigm to the language - whether computer language or 
 
 :::
 
-## 3.8 Living with Machines
+## 3.6 Living with Machines
 
 {{< image-credit
 src="assets/stored/LWM.png"
@@ -199,7 +199,7 @@ and colleagues and I have tried to take a different path.
 
 :::
 
-## 3.9 Research software engineering and LLM coding
+## 3.7 Research software engineering and LLM coding
 
 {{< video-credit
   src="assets/stored/AI_coder.mp4"
@@ -223,7 +223,7 @@ I began this talk with pseudocode - natural language carefully representing the 
 
 :::
 
-## 3.10 Mathematical assertions as AI specs and automated tests
+## 3.8 Mathematical assertions as AI specs and automated tests
 
 ```default
 In the limit that the timestep is small, and the floating point precision is high:

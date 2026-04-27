@@ -241,7 +241,7 @@ with the challenge of making the role of data and computers and software in soci
 
 :::
 
-## 2.11 Science and Engineering
+## 2.9 Science and Engineering
 
 {{< image-credit
 src="assets/generated/science_and_engineering.svg"
@@ -280,7 +280,7 @@ trustworthy computer code to be applied as part of the scientific endeavour, and
 
 :::
 
-## 2.16 Definition
+## 2.10 Definition
 
 **Engineering Computational Science is the development and application of tools, practices and systems for the efficient,
 trustworthy, ethical and safe use of information technologies as part of trying to produce knowledge about the world.**
@@ -320,7 +320,7 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 
 :::
 
-## 2.18 Epistemic cultures
+## 2.11 Epistemic cultures
 
 {{< image-credit
 src="assets/stored/epistemologies.png"
@@ -374,7 +374,7 @@ Now, many code changes can have multiple effects on different metrics - reducing
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
 :::
 
-## 2.19 Service provision as an academic practice
+## 2.12 Service provision as an academic practice
 
 :::: {.two-col}
 ::: {}
