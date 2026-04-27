@@ -201,7 +201,7 @@ and colleagues and I have tried to take a different path.
 ## 3.9 Research software engineering and LLM coding
 
 {{< video-credit
-  src="assets/generated/AI_coder.mp4"
+  src="assets/stored/AI_coder.mp4"
   alt="Qwen-coder open source AI model running on UCL cluster and building a gravity simulator."
   width="100%" >}}
 
