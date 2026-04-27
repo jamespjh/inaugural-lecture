@@ -5,33 +5,36 @@
 * We've understood what research engineering is from code examples
 * We've defined it as a discipline
 * We've considered it in relation to science and engineering and its links to both
-* We've considered methods of knowledge production appropriate to this field and concluded that academic service provision is an important part of scholarly practice.
+* We've considered methods of knowledge production and concluded that academic service provision is an important part of scholarly practice.
 * We've looked at some futures: data-driven science, security and federation, and AI-assisted engineering
 
 ## 4.2 Thanks (part one)
 
 All those who have mentored and helped me in each of my prior roles
 
-* Chris, Alan, Ben and Bryan during the PhD
-* Anne, Rob, Anthony, Peter and Ofer during the beacon project
+* Chris, Alan, Ben and Bryan for the PhD
+* Anne, Rob, Anthony, Peter and Ofer for the beacon project
 * Kris, Malcolm and Gavin at the Mathworks
 * James, Jen, Andrew and Gavin at AMEE
 * Peter, Derek, Rupert, Miguel, Dave and Owain at the CCS
+
+## 4.3 Thanks (part two)
+
 * Claire, Bruno, Owain, Jonathan, Mayeul, Jens, David, Raquel and many others from RITS
 * James, Martin, Christine, Jon, Alan, and many others at the Turing
 * Bryony and Mark at UKRI
 * Clare and various nameless folk at the Joint Biosecurity Centre
 
-## 4.3 Thanks (part two)
+## 4.4 Thanks (part three)
 
 All those who have helped me over the last five years in UCL, including but not limited to:
 
 * Donna, Jonathan, Ben, James, Jenya, Owain, Emma, Tim, Rachel, Susan and many others in ARC
-* Andy, Ben, James, Paul, Sarah, Jo, Ric, Tom, Alan, Lloyd, Sandra, Fiona, Caroline, Maysaa, Sophie and the CIO LT
+* Andy, Ben, James, Paul, Sarah, Jo, Ric, Tom, Alan, Lloyd, Sandra, Fiona, Caroline, Maysaa, Sophie
 * Geraint, Claire, Aimee, Paul (RIP), David, Steve, Danny and many more across UCL 
 * Allison, Katherine, Max, Martin, Katie, Lynn, James, Francisco, Sam and the grand challenges team
 
-## 4.4 Thanks (part three)
+## 4.4 Thanks (part four)
 
 Colleagues from across the research engineering community
 
@@ -41,11 +44,11 @@ Colleagues from across the research engineering community
 * The RSE Association and all its leaders over the years
 * Sandra, Dan, Michelle, and others across the international community
 
-## 4.5 Thanks (part four)
+## 4.5 Thanks (part five)
 
 * Sue
 * Lindsay
-* Bob, James, Clare, Lorna, Chris, Julian, Caroline, Steve, Deej, Jan, Salley, Jim, Kath, Matt, Phil, Alex, Graham, James, Dave and others for silly games and silly conversations.
+* Bob, James, Clare, Lorna, Chris, Julian, Caroline, Steve, Khadija, Jan, Salley, Jim, Katherine, Kath, Matt, Phil, Alex, Graham, James, Dave and others for silly games and silly conversations.
 
 ## 4.6 Background for the questions
 
