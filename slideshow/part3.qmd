@@ -231,10 +231,23 @@ In the limit that the timestep is small, and the floating point precision is hig
       with orbital periods squared proportional to major axis cubed
 ```
 
+```default
+def Converges (F : ℕ → ℕ → Set State) (L : Set State) : Prop :=
+  Tendsto (fun q : ℕ × ℕ => F q.1 q.2) (atTop.prod atTop) (𝓝 L)
+
+theorem kepler
+    (P : Params) (x0 : State) :
+    ∃ L : Set State,
+      Converges (solveOrbit P x0) L ∧
+      IsEllipse P L ∧
+      (period L) ^ 2 = ((4 * Real.pi ^ 2) / P.μ) * (semiMajorAxis L ^ 3) := by
+  sorry
+```
+
 {{< image-credit src="assets/stored/lean.svg"
 alt="The logo of the LEAN programming language"
 credit="Lean Focused Research Organization (FRO)"
-width-"60%"
+width="20%"
 credit-url="https://lean-lang.org" >}}
 
 ::: notes
