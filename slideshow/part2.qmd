@@ -1,6 +1,34 @@
 # Part two: Reproducibility and Reliability in Computational Science
 
-## 2.1 The Avoiding Mass Extinctions Engine
+## 2.1 - Effective
+
+:::: {.two-col}
+::: {}
+{{< image-credit 
+  src="assets/stored/effective_class.png"
+  alt="Class structure of my PhD thesis code" >}}
+:::
+::: {}
+{{< image-credit 
+  src="assets/stored/effective_results.png"
+  alt="Some results from the thesis code" >}}
+::: 
+::::
+
+::: notes
+
+My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
+
+There was a particular calculation in theoretical particle physics - which you would do as a combination of mathematical work with pen and paper and a numerical calculation.
+The end result of which determines whether some candidate theory or other - new particles and suchlike - would be detectable at the then-being-built-LHC. 
+
+I wanted to try to write something which generalised this, so you could specify the theory idea and the systematisable parts of the work - the algebra and the numerics and the interaction between them
+- was done by a computer. Even though there were lots of problems with the result - and the candidate theories never did show up at the LHC - I'm still proud of the principle. We'll come back to this in a moment.
+
+:::
+
+
+## 2.2 The Avoiding Mass Extinctions Engine
 
 :::: {.two-col}
 ::: {}
@@ -29,13 +57,14 @@ What our product does is not model the climate - we model polluters. E.g. a comp
 
 :::
 
-## 2.2 Computational science as a political football
+## 2.3 Computational science as a political football
 
 {{< image-credit
   src="assets/stored/political_football.png"
   alt="A cartoon illustrating science as a political football."
   credit="Generated with the DALL·E image model, OpenAI, accessed via ChatGPT (April 2026)"
-  credit_url="https://chatgpt.com/share/69e76f67-4a50-838c-b795-e36b987493d9" >}}
+  credit_url="https://chatgpt.com/share/69e76f67-4a50-838c-b795-e36b987493d9"
+  width="80%" >}}
 
 ::: notes
 
@@ -50,7 +79,7 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 
 :::
 
-## 2.3 The Joint Biosecurity Centre
+## 2.4 The Joint Biosecurity Centre
 
 :::: {.two-col}
 ::: {}
@@ -64,7 +93,7 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 {{< image-credit
   src="assets/generated/SIR.svg"
   alt="The SIR compartmental model of epidemiology."
-  width="100%" >}}
+  width="80%" >}}
 :::
 ::::
 
@@ -82,51 +111,30 @@ higher education sector.
 
 :::
 
-## 2.4 The reproducibility crisis
+## 2.5 Software Engineering
 
-
-:::: {.two-col}
-::: {}
-**Science is the formalisation of ways to avoid lying to ourselves**
-
-* Reproducibility is a key part of how science views itself.
-* This ideal is far from realised
-* We should be able to do well in computational science.
-:::
-::: {}
 {{< image-credit
-  src="assets/generated/lecture.svg"
-  alt="Illustration of the CI/CD workflow building this lecture" >}}
-:::
-::::
+src="assets/stored/postoffice.jpg"
+alt="Protesting sub-postmasters outside the Royal Court of Justice"
+credit="Photo by PA Media, purchased for this lecture" 
+credit_url="https://www.bbc.co.uk/news/articles/cev4mw43w13o" >}}
 
 ::: notes
 
-Given the complexity of the task of effectively using computers in research, it is no wonder we run into these challenges.
+Software systems now govern our lives, and, as a society, in practice we are *terrible* at it.
 
-We've just seen examples of where science reaches out from the task of understanding the world to become important in looking after the world, and thus the importance of computational reliability.
+However, a large body of practice, around testing, documentation, change management and so on has emerged. Applied carefully, these help make it less likely that our software systems will harm us.
 
-But problems with reliability in computationally driven science don't just undermine the correctness of our practical advice or public trust. They undermine the goal of science - to find ways to approach true understandings of the world.
+It's important for practitioners to know and follow these codes when building code that "matters". I'm a Fellow of The British Computer Society - the UK's professional
+institute for information technolgy.
 
-Science, in it's self-conception, views reproducibility - the idea that a paper should enable another scientist to run the same study and verify the conclusion - as an important part of why the so-called scientific method works.
-
-There's growing evidence that across many disciplines this ideal is far from realised.
-
-One might hope that in computational science, where a program constitutes a formal, unambiguous script which describes the model and how it was used, reproducibility would be higher. In fact there reasonable arguments that it's no better, and perhaps worse. [https://pmc.ncbi.nlm.nih.gov/articles/PMC8530091/?utm_source=chatgpt.com]
-
-If you work in computational science you'll have come across loads of these. Genes being automatically renamed by excel to months because they both have three letter codes is one popular example. I've seen - no names today to protect the guilty - published content in a nature paper that was based on numbers where two very large numbers were subtracted from each other - what we call in the trade a 'floating point underflow' - essentially random. It was not retracted.
-
-So we have learned: **we need to build our computer systems for science carefully**, to ensure our science is trustworthy.
-
-In computational science, we have developed practices to 
-enable our workflows to be fully automatically reproducible.
-
-For example, this lecture is a computer programme to generate it. If I make any changes to the exemplar simulation code or text, the simulations will all run on UCL HPC clusters, and the website you're viewing it on will automatically update. It is not a powerpoint.
+As with other areas of engineering, these include both the highly technical and things that are more like management science, and the interaction between them. For example, "agile project management"
+techniques grew up within software engineering.
 
 :::
 
 
-## 2.5 What is engineering?
+## 2.6 What is engineering?
 
 :::: {.two-col}
 ::: {}
@@ -153,28 +161,6 @@ As scientists, we are concerned with understanding the world.
 As engineers, we are concerned not just with wisely using our understanding to make changes to the world that are beneficial, but building ways of working that sustain and protect those benefits.
 
 [Illustration - earthquake]
-
-:::
-
-## 2.6 Software Engineering
-
-{{< image-credit
-src="assets/stored/postoffice.jpg"
-alt="Protesting sub-postmasters outside the Royal Court of Justice"
-credit="Photo by PA Media, accessed via the BBC" 
-credit_url="https://www.bbc.co.uk/news/articles/cev4mw43w13o" >}}
-
-::: notes
-
-Software systems now govern our lives, and, as a society, in practice we are *terrible* at it.
-
-However, a large body of practice, around testing, documentation, change management and so on has emerged. Applied carefully, these help make it less likely that our software systems will harm us.
-
-It's important for practitioners to know and follow these codes when building code that "matters". I'm a Fellow of The British Computer Society - the UK's professional
-institute for information technolgy.
-
-As with other areas of engineering, these include both the highly technical and things that are more like management science, and the interaction between them. For example, "agile project management"
-techniques grew up within software engineering.
 
 :::
 
@@ -207,41 +193,8 @@ I won't go into details in public, but as a data scientist working in the covid 
 
 :::
 
-## 2.9 The Research Software Engineer
 
-{{< image-credit
-src="assets/stored/ScholarAndCraftsman.jpg"
-alt="Black and white historical photographs of an
-academic and a smith working in a forge"
-credit="Beineke Library, used by permission, composed by the Software Sustainability Institute"
-credit_url="https://www.software.ac.uk/blog/craftsperson-and-scholar"
-width="80%" >}}
-
-::: notes
-
-Since the climate crisis events at AMEE, I began, with others to think about what kind of intervention might help the reliability and trustworthiness of computational science.
-
-We hypothesised that a professional community of engineers would be necessary for efficient, productive and trustworthy research, given the accelerating importance of computing in science. 
-
-There are now thousands of people around the world employed as part of this set of professions I helped to invent, and a formal scholarly society for research software engineering.
-
-I lead a team of a bit less than 150 at UCL, in the UCL Advanced Research Computing Centre.
-
-Probably a lot of the reason I'm standing here is the success of this idea - we'll talk more in a moment about whether that's a scientific achievement or not. 
-
-Considered thus, engineering is part of management science, and a social science. 
-
-Sometimes it helps to know some science - but what engineering adds is this layer of tools and approaches, and these are designed in the context of human behaviour and human motivations.
-
-I think this is part of what I bring to my role as co-pro-vice-provost of UCL's Grand Challenge of Data Empowered Societies. 
-
-I'm not a social scientist, but as a practicing engineering leader, I've 
-played a significant role in building the social systems that control engineering in computational research. I've been at the sharp end of these issues, and hope that that practical knowledge can help
-with the challenge of making the role of data and computers and software in society safe.
-
-:::
-
-## 2.9 Science and Engineering
+## 2.8 Science and Engineering
 
 {{< image-credit
 src="assets/generated/science_and_engineering.svg"
@@ -277,6 +230,40 @@ how best do we build a telescope? A supercollider?
 
 In the first part of the lecture, I tried to convince you that scientific simulation codes, and the computers they run on, are one such interesting engineering challenge in science. How best do we write
 trustworthy computer code to be applied as part of the scientific endeavour, and how do we design that alongside the computers it will run on? (We call this "co-design" of software and hardware.)
+
+:::
+
+## 2.9 The Research Engineer
+
+{{< image-credit
+src="assets/stored/ScholarAndCraftsman.jpg"
+alt="Black and white historical photographs of an
+academic and a smith working in a forge"
+credit="Beineke Library, used by permission, composed by the Software Sustainability Institute"
+credit_url="https://www.software.ac.uk/blog/craftsperson-and-scholar"
+width="60%" >}}
+
+::: notes
+
+Since the climate crisis events at AMEE, I began, with others to think about what kind of intervention might help the reliability and trustworthiness of computational science.
+
+We hypothesised that a professional community of engineers would be necessary for efficient, productive and trustworthy research, given the accelerating importance of computing in science. 
+
+There are now thousands of people around the world employed as part of this set of professions I helped to invent, and a formal scholarly society for research software engineering.
+
+I lead a team of a bit less than 150 at UCL, in the UCL Advanced Research Computing Centre.
+
+Probably a lot of the reason I'm standing here is the success of this idea - we'll talk more in a moment about whether that's a scientific achievement or not. 
+
+Considered thus, engineering is part of management science, and a social science. 
+
+Sometimes it helps to know some science - but what engineering adds is this layer of tools and approaches, and these are designed in the context of human behaviour and human motivations.
+
+I think this is part of what I bring to my role as co-pro-vice-provost of UCL's Grand Challenge of Data Empowered Societies. 
+
+I'm not a social scientist, but as a practicing engineering leader, I've 
+played a significant role in building the social systems that control engineering in computational research. I've been at the sharp end of these issues, and hope that that practical knowledge can help
+with the challenge of making the role of data and computers and software in society safe.
 
 :::
 
@@ -325,7 +312,9 @@ It's these additional aspects of the duties of IT when it forms part of a resear
 {{< image-credit
 src="assets/stored/epistemologies.png"
 width="80%"
-alt="A cartoon illustrating different cultures of knowledge production, from humanities to astronomy." >}}
+alt="A cartoon illustrating different cultures of knowledge production, from humanities to astronomy."
+credit="Generated with the DALL·E image model, OpenAI, accessed via ChatGPT (April 2026)"
+credit-url="https://chatgpt.com/share/69f1e5c2-27b0-8387-b2a7-aed7b0d5483d" >}}
 
 ::: notes
 
@@ -375,7 +364,52 @@ Now, many code changes can have multiple effects on different metrics - reducing
 are not self-verifying. Thus the tinkerer's epistemology - "What Works?" - is flawed when we consider these aspects.
 :::
 
-## 2.12 Service provision as an academic practice
+
+
+## 2.12 The reproducibility crisis
+
+
+:::: {.two-col}
+::: {}
+**Science is the formalisation of ways to avoid lying to ourselves**
+
+* Reproducibility is a key part of how science views itself.
+* This ideal is far from realised
+* We should be able to do well in computational science.
+:::
+::: {}
+{{< image-credit
+  src="assets/generated/lecture.svg"
+  alt="Illustration of the CI/CD workflow building this lecture" >}}
+:::
+::::
+
+::: notes
+
+Given the complexity of the task of effectively using computers in research, it is no wonder we run into these challenges.
+
+We've just seen examples of where science reaches out from the task of understanding the world to become important in looking after the world, and thus the importance of computational reliability.
+
+But problems with reliability in computationally driven science don't just undermine the correctness of our practical advice or public trust. They undermine the goal of science - to find ways to approach true understandings of the world.
+
+Science, in it's self-conception, views reproducibility - the idea that a paper should enable another scientist to run the same study and verify the conclusion - as an important part of why the so-called scientific method works.
+
+There's growing evidence that across many disciplines this ideal is far from realised.
+
+One might hope that in computational science, where a program constitutes a formal, unambiguous script which describes the model and how it was used, reproducibility would be higher. In fact there reasonable arguments that it's no better, and perhaps worse. [https://pmc.ncbi.nlm.nih.gov/articles/PMC8530091/?utm_source=chatgpt.com]
+
+If you work in computational science you'll have come across loads of these. Genes being automatically renamed by excel to months because they both have three letter codes is one popular example. I've seen - no names today to protect the guilty - published content in a nature paper that was based on numbers where two very large numbers were subtracted from each other - what we call in the trade a 'floating point underflow' - essentially random. It was not retracted.
+
+So we have learned: **we need to build our computer systems for science carefully**, to ensure our science is trustworthy.
+
+In computational science, we have developed practices to 
+enable our workflows to be fully automatically reproducible.
+
+For example, this lecture is a computer programme to generate it. If I make any changes to the exemplar simulation code or text, the simulations will all run on UCL HPC clusters, and the website you're viewing it on will automatically update. It is not a powerpoint.
+
+:::
+
+## 2.13 Service provision as an academic practice
 
 :::: {.two-col}
 ::: {}
