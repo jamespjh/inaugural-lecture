@@ -4,5 +4,5 @@ digraph stack {
     edge  [color="#a433ff", arrowsize=0.8];
     graph [layout="dot", rankdir="BT"]
 
-    "Verilog" -> "Machine Code" -> "Assembly" -> "C/C++" -> "Python" -> "...";
-}-
+     "Machine Code" -> "C/Fortran" -> "Python" -> "Numpy" -> "Scipy";
+}

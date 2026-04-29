@@ -64,7 +64,7 @@ What our product does is not model the climate - we model polluters. E.g. a comp
   alt="A cartoon illustrating science as a political football."
   credit="Generated with the DALL·E image model, OpenAI, accessed via ChatGPT (April 2026)"
   credit_url="https://chatgpt.com/share/69e76f67-4a50-838c-b795-e36b987493d9"
-  width="80%" >}}
+  width="40%" >}}
 
 ::: notes
 
@@ -93,7 +93,7 @@ By this time I'd realised that my PhD software was also very buggy and badly eng
 {{< image-credit
   src="assets/generated/SIR.svg"
   alt="The SIR compartmental model of epidemiology."
-  width="80%" >}}
+  width="70%" >}}
 :::
 ::::
 

@@ -267,13 +267,9 @@ This also really made an impression on me - the kind of understanding-with-rules
 
 ## 1.8 Simulation and Modelling
 
-{{< image-credit
-  src="assets/generated/model_spectrum.svg"
-  alt="A diagram of the model spectrum."
-  width="100%" >}}
-
 :::: {.two-col}
 ::: {}
+
 Modelling allows us to use simple rules to build human understanding of complex systems.
 
 Simulation allows us to build detailed models to predict how
@@ -285,7 +281,8 @@ the world will behave.
   src="assets/stored/coveney.jpg"
   alt="Front cover of 'Frontiers of Complexity' by Peter Coveney and Roger Highfield."
   credit="Peter Coveney and Roger Highfield"
-  credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/" >}}
+  credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/"
+  width="80%" >}}
 :::
 ::::
 
