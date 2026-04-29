@@ -126,7 +126,7 @@ The loop structure is the important thing: we repeat a small update over and ove
 dt = 0.1
 loop:
     distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
-    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+    amount_to_accelerate = gravity_strength * sun_mass / distance_to_sun^2
     x_share_of_acceleration = x / distance_to_sun
     y_share_of_acceleration = y / distance_to_sun
     vx = vx + amount_to_accelerate * x_share_of_acceleration
