@@ -113,7 +113,7 @@ def test_marker_sizes_from_masses_log_linear_mapping():
 
     marker_sizes = marker_sizes_from_masses(masses, fig_width_points)
 
-    expected_min = fig_width_points / 500.0
+    expected_min = fig_width_points / 200.0
     expected_max = fig_width_points / 50.0
 
     assert np.isclose(marker_sizes[0], expected_min)
