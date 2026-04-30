@@ -96,7 +96,7 @@ def marker_sizes_from_masses(masses, fig_width_points):
     if np.any(masses <= 0):
         raise ValueError("Masses must be strictly positive for log scaling")
 
-    width_to_min_marker_divisor = 500.0
+    width_to_min_marker_divisor = 200.0
     width_to_max_marker_divisor = 50.0
     min_marker_size = fig_width_points / width_to_min_marker_divisor
     max_marker_size = fig_width_points / width_to_max_marker_divisor
