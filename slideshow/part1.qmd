@@ -310,13 +310,13 @@ Some of you will have noticed that the gravity programme is inefficient:
 
 ``` default
     distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
-    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+    amount_to_accelerate = gravity_strength * sun_mass / distance_to_sun^2
 ```
 
 could be:
 
 ``` default
-    amount_to_accelerate = gravity_strength_constant / (x^2 + y^2)
+    amount_to_accelerate = gravity_strength * sun_mass/ (x^2 + y^2)
 ```
 
 ::: notes
