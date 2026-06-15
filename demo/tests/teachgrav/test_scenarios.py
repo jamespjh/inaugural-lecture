@@ -54,6 +54,126 @@ def test_create_scenario_single_preserves_initial_state():
     assert np.allclose(system.masses, np.array([3.0]))
 
 
+def test_solar_system_default():
+    """Default: 4 planets (0,1,4,1 moons), 1 sun, 6 total moons."""
+    system = factory.create_scenario('solar_system')
+    # 1 sun + 4 planets + (0+1+4+1) moons = 11 bodies
+    assert len(system.positions()) == 11
+    assert len(system.velocities()) == 11
+    assert len(system.masses) == 11
+    # No bodies should be immobile
+    assert not any(system.immobile)
+
+
+def test_solar_system_body_count():
+    """Explicit moons_per_planet drives total body count."""
+    system = factory.create_scenario('solar_system', moons_per_planet=[1, 2])
+    # 1 sun + 2 planets + (1+2) moons = 6 bodies
+    assert len(system.positions()) == 6
+    assert len(system.masses) == 6
+
+
+def test_solar_system_no_moons():
+    """Planets with no moons."""
+    system = factory.create_scenario(
+        'solar_system', moons_per_planet=[0, 0, 0]
+    )
+    # 1 sun + 3 planets + 0 moons = 4 bodies
+    assert len(system.positions()) == 4
+
+
+def test_solar_system_masses():
+    """Sun mass = M^2, planet mass = M, moon mass = 1."""
+    M = 50.0
+    system = factory.create_scenario('solar_system', moons_per_planet=[1], M=M)
+    masses = to_numpy_host(system.masses)
+    sun_mass, planet_mass, moon_mass = masses[0], masses[1], masses[2]
+    assert np.isclose(sun_mass, M ** 2)
+    assert np.isclose(planet_mass, M)
+    assert np.isclose(moon_mass, 1.0)
+
+
+def test_solar_system_planet_radii():
+    """Planets are spaced by ratio k: planet i is at radius k**i from sun."""
+    k = 1.5
+    system = factory.create_scenario(
+        'solar_system', moons_per_planet=[0, 0, 0], k=k
+    )
+    positions = to_numpy_host(system.positions())
+    # Sun at index 0, planets at indices 1, 2, 3
+    for i in range(3):
+        planet_x = positions[1 + i][0]
+        expected_r = k ** i
+        assert np.isclose(planet_x, expected_r), (
+            f"Planet {i}: expected x={expected_r}, got x={planet_x}"
+        )
+
+
+def test_solar_system_orbital_velocities():
+    """Planets have circular-orbit speed around the sun (G=1)."""
+    M = 100.0
+    k = 1.5
+    system = factory.create_scenario(
+        'solar_system', moons_per_planet=[0, 0], M=M, k=k
+    )
+    velocities = to_numpy_host(system.velocities())
+    sun_mass = M ** 2
+    for i in range(2):
+        r_planet = k ** i
+        expected_v = np.sqrt(sun_mass / r_planet)
+        planet_vy = velocities[1 + i][1]
+        assert np.isclose(planet_vy, expected_v), (
+            f"Planet {i}: expected vy={expected_v}, got vy={planet_vy}"
+        )
+
+
+def test_solar_system_moon_velocities():
+    """Moon orbital speed is added to the parent planet's speed."""
+    M = 100.0
+    k = 1.2
+    h = 0.1
+    system = factory.create_scenario(
+        'solar_system', moons_per_planet=[1], M=M, k=k, h=h
+    )
+    velocities = to_numpy_host(system.velocities())
+    sun_mass = M ** 2
+    planet_mass = M
+    r_planet = k ** 0  # = 1.0
+    v_planet = np.sqrt(sun_mass / r_planet)
+    r_moon = h * (k ** 0)  # = h
+    v_moon_orbital = np.sqrt(planet_mass / r_moon)
+    expected_moon_vy = v_planet + v_moon_orbital
+    # Indices: 0=sun, 1=planet, 2=moon
+    moon_vy = velocities[2][1]
+    assert np.isclose(moon_vy, expected_moon_vy)
+
+
+def test_solar_system_invalid_M():
+    """M <= 1 should raise ValueError."""
+    with pytest.raises(ValueError, match="M must be > 1"):
+        factory.create_scenario('solar_system', M=1.0)
+
+
+def test_solar_system_invalid_k():
+    """k <= 1 should raise ValueError."""
+    with pytest.raises(ValueError, match="k must be > 1"):
+        factory.create_scenario('solar_system', k=0.5)
+
+
+def test_solar_system_invalid_h():
+    """h <= 0 should raise ValueError."""
+    with pytest.raises(ValueError, match="h must be > 0"):
+        factory.create_scenario('solar_system', h=0.0)
+
+
+def test_solar_system_negative_moon_count():
+    """Negative moon counts should raise ValueError."""
+    with pytest.raises(ValueError, match="non-negative"):
+        factory.create_scenario(
+            'solar_system', moons_per_planet=[1, -1]
+        )
+
+
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_same_seed_produces_same_scatter(engine):
     """Same seed should produce identical scatter scenarios across engines."""

@@ -86,6 +86,25 @@ def test_n_bodies_non_scatter_raises(scenario):
         parse_args(f'--scenario {scenario} --n-bodies 5')
 
 
+def test_moons_per_planet_solar_system():
+    args = parse_args('--scenario solar_system --moons-per-planet 0 1 4 1')
+    assert args.moons_per_planet == [0, 1, 4, 1]
+
+
+def test_moons_per_planet_default_is_none():
+    args = parse_args('--scenario solar_system')
+    assert args.moons_per_planet is None
+
+
+@pytest.mark.parametrize('scenario', ['moon', 'sun', 'scatter', 'single'])
+def test_moons_per_planet_non_solar_system_raises(scenario):
+    with pytest.raises(
+            ValueError,
+            match="Option --moons-per-planet can only be used with the "
+                  "solar_system scenario"):
+        parse_args(f'--scenario {scenario} --moons-per-planet 1 2')
+
+
 def test_parse_args_seed_option():
     args = parse_args('--seed 42')
     assert args.seed == 42
@@ -123,6 +142,7 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
         format = 'csv'
         train = False
         n_bodies = None
+        moons_per_planet = None
         seed = None
         engine_consistent_seed = True
 
@@ -158,6 +178,7 @@ def test_benchmark_mode_runs_single_law_step_not_full_solve(monkeypatch):
         format = 'csv'
         train = False
         n_bodies = None
+        moons_per_planet = None
         seed = None
         engine_consistent_seed = True
 
@@ -229,6 +250,7 @@ def test_benchmark_solve_calls_solve_not_law(monkeypatch):
         format = 'csv'
         train = False
         n_bodies = None
+        moons_per_planet = None
         seed = None
         engine_consistent_seed = True
         dt = 0.01
@@ -272,6 +294,7 @@ def test_benchmark_solve_respects_until(monkeypatch):
         format = 'csv'
         train = False
         n_bodies = None
+        moons_per_planet = None
         seed = None
         engine_consistent_seed = True
         dt = 0.01

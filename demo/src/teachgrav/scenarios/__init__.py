@@ -21,7 +21,7 @@ STOCHASTIC_SCENARIOS = ['scatter']
 
 # Known scenario names – used for validation error messages and argument
 # parser choices.  Update this list when adding a new scenario module.
-KNOWN_SCENARIOS = ['moon', 'sun', 'scatter', 'single', 'boids']
+KNOWN_SCENARIOS = ['moon', 'sun', 'scatter', 'single', 'boids', 'solar_system']
 
 
 def _load_scenario_class(name: str):
