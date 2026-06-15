@@ -97,6 +97,8 @@ def execute_scenario(args):
     scenario_kwargs = {}
     if args.n_bodies is not None:
         scenario_kwargs['n_bodies'] = args.n_bodies
+    if args.moons_per_planet is not None:
+        scenario_kwargs['moons_per_planet'] = args.moons_per_planet
 
     if args.benchmark or args.benchmark_solve:
         benchmark_scenario(args)
@@ -190,6 +192,12 @@ def _validate_args(args):
             f"not '{args.scenario}'.")
     if args.n_bodies is not None and args.n_bodies < 1:
         raise ValueError("Option --n-bodies must be at least 1.")
+
+    # Enforce --moons-per-planet is only used with solar_system scenario
+    if args.moons_per_planet is not None and args.scenario != 'solar_system':
+        raise ValueError(
+            f"Option --moons-per-planet can only be used with the "
+            f"solar_system scenario, not '{args.scenario}'.")
 
 
 def benchmark_scenario(args):
@@ -307,6 +315,13 @@ def parse_args(force_args=None):
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
+    parser.add_argument('--moons-per-planet', dest='moons_per_planet',
+                        type=int, nargs='+', default=None,
+                        metavar='N',
+                        help='Moon counts per planet for the solar_system '
+                             'scenario. The number of values given also '
+                             'determines the number of planets '
+                             '(e.g. --moons-per-planet 0 1 4 1).')
     # Add CUPY, Torch and MLX later.
     parser.add_argument(
         '--engine',
