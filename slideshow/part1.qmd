@@ -9,8 +9,8 @@ In the third, I look at some possible futures for this field in the context of t
 
 :::
 
-## 1.1 Pseudocode and the path to scientific understanding
-## 1.1.1 A young person's guide to programming gravity
+
+## 1.1 A young person's guide to programming gravity
 
 :::: {.two-col}
 ::: {}
@@ -34,7 +34,7 @@ on my new-ish home computer, and I feel like there's bits of it I haven't unders
 
 :::
 
-## 1.1.2 - The rules of gravity
+## 1.2 - The rules of gravity
 
 - Change your velocity toward anything heavy:
   - The heavier it is → the more you accelerate
@@ -77,7 +77,7 @@ Suppose there's no gravity, and we have some speed, and the current speed is vx 
 
 :::
 
-## 1.1.3 An introduction to pseudocode
+## 1.3 An introduction to pseudocode
 
 :::: {.two-col}
 ::: {}
@@ -98,7 +98,7 @@ It is **pseudocode**: code-like text designed to pull out the key idea.
 :::
 ::: {}
 {{< video-credit
-  src="assets/constant_euler.mp4"
+  src="assets/generated/constant_euler.mp4"
   alt="Single-particle straight-line motion with constant velocity" >}}
 :::
 ::::
@@ -115,7 +115,7 @@ If we show this animation, we get a dot, moving in a straight line! [Demo]
 
 :::
 
-## 1.1.4 Adding gravity
+## 1.4 Adding gravity
 
 :::: {.two-col}
 ::: {}
@@ -126,7 +126,7 @@ The loop structure is the important thing: we repeat a small update over and ove
 dt = 0.1
 loop:
     distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
-    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+    amount_to_accelerate = gravity_strength * sun_mass / distance_to_sun^2
     x_share_of_acceleration = x / distance_to_sun
     y_share_of_acceleration = y / distance_to_sun
     vx = vx + amount_to_accelerate * x_share_of_acceleration
@@ -139,7 +139,7 @@ end of loop
 ::: {}
 
 {{< video-credit
-  src="assets/sun_euler.mp4"
+  src="assets/generated/sun_euler.mp4"
   alt="Sun orbit simulation with Euler integration" >}}
 
 :::
@@ -172,9 +172,8 @@ We type this in, and watch the video, and it looks like it's working! [Demo]
 
 :::
 
-## 1.1.5 Pseudocode as an intuition builder
+## 1.5 Pseudocode as an intuition builder
 
-- Code helps us build our understanding of the science
 - If I can't code it, I didn't really understand it.
 
 Most of that benefit is in pseudocode, not real code.
@@ -208,17 +207,17 @@ This will be important.
 
 :::
 
-## 1.1.6 Simple isn't always correct
+## 1.6 Simple isn't always correct
 
 :::: {.two-col}
 ::: {}
 {{< video-credit
-  src="assets/sun_euler_trail.mp4"
+  src="assets/generated/sun_euler_trail.mp4"
   alt="Sun orbit with Euler integration: trail shows non-closing, drifting path" >}}
 :::
 ::: {}
 {{< video-credit
-  src="assets/sun_rk45_trail.mp4"
+  src="assets/generated/sun_rk45_trail.mp4"
   alt="Sun orbit with RK45 integration: trail shows closed, stable orbit" >}}
 :::
 ::::
@@ -233,7 +232,7 @@ So this is another aspect of our lesson about what we learn by programming in sc
 
 :::
 
-## 1.1.7 - Birds and sheep are particles too
+## 1.7 - Birds and sheep are particles too
 
 :::: {.two-col}
 ::: {}
@@ -245,7 +244,7 @@ The rules for the Boids:
 :::
 ::: {}
 {{< video-credit
-  src="assets/boids_euler.mp4"
+  src="assets/generated/boids_euler.mp4"
   alt="Craig Reynolds's Boids simulation" >}}
 :::
 ::::
@@ -266,47 +265,58 @@ This also really made an impression on me - the kind of understanding-with-rules
 
 :::
 
-## 1.1.8 - Effective
+## 1.8 Simulation and Modelling
 
 :::: {.two-col}
 ::: {}
-{{< image-credit 
-  src="assets/effective_class.png"
-  alt="Class structure of my PhD thesis code" >}}
+
+Modelling allows us to use simple rules to build human understanding of complex systems.
+
+Simulation allows us to build detailed models to predict how
+the world will behave.
+
 :::
 ::: {}
-{{< image-credit 
-  src="assets/effective_results.png"
-  alt="Some results from the thesis code" >}}
-::: 
+{{< image-credit
+  src="assets/stored/coveney.jpg"
+  alt="Front cover of 'Frontiers of Complexity' by Peter Coveney and Roger Highfield."
+  credit="Peter Coveney and Roger Highfield"
+  credit-url ="https://www.amazon.co.uk/Frontiers-Complexity-Search-Order-Choatic/dp/0449910814/"
+  width="80%" >}}
+:::
 ::::
 
 ::: notes
 
-My PhD work - under Professor Bryan Webber, who is here today - illustrated this instinct that "I don't understand something properly unless I can automate it as a computer programme". 
+When we describe the rules of a system and work out the consequences with a computer, we might be doing "the software is expected to precisely describe the real world, to the point where we could use it to build and
+manage an aircraft" - a simulation or 'digital twin' - to "the software is expected to display some interesting characteristics of the real world" - a model. This is not an either-or - there's a spectrum of options in between.
 
-There was a particular calculation in theoretical particle physics - which you would do as a combination of mathematical work with pen and paper and a numerical calculation.
-The end result of which determines whether some candidate theory or other - new particles and suchlike - would be detectable at the then-being-built-LHC. 
+The more toward the simulation end of things we are, the more the objective is to be able to use it as a tool, but also, the way in which we verify our science is by comparison with experiment.
 
-I wanted to try to write something which generalised this, so you could specify the theory idea and the systematisable parts of the work - the algebra and the numerics and the interaction between them
-- was done by a computer. Even though there were lots of problems with the result - and the candidate theories never did show up at the LHC - I'm still proud of the principle. We'll come back to this in a moment.
+The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations.
+
+The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
+understand the resulting behaviour by exploring the modelling process and observing the results of the model - is an important part of the background that got me into this. Ecological systems modelling leading
+to nice chaotic fractals. 
+
+It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
+I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
 
 :::
 
-## 1.2 Speed - readability tradeoffs
-## 1.2.1 Avoiding an unnecessary square root
+## 1.9 Speed - readability tradeoffs
 
 Some of you will have noticed that the gravity programme is inefficient:
 
 ``` default
     distance_to_sun = square_root (x^2 + y^2) -- Pythagoras!
-    amount_to_accelerate = gravity_strength_constant * sun_mass / distance_to_sun^2
+    amount_to_accelerate = gravity_strength * sun_mass / distance_to_sun^2
 ```
 
 could be:
 
 ``` default
-    amount_to_accelerate = gravity_strength_constant / (x^2 + y^2)
+    amount_to_accelerate = gravity_strength * sun_mass/ (x^2 + y^2)
 ```
 
 ::: notes
@@ -318,7 +328,7 @@ Well, what if we want to change the programme, or give it to someone else to mak
 
 :::
 
-## 1.2.2 Performance and complexity
+## 1.10 Performance and complexity
 
 :::: {.two-col}
 ::: {}
@@ -328,7 +338,7 @@ Well, what if we want to change the programme, or give it to someone else to mak
 :::
 ::: {}
 {{< image-credit
-  src="assets/benchmark_engines.png"
+  src="assets/generated/benchmark_engines.png"
   alt="Log-log plot of gravity law evaluation time vs number of bodies for numpy and jax-cpu engines." >}}
 :::
 ::::
@@ -343,77 +353,21 @@ We can get a big speed-up from using more sophisticated tools, but there's LOTS 
 
 :::
 
-## 1.2.3 A nice example
 
-{{< image-credit 
-src="assets/nice.png"
-alt="A four-body simulation." >}}
-
-## 1.2.4 Sharing the load
-
-:::: {.two-col}
-::: {}
-We could take this further, and use multiple computers. We might do:
-
-``` default
-On each computer:
-   Loop:
-      Do-the-gravity-thing
-        Take into account the stars on the other computers, 
-        but 'smudged up' rather than one by one.
-      For any particles getting to the edge of "my bit":
-        Pass them to the computer responsible 
-        for the part of the world it's going to.
-      Receive from the other computers:
-        Any particles getting to me I need to take care of
-        And the information about the 'smudged up' mass
-```
-:::
-::: {}
-{{< image-credit
-  src="https://upload.wikimedia.org/wikipedia/commons/d/db/NGC4676.jpg"
-  alt="Colliding galaxies NGC 4676, the 'Mice'."
-  credit="By NASA, H. Ford (JHU), G. Illingworth (UCSC/LO), M.Clampin (STScI), G. Hartig (STScI), the ACS Science Team, and ESA - APOD 2004-06-12, Public Domain."
-  credit-url="https://commons.wikimedia.org/w/index.php?curid=539276" >}}
-:::
-::::
-
-
-
-
-::: notes
-
-Suppose we need to simulate lots of gravitating things - maybe a galaxy or something -
-and we have to use lots of computers together to solve it.
-
-I've not implemented this 'distributed memory parallelism' / message passing version of the gravity code for this demo lecture. 
-
-(In doing this, there's some nice maths about how to do the 'smudging up' about why it's safe, but we're focusing on the computing here.)
-
-We can get a big speed-up from using a supercomputer, but there's LOTS AND LOTS of new complexity. Do our networks work for passing all that information around? How do we do the book keeping of who takes charge of which particle? How do we divide up space between the computers? Does everyone need to talk to everyone? Or can I get away with only talking to my neighbours? Otherwise once I have enough computers, the programme will spend *all it's effort in conversations and no time actually doing gravity maths*. 
-
-This will always happen - anything that doesn't go down as fast as the bit you can properly "parallelise" - i.e. spread across N computers so each takes one Nth of the time - will end up taking all the time! This is called Amdahl's law.
-
-:::
-
-## 1.2.5 Warehouse scale computers as toys and tools
+## 1.11 Warehouse scale computers as toys and tools
 
 :::: {.two-col}
 ::: {}
 {{< image-credit
-  src="assets/ncr-announce.png"
+  src="assets/stored/NCR-announce.png"
   alt="UCL announces award of National Compute Resource grant" >}}
 :::
 ::: {}
 {{< image-credit
-  src="assets/michael.png"
+  src="assets/stored/michael.png"
   alt="UCL's existing national service, Michael." >}}
 :::
 ::::
-
-
-
-
 
 ::: notes
 
@@ -425,9 +379,22 @@ In order to get to this point of working with computers-that-share-the-work, the
 
 :::
 
-## 1.2.6 The abstraction stack
+## 1.12 The abstraction stack
 
+:::: {.two-col}
+::: {}
+By working with programs that use other programs that use other programs, we are much more capable.
 
+But the systems become much more complex.
+
+And hard to understand.
+:::
+::: {}
+{{< image-credit
+  src="assets/generated/stack.svg"
+  alt="A diagram of the abstraction stack in scientific computing." >}}
+:::
+::::
 
 ::: notes
 
@@ -447,40 +414,10 @@ This is our second deep lesson: **because in science we use computers to underst
 
 :::
 
-## 1.3 The Third Paradigm
-## 1.3.2 Simulation and Modelling
-::: notes
+## 1.13 Part one - recap
 
-When we describe the rules of a system and work out the consequences with a computer, we might be doing "the software is expected to precisely describe the real world, to the point where we could use it to build and
-manage an aircraft" - a simulation or 'digital twin' - to "the software is expected to display some interesting characteristics of the real world" - a model. This is not an either-or - there's a spectrum of options in between.
-
-The more toward the simulation end of things we are, the more the objective is to be able to use it as a tool, but also, the way in which we verify our science is by comparison with experiment.
-
-The more toward the model end of things, the more the learning comes from the process of modelling itself.  This helps build our intuition as to how the system works - not simulations - the "intuition pump" again.
-
-:::
-
-## 1.3.1 Complexity Science
-::: notes
-
-The approach we've been talking about - to describe a system by a set of simple rules - short of the laws of physics or an approximation to more complicated behaviour like flocking sheep - and then
-understand the resulting behaviour by exploring the modelling process and observing the results of the model - is an important part of the background that got me into this. Ecological systems modelling leading
-to nice chaotic fractals. 
-
-<illustration>
-
-It's a big part of why I'm into using maths and computers and software to study things outside physics. My Dad bought a copy of a book called 'frontiers of complexity' just as 
-I was heading off to uni - I would later have the author of that book as a postdoc supervisor, using computer simulations to model blood flow in the brain. [Wave to Peter.]
-
-:::
-
-## 1.3.2 Software as a research tool and the third paradigm.
-::: notes
-
-These approaches to science and scholarship - using computer modelling and simulation as a research tool - are called the "third paradigm".
-
-In this model, the first paradigm is experiment, the second is mathematical analysis, and the third is modelling and simulation.
-
-We'll hear about the fourth and fifth later in the lecture.
-
-:::
+* Code for understanding, as well as to drive the computer
+* Can code for sheep as well as physics
+* Models and simulations
+* Performance matters for scientific programming
+* So abstractions leak

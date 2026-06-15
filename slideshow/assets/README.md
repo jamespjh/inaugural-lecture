@@ -1,22 +1,17 @@
-# Graphviz Diagrams
+# Assets Directory Structure
 
-This directory contains Graphviz DOT files and a script to render them to SVG format.
+This directory contains assets organized into three categories:
 
-## Files
+## Sources
+- `sources/teachgrav/scenarios.yml` - Source configuration for teaching scenarios
+- `sources/graphviz/` - Source Graphviz DOT files
+- `sources/prompts/` - Source prompt files
 
-- `example1.dot` - Network diagram using neato layout engine
-- `example2.dot` - Hierarchical diagram using dot layout engine
-- `render_diagrams.sh` - Shell script to convert all .dot files to SVG
+## Generated
+- Automatically generated files (SVGs, videos, etc.)
 
-## Usage
-
-To render all diagrams:
-```bash
-chmod +x render_diagrams.sh
-./render_diagrams.sh
-```
-
-This will generate SVG files for each DOT file in the directory.
+## Stored
+- Permanently stored static files (images, etc.)
 
 ## DOT File Features
 

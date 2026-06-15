@@ -42,8 +42,8 @@ jobs:
       - name: Generate slide assets
         run: |
           source demo/venv/bin/activate
-          cd slideshow/assets
-          generate-figures scenarios.yml
+          cd slideshow/assets/generated
+          generate-figures ../sources/teachgrav/scenarios.yml
       
       - name: Render DOT diagrams
         run: |

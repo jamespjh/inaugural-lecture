@@ -89,11 +89,11 @@ AI-Reviewed-By: jamespjh
 
 ## Committing plans
 
-When implementing a plan, add the plan to folder /plans in the repo as a markdown file, copyiing the content from plan.md. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the plans that were implemented. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`.
+When implementing a plan, add the plan to folder audit/plans in the repo as a markdown file, copyiing the content from plan.md. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the plans that were implemented. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`.
 
 ## Prompt summaries
 
-When making a commit, also add a longer summary of our conversation that led to the commit, in the folder /prompts in the repo. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the prompts that were used to generate code changes. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`. Also include a summary of key decisions and elements of your reasoning.
+When making a commit, also add a longer summary of our conversation that led to the commit, in the folder audit/prompts in the repo. Name the file for the data and time when implemented, for example `2024-06-20-15-30.md`. This will allow us to keep a record of the prompts that were used to generate code changes. Use an additional B/C/D etc to resolve any conflicts in the timestamp, for example `2024-06-20-15-30-B.md`. Also include a summary of key decisions and elements of your reasoning.
 
 ## Working to close an issue
 
@@ -102,9 +102,9 @@ When working to close an issue:
 - work in a branch in the main repo, not a fork
 - make commits with the above structure, and push them to the branch
 - open a PR from the branch to main, referencing the issue in the PR description
-- always write a plan first, and commit the plan to the /plans folder with the above structure, before writing any code
+- always write a plan first, and commit the plan to the audit/plans folder with the above structure, before writing any code
 - also add the plan as a comment to the issue
 - when commenting to issues, when logged in as jamespjh, always include AI-Tool and AI-Model metadata in the comment.
-- In the /prompts folder, as above, keep a record of the prompts used to generate the code, and a summary of key decisions and elements of your reasoning.
+- In the audit/prompts folder, as above, keep a record of the prompts used to generate the code, and a summary of key decisions and elements of your reasoning.
 - do not write code before writing a plan
 - wait for CI to pass and for jamespjh to review and merge the PR

@@ -1,0 +1,10 @@
+---
+- scenario: scatter
+  method: RK45
+  duration: 15
+  until: 1.5
+  engine-consistent-seed: true
+  seed: [0, 1, 2]
+  visualise: trail
+  engine: numpy
+  outfile: scatter_{seed}.mp4

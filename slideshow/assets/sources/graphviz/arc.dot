@@ -1,0 +1,17 @@
+digraph{    
+    graph [bgcolor="#3c1657", layout = "neato", overlap = "false"];
+    node  [shape="box", style="filled", fillcolor="#f5f5f5", fontcolor="#a433ff"];
+    edge  [color="#a433ff", arrowsize=0.8];
+
+    "Compute and Data Platforms" -> "Digital research consulting" -> "R&D in digital research methods" 
+    "R&D in digital research methods" -> "Digital research consulting" -> "Compute and Data Platforms"
+    "R&D in digital research methods" -> "Compute and Data Platforms"
+    "Compute and Data Platforms" -> "R&D in digital research methods"
+    "Digital Research Education" -> "R&D in digital research methods"
+    "Digital Research Education" -> "Compute and Data Platforms"
+    "Digital Research Education" -> "Digital research consulting"
+    "R&D in digital research methods" -> "Digital Research Education"
+    "Compute and Data Platforms" -> "Digital Research Education"
+    "Digital research consulting" -> "Digital Research Education"
+
+}

@@ -12,8 +12,8 @@
 }
 
 .reveal {
-  --r-main-color: var(--ucl-light-purple);
-  --r-heading-color: var(--ucl-white);
+  --r-main-color: var(--ucl-white);
+  --r-heading-color: var(--ucl-light-purple);
   --r-link-color: var(--ucl-light-purple);
   --r-link-color-hover: var(--ucl-white);
 }
@@ -27,7 +27,7 @@
    Override that URI directly so the icon uses UCL light purple. */
 .reveal .slide-menu-button .fas::before,
 .reveal .slide-menu-button .fa::before {
-  background-image: url("assets/menu-icon-purple.svg") !important;
+  background-image: url("assets/generated/menu-icon-purple.svg") !important;
 }
 
 /* Tighten pseudocode blocks so ~80 cols fit in one content column on slides. */
@@ -64,7 +64,7 @@
   bottom: 12px;
   width: 184px;
   height: 60px;
-  background-image: url("assets/ucl-logo.png");
+  background-image: url("assets/stored/ucl-logo.png");
   background-repeat: no-repeat;
   background-size: contain;
   background-position: right bottom;
@@ -109,7 +109,7 @@
 .reveal .image-credit {
   display: block;
   margin-top: 0.35em;
-  font-size: 0.62em;
+  font-size: 0.4em;
   line-height: 1.2;
   color: var(--ucl-white);
   opacity: 0.88;

@@ -1,6 +1,12 @@
 # Part three: Some futures
-## 3.1 The fourth paradigm. 
-## 3.1.1 Why Data?
+
+## 3.1 Physics-free gravity 
+
+{{< video-credit
+  src="assets/generated/power_law_convergence.mp4"
+  alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
+  width="100%" >}}
+
 ::: notes
 
 My tagline - data and computers and code and people - centres data. But we've not really talked about data yet. I want now to turn to the recent past and the future of engineering computational science.
@@ -8,17 +14,6 @@ My tagline - data and computers and code and people - centres data. But we've no
 The biggest change during my career - only hinted at when I first started the research software group at UCL in 2012 - has been the emergence of the "big data" approach to computational science.
 
 It's time to turn to a demonstration again, to explain what this is about.
-
-:::
-
-## 3.1.2 Physics-free gravity 
-
-{{< video-credit
-  src="assets/power_law_convergence.mp4"
-  alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
-  width="60%" >}}
-
-::: notes
 
 Let's take our gravity code, and run it lots and lots of times - we're pretending to build up a big dataset of observations, which might have been measured by Tycho Brahe with a telescope.
 
@@ -28,11 +23,20 @@ and **get a computer to find the values of the unknown numbers in that model tha
 This used to be just not practical. It turns out that with a particular configuration of computer hardware that was invented for doing graphics - graphics processing units or GPUs - this became managable
 from around the mid-2010s. These days we can do it fairly quickly.
 
-<demo>
-
 :::
 
-## 3.1.3 The triumph of stamp collecting.
+## 3.2 The triumph of stamp collecting.
+
+{{< image-credit
+src="assets/stored/stamp.jpg"
+alt="A magnifying glass inspecting a stamp collection" 
+credit="Wikimedia commons, Heptagon, CC-SA"
+width="80%"
+credit-url="https://commons.wikimedia.org/wiki/File:Magnifying_glass2.jpg"
+>}}
+
+"All science is either physics or stamp collecting" - attributed to Ernest Rutherford, perhaps apocryphal.
+
 ::: notes
 
 This is really interesting. 
@@ -45,9 +49,7 @@ It gets called the fourth paradigm.
 
 It turns out that disciplines that do a really good job of managing and organising and labelling their data - data librarianship - have a real advantage in exploiting it. We often hear that google deep mind
 solved the protein folding problem with alpha fold. And it's certainly not the case that getting the curve-fitting to work was easy. But in my view, the real credit goes to the people who did the
-data stewardship that made it possible - that curated millions <check number> of protein shapes and sequences over years.
-
-<illustration>
+data stewardship that made it possible - that curated millions of protein shapes and sequences over years.
 
 This field - designing storage formats for scientific data, working out what data to keep, what to throw away, etc, is called research data stewardship. The data about the data is called "metadata".
 It's grown in importance throughout my career.
@@ -55,9 +57,23 @@ It's grown in importance throughout my career.
 Some of the engineering challenges faced by data stewards can be quite fun - such as losing data during a pandemic at a critical moment due to a hard limit
 on the number of lines in an out of date version of Excel being used in the NHS. Hint - excel is not a sensible scientific file format for good data stewardship.
 
+This approach has been hugely powerful in science-for-engineering : if we build models that accurately predict how the universe will behave, that's very useful for things like - in the case of protein folding - making drugs.
+
+But somehow, for me, it misses part of the point of science: we didn't get into this to help do useful things. We got into it to understand the world, and helping do useful things is a really great side effect.
+
+It's also sometimes the case that not using understanding-of-the-world makes these models a bit fragile. When colleagues built an epidemiology-free data model of covid, it worked really well until the virus evolved a new variant.
+
+There's a lot to be investigated here - with my PhD student Lewis O'Donnell we're exploring how much physics - perhaps zero - we need to put into a model of fusion reactors to reliably help colleagues at the atomic energy authority.
+
 :::
 
-## 3.1.3 Open science
+## 3.3 FAIR and Open science
+
+* Findable
+* Accessible
+* Interoperable
+* Reusable
+
 ::: notes
 
 One significant part of the cultural change that is being driven by the adoption of this research approach is the growing distance from data collection to data exploitation. This is another aspect of the growth
@@ -65,9 +81,6 @@ of instrument science - automation in data gathering - but also in research IT i
 challenges systems of scientific credit and the metrics that are used to measure researcher value.
 
 This idea - open reuse of data - and the code that helps us analyse it - is referenced as open science. It has many benefits, as well as challenges and cultural risks.
-In the context of an insecure world, where research can be used for harm as well as help, there are security risks too - as my old supervisor Professor Finkelstein who will give the vote of thanks has explored.
-
-(With my PhD student Mahmoud Abdelrazek we're about to start a new project exploring the risks of bad actors poisoning our digital twins.)
 
 We now talk about FAIR data:
 
@@ -80,20 +93,50 @@ as a better and more careful response to the needs of the fourth paradigm. This 
 
 :::
 
-## 3.1.4 Interpretability
+
+
+
+## 3.4 Five Safes
+
+* Safe Data
+* Safe People
+* Safe Projects
+* Safe Settings
+* Safe Outputs
+
+
 ::: notes
 
-This approach has been hugely powerful in science-for-engineering : if we build models that accurately predict how the universe will behave, that's very useful for things like - in the case of protein folding - making drugs.
+In the context of an insecure world, where research can be used for harm as well as help, there are security risks too - as my old supervisor Professor Finkelstein who will give the vote of thanks has explored.
 
-But somehow, for me, it misses part of the point of science: we didn't get into this to help do useful things. We got into it to understand the world, and helping do useful things is a really great side effect.
-
-It's also sometimes the case that not using understanding-of-the-world makes these models a bit fragile. When colleagues built an epidemiology-free data model of covid, it worked really well until the virus evolved a new variant.
-
-There's a lot to be investigated here - with my PhD student Lewis O'Donnell we're exploring how much physics - perhaps zero - we need to put into a model of fusion reactors to reliably help colleagues at the atomic energy authority.
+(With my PhD student Mahmoud Abdelrazek we're about to start a new project exploring the risks of bad actors poisoning our digital twins.)
 
 :::
 
-## 3.1.5 VIABS and the Beacon Project
+
+## 3.5 Models as data
+
+:::: {.two-col}
+::: {}
+{{< image-credit
+src="assets/stored/Viabs.png"
+alt="An entity relationship diagram for computational models of systems biology."
+credit="Finkelstein, Hetherington, Li, Margoninsky, Saffrey, Seymour and Warner, IEEE Computer"
+credit-url="https://discovery.ucl.ac.uk/id/eprint/13292/1/13292.pdf"
+>}}
+:::
+::: {}
+{{< image-credit
+src="assets/stored/simulink.png"
+alt="A simulink model."
+credit="The Mathworks, Inc."
+credit-url="https://ctms.engin.umich.edu/CTMS/?example=Introduction&section=SimulinkControl"
+>}}
+:::
+::::
+
+
+
 ::: notes
 
 I first started working in formal data management as part of my first postdoc. This was my first foray outside physics - looking at using maths and computers and data to understand diabetes. I was lucky enough
@@ -104,11 +147,6 @@ Anne and Rob are sadly no longer with us, but I do want to acknowledge strongly 
 set out today began because of the influence of that boundary-breaking UCL team.
 
 Now, what was the data that we were building management tools - ontologies - for? This is where things get interesting, because the datasets in question weren't just numbers, but models!
-
-:::
-
-## 3.1.6 Models as data
-::: notes
 
 A computer program:
 
@@ -134,8 +172,15 @@ We can apply the fourth paradigm to the language - whether computer language or 
 
 :::
 
-## 3.2 The fifth paradigm
-## 3.2.1 Large language models
+## 3.6 Living with Machines
+
+{{< image-credit
+src="assets/stored/LWM.png"
+alt="18th Century factory workers with a large engine"
+credit="Living With Machines project, Alan Turing Institute and British Library"
+credit-url="https://livingwithmachines.ac.uk/"
+ >}}
+
 ::: notes
 
 I've always loved linguistics. As a kid I borrowed one by one every "teach yourself language" book in Kendal library, not to learn the languages, but to read about how all the different grammars work.
@@ -148,15 +193,19 @@ giving each other antibiotic resistant disease moving around the hospital, langu
 At the Turing Institute, I was able to work with a brilliant interdisciplinary team of historians and social scientists to study industrial accidents in the industrial revolution, 
 using all the British Library's books and newspapers from the 19th century - all of them! History at scale. 
 
-<illustration>
-
 This is one of the things that taught me the importance of epistemic pluralism. Bringing new areas into computational research, and then working out how to engage carefully, 
 respectful of varied epistemic cultures, across disciplines, is really interesting and requires a humble approach. There's too much 'takeover' from tech in much of digital humanities
 and colleagues and I have tried to take a different path.
 
 :::
 
-## 3.2.2 Research software engineering and LLM coding
+## 3.7 Research software engineering and LLM coding
+
+{{< video-credit
+  src="assets/stored/AI_coder.mp4"
+  alt="Qwen-coder open source AI model running on UCL cluster and building a gravity simulator."
+  width="100%" >}}
+
 ::: notes
 
 Now, you'll all by now have heard about LLMs and software engineering, and all the programmers losing their jobs, and thinking that all of this sounds completely moot - we had a good run with the research software
@@ -164,19 +213,48 @@ engineers, but now we're all about to get replaced by AIs.
 
 The truth is much more interesting, and is going to be, I think, an area where getting it right, will be a fascinating research area for the rest of my career, and one where the service-provider epistemology is key.
 
-I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - the fifth paradigm - while tracking reproducibility and the need for F.A.I.R. approaches carefully. With my PhD student Idil Ozdemir <verify she accepts> we're going to be looking at how we
-might be able to know LLM-generated scientific software is reliable.
-
-:::
-
-## 3.2.3 Models-as-diagrams and the Mathworks
-::: notes
+I'm going to be working out the future role for research technology professionals in interdisciplinary scientific teams - using LLMs for science carefully, maximising the degree of AI automation in the discovery process - while tracking reproducibility and the need for F.A.I.R. approaches carefully.
 
 There's going to be lots to explore in how we do this well, fairly and in a way that builds trustworthy scientific cultures. But there's one thought I want to leave us with.
 
 It's always been part of the goal of computer science to minimise the distance between our careful description of the algorithm and the computer representation. Code like our python examples is translated into machine code by a compiler. No one (actually, some do) bewails the fact that we no longer toggle our computer programmes into the computer using binary switches. (Punch cards were a fad.)
 
 I began this talk with pseudocode - natural language carefully representing the steps we want to take. It's reasoning these steps out, that has always been the point of the software engineer, not the syntax of the particular language. 
+
+:::
+
+## 3.8 Mathematical assertions as AI specs and automated tests
+
+```default
+In the limit that the timestep is small, and the floating point precision is high:
+      orbits should be ellipses with the sun at one focus, 
+      with orbital periods squared proportional to major axis cubed
+```
+
+```default
+def Converges (F : ℕ → ℕ → Set State) (L : Set State) : Prop :=
+  Tendsto (fun q : ℕ × ℕ => F q.1 q.2) (atTop.prod atTop) (𝓝 L)
+
+theorem kepler
+    (P : Params) (x0 : State) :
+    ∃ L : Set State,
+      Converges (solveOrbit P x0) L ∧
+      IsEllipse P L ∧
+      (period L) ^ 2 = ((4 * Real.pi ^ 2) / P.μ) * (semiMajorAxis L ^ 3) := by
+  sorry
+```
+
+{{< image-credit src="assets/stored/lean.svg"
+alt="The logo of the LEAN programming language"
+credit="Lean Focused Research Organization (FRO)"
+width="20%"
+credit-url="https://lean-lang.org" >}}
+
+::: notes
+
+ With my PhD student Thomas Ghorbanian starting in September we're going to be looking at how we
+might be able to know LLM-generated scientific software is reliable.
+
 
 Research software engineers have always been trying to reduce the distance from the maths to the computer representation - to make it as lucid as possible. While I was at the Mathworks I worked on how we represent
 models as diagrams, and automatically translate these into code, for just this reason.

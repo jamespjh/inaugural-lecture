@@ -14,7 +14,7 @@ format:
     controls: true
     progress: true
     history: true
-    navigation-mode: grid
+    navigation-mode: linear
     transition: none
     incremental: false
     center: false
