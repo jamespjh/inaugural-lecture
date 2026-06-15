@@ -296,3 +296,78 @@ def test_benchmark_solve_respects_until(monkeypatch):
 
     assert captured['until'] == 0.05, \
         "Expected solve() to receive until=0.05 from Args"
+
+
+# ---------------------------------------------------------------------------
+# Tests for --grid flag
+# ---------------------------------------------------------------------------
+
+def test_parse_args_grid_option():
+    args = parse_args('--scenario scatter --grid 5 --outfile grid.png')
+    assert args.grid == 5
+
+
+def test_parse_args_grid_default_is_none():
+    args = parse_args(' ')
+    assert args.grid is None
+
+
+def test_grid_zero_raises():
+    with pytest.raises((ValueError, SystemExit)):
+        parse_args('--scenario scatter --grid 0 --outfile grid.png')
+
+
+def test_grid_negative_raises():
+    with pytest.raises((ValueError, SystemExit)):
+        parse_args('--scenario scatter --grid -1 --outfile grid.png')
+
+
+def test_execute_scenario_grid_calls_grid_plot(monkeypatch):
+    """execute_scenario should call grid_plot when --grid is set."""
+    captured = {}
+
+    def fake_solve(system, method, law='gravity', factory=None,
+                   dt=0.01, until=10.0, model_data=None):
+        class FakeTraj:
+            pass
+        return FakeTraj()
+
+    def fake_grid_plot(trajectories, grid_size, output, options='trail'):
+        captured['grid_size'] = grid_size
+        captured['n_trajectories'] = len(trajectories)
+        captured['output'] = output
+        captured['options'] = options
+
+    monkeypatch.setattr('teachgrav.entry.solve', fake_solve)
+    monkeypatch.setattr('teachgrav.entry.grid_plot', fake_grid_plot)
+
+    args = parse_args(
+        '--scenario scatter --grid 3 --outfile /tmp/grid.png --seed 1')
+    execute_scenario(args)
+
+    assert captured['grid_size'] == 3
+    assert captured['n_trajectories'] == 9
+    assert captured['output'] == '/tmp/grid.png'
+
+
+def test_execute_scenario_grid_uses_visualise_option(monkeypatch):
+    """grid_plot should receive the --visualise option value."""
+    captured = {}
+
+    def fake_solve(*a, **kw):
+        class FakeTraj:
+            pass
+        return FakeTraj()
+
+    def fake_grid_plot(trajectories, grid_size, output, options='trail'):
+        captured['options'] = options
+
+    monkeypatch.setattr('teachgrav.entry.solve', fake_solve)
+    monkeypatch.setattr('teachgrav.entry.grid_plot', fake_grid_plot)
+
+    args = parse_args(
+        '--scenario scatter --grid 2 --outfile /tmp/g.png '
+        '--visualise dot --seed 1')
+    execute_scenario(args)
+
+    assert captured['options'] == 'dot'

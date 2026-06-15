@@ -8,6 +8,8 @@ logger = logging.getLogger("Teachgrav")
 plt.style.use('dark_background')
 
 _ASPECT_FIGSIZE = {'page': (12.8, 7.2), 'column': (6.4, 7.2)}
+# Default side length (inches) for each subplot cell in grid_plot.
+_GRID_CELL_SIZE = 2.5
 
 
 def figsize_from_aspect(aspect):
@@ -235,3 +237,75 @@ def plot(trajectory, output, options, figsize):
         plt.savefig(output)
     else:
         plt.show()
+
+
+def grid_plot(trajectories, grid_size, output, options='trail'):
+    """Create an N×N grid of trail plots from multiple trajectories.
+
+    Each cell in the grid shows the full-trail visualisation of one trajectory
+    (typically a different sample from a stochastic scenario generator).
+
+    Args:
+        trajectories: sequence of Trajectory objects; the first
+            ``grid_size ** 2`` entries are used.
+        grid_size: N; produces an N×N subplot grid.
+        output: file path for the saved image (PNG/SVG/PDF) or None to show
+            the figure interactively.
+        options: visualisation style – ``'trail'`` (default) draws a line for
+            each body's full path; ``'dot'`` draws only the final position.
+    """
+    n = grid_size
+    cell_size = _GRID_CELL_SIZE
+    fig, ax_grid = plt.subplots(n, n, figsize=(n * cell_size, n * cell_size))
+
+    # matplotlib.pyplot.subplots returns different shapes depending on n:
+    #   n=1 → a single Axes object (0-D)
+    #   n>1, single row/col → a 1-D array
+    #   n>1 → a 2-D array
+    # Normalise to a 2-D array so indexing is always [row, col].
+    if n == 1:
+        ax_grid = np.array([[ax_grid]])
+    elif n > 1 and ax_grid.ndim == 1:
+        ax_grid = ax_grid[np.newaxis, :]
+
+    for idx, traj in enumerate(trajectories[:n * n]):
+        row = idx // n
+        col = idx % n
+        ax = ax_grid[row, col]
+
+        positions = np.array(traj.positions())
+        num_bodies = positions.shape[1]
+
+        mins = np.min(positions, axis=(0, 1))
+        maxs = np.max(positions, axis=(0, 1))
+        xlim, ylim = _equal_aspect_limits(
+            mins, maxs, buffer=0.5, figsize=(cell_size, cell_size))
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        _apply_axis_style(ax)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        if options == 'trail':
+            for i in range(num_bodies):
+                ax.plot(positions[:, i, 0], positions[:, i, 1],
+                        color='lemonchiffon', linewidth=0.5)
+        elif options == 'dot':
+            points_per_inch = 72.0
+            fig_width_points = cell_size * points_per_inch
+            marker_sizes = marker_sizes_from_masses(
+                traj.masses, fig_width_points)
+            for i in range(num_bodies):
+                ax.plot(positions[-1, i, 0], positions[-1, i, 1],
+                        'o', color='lemonchiffon',
+                        markersize=marker_sizes[i])
+        else:
+            raise ValueError(f"Unknown grid_plot option: {options}")
+
+    plt.tight_layout(pad=0.2)
+    if output:
+        plt.savefig(output, dpi=100, bbox_inches='tight')
+        logger.info(f"Grid plot written to {output}")
+    else:
+        plt.show()
+    plt.close(fig)
