@@ -1,7 +1,7 @@
 import sys
 import argparse
 import logging
-from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
+from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS, KNOWN_SCENARIOS
 from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
@@ -286,7 +286,8 @@ def parse_args(force_args=None):
     logger.info('Teachgrav called')
     parser = argparse.ArgumentParser(description='Teachgrav simulation')
     parser.add_argument('--scenario', default='moon',
-                        choices=['moon', 'scatter', 'sun', 'single', 'boids'])
+                        choices=KNOWN_SCENARIOS,
+                        help='Scenario to simulate')
     parser.add_argument('--method', default='euler', choices=['euler'] +
                         diffrax_methods + scipy_methods)
     parser.add_argument('--law', default='gravity',
