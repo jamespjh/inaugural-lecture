@@ -14,43 +14,24 @@ def figsize_from_aspect(aspect):
     return _ASPECT_FIGSIZE.get(aspect, _ASPECT_FIGSIZE['column'])
 
 
-def _equal_aspect_limits(mins, maxs, buffer=1.0, figsize=None):
-    """Compute axis limits that preserve physical aspect ratio.
+def _equal_limits(mins, maxs, buffer=1.0):
+    """Compute equal-aspect axis limits for a plot of any dimensionality.
 
-    The y axis is sized to contain all data (plus buffer).  The x axis is
-    then scaled proportionally to the figure width-to-height ratio so that
-    one data unit spans the same number of pixels in both directions.
+    All axes share the same half-range so that one data unit spans the same
+    distance in every direction.  Works for 2-D (returns xlim, ylim) and
+    3-D (returns xlim, ylim, zlim) trajectories alike.
 
     Args:
-        mins: array-like of length 2, minimum [x, y] values in the data.
-        maxs: array-like of length 2, maximum [x, y] values in the data.
+        mins: array-like of length D, minimum values in each dimension.
+        maxs: array-like of length D, maximum values in each dimension.
         buffer: extra padding added outside the data range on each side.
-        figsize: (width_inches, height_inches) of the figure.  When None a
-            square figure is assumed (aspect ratio 1).
 
     Returns:
-        Tuple (xlim, ylim) where each is a (lo, hi) tuple.
+        Tuple of (lo, hi) pairs, one per dimension.
     """
-    x_mid = (mins[0] + maxs[0]) / 2.0
-    y_mid = (mins[1] + maxs[1]) / 2.0
-    x_range = maxs[0] - mins[0]
-    y_range = maxs[1] - mins[1]
-
-    if figsize is not None:
-        fig_w, fig_h = figsize
-        aspect = fig_w / fig_h if fig_h > 0 else 1.0
-    else:
-        aspect = 1.0
-
-    # Choose y_half large enough to contain y data and, via the aspect ratio,
-    # x data as well.  x_half is then derived so that one data unit spans the
-    # same number of pixels on both axes.
-    y_half = max(y_range / 2.0 + buffer,
-                 (x_range / 2.0 + buffer) / aspect)
-    x_half = y_half * aspect
-    xlim = (x_mid - x_half, x_mid + x_half)
-    ylim = (y_mid - y_half, y_mid + y_half)
-    return xlim, ylim
+    centres = (np.asarray(mins) + np.asarray(maxs)) / 2.0
+    half_range = np.max(np.asarray(maxs) - np.asarray(mins)) / 2.0 + buffer
+    return tuple((c - half_range, c + half_range) for c in centres)
 
 
 def _apply_axis_style(ax):
@@ -62,6 +43,18 @@ def _apply_axis_style(ax):
     ax.spines['left'].set_color('dimgrey')
     ax.spines['bottom'].set_color('dimgrey')
     ax.tick_params(labelsize=8, colors='dimgrey')
+
+
+def _apply_axis_style_3d(ax):
+    """Apply minimal dark-background styling to a 3-D axes object."""
+    _apply_axis_style(ax)
+    ax.xaxis.pane.fill = False
+    ax.yaxis.pane.fill = False
+    ax.zaxis.pane.fill = False
+    ax.xaxis.pane.set_edgecolor('dimgrey')
+    ax.yaxis.pane.set_edgecolor('dimgrey')
+    ax.zaxis.pane.set_edgecolor('dimgrey')
+    ax.grid(False)
 
 
 def _save_or_show_animation(ani, output, fps, log_msg=None):
@@ -76,14 +69,23 @@ def _save_or_show_animation(ani, output, fps, log_msg=None):
         plt.show()
 
 
+def _set_line_positions(line, positions, is_3d):
+    """Set position data on a 2-D or 3-D matplotlib line artist.
+
+    Args:
+        line: a Line2D (2-D) or Line3D (3-D) artist.
+        positions: numpy array of shape (n_points, D) where D is 2 or 3.
+        is_3d: True when *line* is a 3-D artist.
+    """
+    if is_3d:
+        line.set_data_3d(positions[:, 0], positions[:, 1], positions[:, 2])
+    else:
+        line.set_data(*positions.T)
+
+
 def visualize(trajectory, output, mode='video', options='dot', duration=30,
               fps=20, figsize=(6.4, 7.2)):
     trajectory.data = np.array(trajectory.data)
-    # Convert to numpy for visualization
-    if trajectory.D != 2:
-        raise ValueError(
-            "Visualization only supports 2D trajectories, " +
-            f"but got D={trajectory.D}")
     if mode == 'video':
         animate(trajectory, output, options, duration=duration, fps=fps,
                 figsize=figsize)
@@ -113,29 +115,43 @@ def marker_sizes_from_masses(masses, fig_width_points):
 
 
 def axes(trajectory, options, figsize):
-    # Animate the trajectory
-    fig, ax = plt.subplots(figsize=figsize)
+    """Create figure and line artists for a 2-D or 3-D trajectory."""
+    if trajectory.D not in (2, 3):
+        raise ValueError(
+            f"Visualization supports 2D and 3D trajectories only, "
+            f"but got D={trajectory.D}")
+    is_3d = trajectory.D == 3
+
+    if is_3d:
+        from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        fig, ax = plt.subplots(figsize=figsize)
 
     mins = np.min(trajectory.positions(), axis=(0, 1))
     maxs = np.max(trajectory.positions(), axis=(0, 1))
-
     buffer = 1.0
 
-    xlim, ylim = _equal_aspect_limits(mins, maxs, buffer, figsize=figsize)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-
-    _apply_axis_style(ax)
-
-    # One line or dot per body, with the option to show trails or just current
-    # positions
+    if is_3d:
+        xlim, ylim, zlim = _equal_limits(mins, maxs, buffer)
+        ax.set_xlim3d(*xlim)
+        ax.set_ylim3d(*ylim)
+        ax.set_zlim3d(*zlim)
+        _apply_axis_style_3d(ax)
+    else:
+        xlim, ylim = _equal_limits(mins, maxs, buffer)
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        _apply_axis_style(ax)
 
     lines = []
     num_bodies = trajectory.positions().shape[1]
+    plot_args = ([], [], []) if is_3d else ([], [])
 
     if options == 'trail':
         for _ in range(num_bodies):
-            line, = ax.plot([], [], color='lemonchiffon')
+            line, = ax.plot(*plot_args, color='lemonchiffon')
             lines.append(line)
     elif options == 'dot':
         points_per_inch = 72.0
@@ -144,7 +160,7 @@ def axes(trajectory, options, figsize):
             trajectory.masses,
             fig_width_points)
         for i in range(num_bodies):
-            line, = ax.plot([], [], 'o', color='lemonchiffon',
+            line, = ax.plot(*plot_args, 'o', color='lemonchiffon',
                             markersize=marker_sizes[i])
             lines.append(line)
     else:
@@ -155,11 +171,13 @@ def axes(trajectory, options, figsize):
 
 def animate(trajectory, output, options, figsize, duration=30, fps=20):
     from matplotlib.animation import FuncAnimation
+    is_3d = trajectory.D == 3
     fig, _, lines = axes(trajectory, options, figsize=figsize)
 
     def init():
+        empty = np.empty((0, trajectory.D))
         for line in lines:
-            line.set_data([], [])
+            _set_line_positions(line, empty, is_3d)
         return lines
 
     # Get trajectory data and compute time values
@@ -198,13 +216,13 @@ def animate(trajectory, output, options, figsize, duration=30, fps=20):
                     if step_idx < steps - 1:
                         trail_positions = np.vstack(
                             [trail_positions, [interp_positions[i]]])
-                line.set_data(*trail_positions.T)
+                _set_line_positions(line, trail_positions, is_3d)
             return lines
     elif options == 'dot':
         def update_frame(t):
             interp_pos = get_interpolated_positions(t)
             for i, line in enumerate(lines):
-                line.set_data(*interp_pos[i:i + 1, :].T)
+                _set_line_positions(line, interp_pos[i:i + 1, :], is_3d)
             return lines
     else:
         raise ValueError(f"Unknown animation option: {options}")
@@ -226,11 +244,12 @@ def animate(trajectory, output, options, figsize, duration=30, fps=20):
 
 
 def plot(trajectory, output, options, figsize):
+    is_3d = trajectory.D == 3
     fig, ax, lines = axes(trajectory, options=options, figsize=figsize)
     position = len(trajectory) - 1
     for i, line in enumerate(lines):
-        line.set_data(
-            *trajectory.positions()[:position, i, :].T)
+        _set_line_positions(
+            line, trajectory.positions()[:position, i, :], is_3d)
     if output:
         plt.savefig(output)
     else:

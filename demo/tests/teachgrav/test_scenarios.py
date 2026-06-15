@@ -28,6 +28,25 @@ def test_create_scenario_scatter_3D():
     assert len(system.masses) == 10
 
 
+def test_create_scenario_boids_2d():
+    system = factory.create_scenario('boids', n_boids=10)
+    assert system.positions().shape == (10, 2)
+    assert system.velocities().shape == (10, 2)
+    assert system.masses.shape == (10,)
+
+
+def test_create_scenario_boids_3d():
+    system = factory.create_scenario('boids', n_boids=10, dimensions=3)
+    assert system.positions().shape == (10, 3)
+    assert system.velocities().shape == (10, 3)
+    assert system.masses.shape == (10,)
+
+
+def test_create_scenario_boids_invalid_dimensions():
+    with pytest.raises(ValueError, match="dimensions must be 2 or 3, got 4"):
+        factory.create_scenario('boids', dimensions=4)
+
+
 def test_scenario_sun():
     system = factory.create_scenario('sun')
     assert len(system.positions()) == 2
