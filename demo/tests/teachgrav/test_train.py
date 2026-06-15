@@ -114,3 +114,22 @@ def test_train_with_seed():
     finally:
         if os.path.exists(output_path):
             os.remove(output_path)
+
+def test_train_probabilistic():
+    """--train --probabilistic should train a probabilistic model."""
+    with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
+        output_path = f.name
+    try:
+        args = parse_args(f'--train --law gaussian --scenario scatter '
+                          f'--outfile {output_path} '
+                          '--n-systems 10 --n-pars 100,100 --probabilistic')
+        execute_scenario(args)
+        assert os.path.exists(output_path)
+        with open(output_path) as fh:
+        # Load as a matrix and check it has the expected shape (100, 100)
+            import numpy as np
+            data = np.loadtxt(fh, delimiter=',')
+            assert data.shape == (100, 100)
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)

@@ -20,14 +20,18 @@ class Model:
         """Compute the derivatives of the state using a learned model."""
         raise NotImplementedError("Subclasses should implement this method.")
 
-    def add_vectorising_dimension_if_needed(self, ICs):
+    def add_vectorising_dimension_if_needed(self, input_array):
         """Add a vectorising dimension to the ICs."""
-        if infer_ndim(ICs) == 1:
-            if hasattr(ICs, 'reshape'):
-                return ICs.reshape(1, -1)
-            return [ICs]
+        if infer_ndim(input_array) == 0:
+            if hasattr(input_array, 'reshape'):
+                return input_array.reshape(1)
+            return input_array
+        if infer_ndim(input_array) == 1:
+            if hasattr(input_array, 'reshape'):
+                return input_array.reshape(1, -1)
+            return [input_array]
         else:
-            return ICs
+            return input_array
 
 
 def create_law(law_name: str, factory=None, model_data: str | None = None):
