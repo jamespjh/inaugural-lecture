@@ -263,7 +263,6 @@ def _resolve_output_format(args):
     elif args.outfile.endswith('.png'):
         args.video = False
         args.format = 'png'
-        args.visualise = None
     elif args.outfile.endswith('.yaml') or args.outfile.endswith('.yml'):
         args.video = False
         args.format = 'yaml'
