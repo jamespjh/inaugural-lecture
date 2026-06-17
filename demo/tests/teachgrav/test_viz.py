@@ -98,7 +98,7 @@ def test_visualize():
     from teachgrav.integrator import integrate_trajectory
     system = factory.create_scenario('moon')
     trajectory = integrate_trajectory(
-        system, method='euler', dt=0.01, until=1.0)
+        system, factory=factory, method='euler', dt=0.01, until=1.0)
     # Just test that it runs without error and creates a file
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -131,7 +131,7 @@ def test_visualize_passes_fps_to_animate():
 
     system = factory.create_scenario('moon')
     trajectory = integrate_trajectory(
-        system, method='euler', dt=0.01, until=1.0)
+        system, factory=factory, method='euler', dt=0.01, until=1.0)
 
     with patch('teachgrav.visualisations.visualize.animate') as mock_animate:
         visualize(

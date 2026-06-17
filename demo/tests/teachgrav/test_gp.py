@@ -20,7 +20,7 @@ def test_gp_predict():
     scenario = factory.create_scenario('scatter', n_bodies=2,
                                        fixed_masses=[1.0, 1.0])
     gp_res = model.law(scenario)
-    res = TrueLawModel().law(scenario)
+    res = TrueLawModel(factory).law(scenario)
     print("GP result:\n", gp_res)
     print("True result:\n", res)
     assert gp_res.shape == res.shape

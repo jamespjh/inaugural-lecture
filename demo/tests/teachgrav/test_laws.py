@@ -13,10 +13,7 @@ def assert_shape(value, expected_shape):
     assert infer_shape(value) == expected_shape
 
 
-factory = ScenarioFactory()
-model = TrueLawModel()
-law = model.law
-flat_law = model.flat_law
+
 
 # Engines that support the pure-Python for-loop gravity law.
 # ScenarioFactory handles python/numba engines transparently by building the
@@ -73,6 +70,7 @@ def test_law_scatter_3D(engine):
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_law_vectorised(engine):
     factory = ScenarioFactory(engine=engine)
+    law_model = TrueLawModel(factory=factory)
     N_sys = 5
     N_bodies = 3
     # Test that the law can be called multiple times over an array of states
@@ -84,12 +82,12 @@ def test_law_vectorised(engine):
         )
         for _ in range(N_sys)
     ]
-    simple_results = factory.engine.array([law(system) for system in systems])
+    simple_results = factory.engine.array([law_model.law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
     ICs_flat = ICs.reshape((N_sys, -1))
-    results = flat_law(ICs_flat, masses, immobile)
+    results = law_model.flat_law(ICs_flat, masses, immobile)
     vector_results = results.reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(

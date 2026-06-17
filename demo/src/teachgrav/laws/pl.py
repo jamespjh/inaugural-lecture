@@ -153,9 +153,9 @@ class PLModel(Model):
         data_flat = self.add_vectorising_dimension_if_needed(data)
         num_vec = data_flat.shape[0]
         data = to_shaped(data_flat, num_vec, num_bodies=len(immobile))
+        G = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.G))
+        power = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.power)) # shape N_power
         np = data.__array_namespace__()
-        G = self.add_vectorising_dimension_if_needed(np.array(self.G))
-        power = self.add_vectorising_dimension_if_needed(np.array(self.power)) # shape N_power
         dpositions = data[:, 1, :, :]  # Derivative of position is velocity
         # Each body experiences a gravitational force from
         # every other body, leading to acceleration

@@ -9,7 +9,7 @@ logger = logging.getLogger("Teachgrav")
 
 
 class TrueLawModel(PLModel):
-    def __init__(self, factory=None):
+    def __init__(self, factory):
         super().__init__(factory=factory, G=1.0, power=2.0)
 
     def _uses_python_engine(self):

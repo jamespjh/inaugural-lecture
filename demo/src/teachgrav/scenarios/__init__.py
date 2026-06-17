@@ -92,7 +92,7 @@ class ScenarioFactory:
         masses = scenarios[0].masses
         immobile = scenarios[0].immobile
         from teachgrav.laws.true_law import TrueLawModel
-        results = TrueLawModel().flat_law(flatICs, masses, immobile)
+        results = TrueLawModel(self).flat_law(flatICs, masses, immobile)
 
         vector_results = to_shaped(results, N_sys, len(masses))
         accelerations = vector_results[:, 1, :, :]

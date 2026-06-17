@@ -18,7 +18,7 @@ def test_pl_train(engine):
 def test_pl_predict(n_bodies):
     factory = ScenarioFactory('numpy')
     model = PLModel(factory)
-    truth = TrueLawModel()
+    truth = TrueLawModel(factory)
     masses = [1.0] * n_bodies
     model.train(256, n_bodies=n_bodies, fixed_masses=masses)
 

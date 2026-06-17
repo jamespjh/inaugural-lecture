@@ -23,8 +23,9 @@ def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
 def integrate_trajectory(
     system: System,
     method: str,
+    factory,
     law: str = 'gravity',
-    factory=None,
+
     dt: float = 0.01,
     until: float = 10,
     model_data: str | None = None,

@@ -34,7 +34,7 @@ class Model:
             return input_array
 
 
-def create_law(law_name: str, factory=None, model_data: str | None = None):
+def create_law(law_name: str, factory, model_data: str | None = None):
     """
     Factory function to create a law model by name.
 
