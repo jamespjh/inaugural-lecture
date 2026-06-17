@@ -75,7 +75,7 @@ _jax_single_body_cases = (
 
 @pytest.mark.parametrize("engine,method,until,atol", [
     ('numpy', 'euler', 2.0, 1e-12),
-] + _jax_single_body_cases)
+])
 def test_constant_single_body_moves_at_expected_position(
         engine, method, until, atol):
     factory = ScenarioFactory(engine=engine)

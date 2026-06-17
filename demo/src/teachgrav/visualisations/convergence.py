@@ -108,6 +108,7 @@ def convergence_video(trajectories, output, fps=20, options='trail',
 
     plt.close(fig)
 
+import traceback
 
 def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
     """Return stable checkpoint keyframes with their integrated trajectory."""
@@ -120,6 +121,7 @@ def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
         try:
             traj = integrate_power_trajectory(ckpt['G'], ckpt['power'])
         except Exception as exc:  # pragma: no cover
+            logger.debug(traceback.format_exc())
             logger.debug(
                 f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
                 f"power={ckpt['power']:.4f} (integration failed: {exc!r})."
@@ -223,13 +225,6 @@ def generate_convergence_video(checkpoints, scenario, output,
     """
     scenario_kwargs = scenario_kwargs or {}
 
-    def integrate_power_trajectory(g_value, power_value):
-        """Integrate a power-law trajectory for a single parameter pair."""
-        pl_model = PLModel(factory=None, G=g_value, power=power_value)
-        traj = integrate_trajectory(
-            system, method=method, model=pl_model, dt=dt, until=until)
-        traj.data = np.array(traj.data)
-        return traj
 
     selected = checkpoints[::checkpoint_interval]
     if not selected:
@@ -247,6 +242,14 @@ def generate_convergence_video(checkpoints, scenario, output,
     viz_seed = seed if seed is not None else 42
     viz_factory = ScenarioFactory('numpy', seed=viz_seed)
     system = viz_factory.create_scenario(scenario, **scenario_kwargs)
+
+    def integrate_power_trajectory(g_value, power_value):
+        """Integrate a power-law trajectory for a single parameter pair."""
+        pl_model = PLModel(factory=viz_factory, G=g_value, power=power_value)
+        traj = integrate_trajectory(
+            system, method=method, factory=viz_factory, law=pl_model, model=pl_model, dt=dt, until=until)
+        traj.data = np.array(traj.data)
+        return traj
 
     stable_keyframes = generate_stable_keyframes(
         selected, integrate_power_trajectory)
@@ -294,7 +297,7 @@ def generate_convergence_video(checkpoints, scenario, output,
     if show_true_law:
         try:
             ref_traj = integrate_trajectory(
-                system, method=method, law='gravity', dt=dt, until=until)
+                system, method=method, factory=viz_factory, law='gravity', dt=dt, until=until)
             ref_traj.data = np.array(ref_traj.data)
             ref_trajectory = ref_traj
         except Exception as exc:  # pragma: no cover
