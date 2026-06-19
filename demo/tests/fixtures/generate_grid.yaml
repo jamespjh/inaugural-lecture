@@ -1,0 +1,5 @@
+- scenario: scatter
+  n-bodies: 4
+  grid: 5
+  outfile: scatter_grid_5x5.png
+  seed: 42

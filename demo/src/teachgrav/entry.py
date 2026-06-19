@@ -5,7 +5,7 @@ from .scenarios import ScenarioFactory, STOCHASTIC_SCENARIOS
 from .engine_support import get_available_engines
 from .integrator import integrate_trajectory, diffrax_methods, scipy_methods
 from .laws.laws import create_law
-from .visualisations.visualize import visualize, figsize_from_aspect
+from .visualisations.visualize import visualize, figsize_from_aspect, grid_plot
 from .visualisations.convergence import generate_convergence_video
 from .benchmark import benchmark_engine
 logger = logging.getLogger("Teachgrav")
@@ -101,6 +101,11 @@ def execute_scenario(args):
     if args.benchmark or args.benchmark_solve:
         benchmark_scenario(args)
         return
+
+    if args.grid is not None:
+        _execute_grid_scenario(args, factory, scenario_kwargs)
+        return
+
     system = create_scenario(args.scenario, **scenario_kwargs)
     logger.info(
         f'Running scenario: {args.scenario} with method: {args.method} '
@@ -128,6 +133,28 @@ def execute_scenario(args):
             f"{args.outfile if args.outfile else 'stdout'}")
         stream = open(args.outfile, 'w') if args.outfile else sys.stdout
         trajectory.write(stream, args.format)
+
+
+def _execute_grid_scenario(args, factory, scenario_kwargs):
+    """Generate N*N scenario samples and write a grid trail plot."""
+    grid_size = args.grid
+    n_samples = grid_size * grid_size
+    logger.info(
+        f'Generating {n_samples} samples for {grid_size}x{grid_size} grid '
+        f'of scenario: {args.scenario}')
+
+    trajectories = []
+    for _ in range(n_samples):
+        system = factory.create_scenario(args.scenario, **scenario_kwargs)
+        traj = solve(system, args.method, args.law, factory=factory,
+                     dt=args.dt, until=args.until,
+                     model_data=args.model_data)
+        trajectories.append(traj)
+
+    options = args.visualise or 'trail'
+    grid_plot(trajectories, grid_size, output=args.outfile, options=options)
+    if args.outfile:
+        logger.info(f'Grid plot saved to {args.outfile}')
 
 
 def _validate_args(args):
@@ -160,7 +187,8 @@ def _validate_args(args):
 
     if not args.outfile:
         logger.info("No output file specified. Defaulting to stdout text.")
-        args.visualise = None
+        if args.grid is None:
+            args.visualise = None
         args.format = 'csv'
         args.video = False
 
@@ -190,6 +218,9 @@ def _validate_args(args):
             f"not '{args.scenario}'.")
     if args.n_bodies is not None and args.n_bodies < 1:
         raise ValueError("Option --n-bodies must be at least 1.")
+
+    if args.grid is not None and args.grid < 1:
+        raise ValueError("Option --grid must be at least 1.")
 
 
 def benchmark_scenario(args):
@@ -384,6 +415,14 @@ def parse_args(force_args=None):
         action='store_true',
         help='Overlay the true-law trajectory in each convergence-video frame '
              'so the viewer can see the fitted law converging toward it.')
+    parser.add_argument(
+        '--grid',
+        type=int,
+        default=None,
+        help='Generate an N×N static grid image where each cell shows the '
+             'trail of one independent sample from the scenario generator. '
+             'Use with --outfile <path>.png (or omit for interactive '
+             'display).')
     args = parser.parse_args(force_args.split() if force_args else None)
     _validate_args(args)
 
