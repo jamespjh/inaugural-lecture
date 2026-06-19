@@ -18,6 +18,38 @@ def entry():
     execute_scenario(args)
 
 
+def _train_probabilistic_model(args, factory, scenario_kwargs):
+    """Train a PLModel using Bayesian grid inference and save output.
+
+    Saves a CSV of the posterior likelihoods when --outfile ends in ``.csv``.
+    Saves a PNG surface-map heatmap when --outfile ends in ``.png`` and
+    ``--visualise surface`` is set.
+    """
+    import numpy as np
+    from .laws.pl import PLModel
+    from .array_abstraction import to_numpy_host
+
+    model = PLModel(factory=factory)
+    n_pars = [int(x) for x in args.n_pars.split(',')]
+    G_values = np.linspace(-5.0, 5.0, n_pars[0])
+    power_values = np.linspace(-5.0, 5.0, n_pars[1])
+    likelihoods = model.probabilistic_train(
+        args.n_systems, G_values, power_values, **scenario_kwargs)
+    likelihoods_np = to_numpy_host(likelihoods)
+
+    if args.format == 'png' and args.visualise == 'surface':
+        from .visualisations.probability_surface import plot_probability_surface
+        plot_probability_surface(
+            likelihoods_np, args.outfile,
+            G_values=G_values, power_values=power_values,
+            figsize=args.figsize)
+        print(f"Probability surface plot saved to: {args.outfile}")
+    else:
+        np.savetxt(args.outfile, likelihoods_np, delimiter=',')
+        logger.info(f"Saved probabilistic training likelihoods to {args.outfile}")
+        print(f"Probabilistic training likelihoods saved to: {args.outfile}")
+
+
 def _train_model(args, factory):
     """Train a fitted law and write either model output or video output."""
     checkpoints = []
@@ -42,6 +74,11 @@ def _train_model(args, factory):
         model = GPModel(factory=factory)
     else:
         raise ValueError(f"Unsupported law for training: {args.law}")
+
+    if args.probabilistic:
+        _train_probabilistic_model(args, factory, scenario_kwargs)
+        return
+
     checkpoints = model.train(args.n_systems, **scenario_kwargs)
     print("Trained model.")
     if not args.video:
@@ -280,6 +317,10 @@ def _validate_train_args(args):
             "Convergence video output is only supported for --law power.")
     if args.checkpoint_interval < 1:
         raise ValueError("--checkpoint-interval must be at least 1.")
+    if args.probabilistic and args.video:
+        raise ValueError(
+            "--probabilistic and convergence video output are mutually "
+            "exclusive; use --outfile with a .csv extension.")
 
 
 def _resolve_output_format(args):
@@ -336,6 +377,15 @@ def parse_args(force_args=None):
     parser.add_argument('--n-bodies', dest='n_bodies', type=int, default=None,
                         help='Number of bodies per system (used with --train '
                              'and scatter scenario)')
+    parser.add_argument('--probabilistic', action='store_true',
+                        help=(
+                            'Use probabilistic (Bayesian grid) training '
+                            'instead of optimisation (used with --train).'))
+    parser.add_argument('--n-pars', dest='n_pars', default='100,100',
+                        help=(
+                            'Grid size for probabilistic training as '
+                            'N_G,N_power (default: 100,100). '
+                            'Used with --train --probabilistic.'))
     # Add CUPY, Torch and MLX later.
     parser.add_argument(
         '--engine',
@@ -351,7 +401,8 @@ def parse_args(force_args=None):
         'If no extension is given, defaults to stdout text output in '
         'CSV format.')
     parser.add_argument('--visualise', default='trail',
-                        choices=['trail', 'dot'], help='Visualization style')
+                        choices=['trail', 'dot', 'surface'],
+                        help='Visualization style')
     parser.add_argument('--log-level', '--loglevel', dest='log_level',
                         default='WARNING',
                         help='Logging level (e.g. DEBUG, INFO, WARNING)')

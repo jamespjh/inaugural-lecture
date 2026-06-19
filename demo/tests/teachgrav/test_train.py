@@ -2,6 +2,7 @@
 import os
 import tempfile
 import pytest
+import numpy as np
 
 from teachgrav.entry import parse_args, execute_scenario
 
@@ -120,16 +121,74 @@ def test_train_probabilistic():
     with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
         output_path = f.name
     try:
-        args = parse_args(f'--train --law gaussian --scenario scatter '
+        args = parse_args(f'--train --law power --scenario scatter '
                           f'--outfile {output_path} '
                           '--n-systems 10 --n-pars 100,100 --probabilistic')
         execute_scenario(args)
         assert os.path.exists(output_path)
         with open(output_path) as fh:
         # Load as a matrix and check it has the expected shape (100, 100)
-            import numpy as np
             data = np.loadtxt(fh, delimiter=',')
             assert data.shape == (100, 100)
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+def test_train_probabilistic_surface_png():
+    """--train --probabilistic --visualise surface should write a PNG."""
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+        output_path = f.name
+    try:
+        args = parse_args(f'--train --law power --scenario scatter '
+                          f'--outfile {output_path} '
+                          '--n-systems 5 --n-pars 10,12 --probabilistic '
+                          '--visualise surface')
+        execute_scenario(args)
+        assert os.path.exists(output_path)
+        assert os.path.getsize(output_path) > 0
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+# ---------------------------------------------------------------------------
+# plot_probability_surface unit tests
+# ---------------------------------------------------------------------------
+
+def test_plot_probability_surface_creates_file():
+    """plot_probability_surface should write a PNG from provided arrays."""
+    from teachgrav.visualisations.probability_surface import plot_probability_surface
+
+    likelihoods = np.ones((8, 10)) / 80.0
+    G_values = np.linspace(-3.0, 3.0, 8)
+    power_values = np.linspace(-2.0, 4.0, 10)
+
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+        output_path = f.name
+    try:
+        plot_probability_surface(likelihoods, output_path,
+                                 G_values=G_values,
+                                 power_values=power_values)
+        assert os.path.exists(output_path)
+        assert os.path.getsize(output_path) > 0
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+def test_plot_probability_surface_default_axes():
+    """plot_probability_surface should work without explicit axis arrays."""
+    from teachgrav.visualisations.probability_surface import plot_probability_surface
+
+    likelihoods = np.ones((5, 7)) / 35.0
+
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as f:
+        output_path = f.name
+    try:
+        plot_probability_surface(likelihoods, output_path)
+        assert os.path.exists(output_path)
+        assert os.path.getsize(output_path) > 0
     finally:
         if os.path.exists(output_path):
             os.remove(output_path)

@@ -21,7 +21,7 @@ class PLModel(Model):
         self.G = G
         self.power = power
 
-    def probabilistic_train(self, N_sys, N_pars=[100, 100], obs_noise=0.01, on_step=None, **kwargs):
+    def probabilistic_train(self, N_sys, G_values, power_values, obs_noise=0.01, on_step=None, **kwargs):
         """Generate a grid of values for the parameters.
            For each observation, compute the likelihood of the
            data under the model for each point in the grid, 
@@ -32,7 +32,8 @@ class PLModel(Model):
 
         Args:
             N_sys: number of random scatter systems to train on.
-            N_pars: [N_G, N_power] number of grid points for each parameter.
+            G_values: 1-D array of G grid values.
+            power_values: 1-D array of power (n) grid values.
             obs_noise: standard deviation of the observation noise.
             on_step: optional callable invoked after each optimisation
                      iteration with the grid of likelihoods.
@@ -43,10 +44,9 @@ class PLModel(Model):
         
         logger.info("Training Probabilistic Power Law model...")
         np = ICs.__array_namespace__()
-        # Create a grid of parameter values
-        G_values = np.linspace(-5.0, 5.0, N_pars[0])
-        power_values = np.linspace(-5.0, 5.0, N_pars[1])
-        likelihoods = np.ones((N_pars[0], N_pars[1]))// (N_pars[0] * N_pars[1])  # Uniform prior
+        N_G = len(G_values)
+        N_power = len(power_values)
+        likelihoods = np.ones((N_G, N_power)) / (N_G * N_power)  # Uniform prior
         
         def model(ICs, ks, ns):
             pass
@@ -70,6 +70,7 @@ class PLModel(Model):
             # Call the callback on_step with the grid of likelihoods
         # Update self with the final parameter values (e.g., the mean of the posterior distribution)
         # Return the final grid of likelihoods
+        return likelihoods
 
     def train(self, N_sys, on_step=None, **kwargs):
         """Train a model on random scatters for a given set of args.
