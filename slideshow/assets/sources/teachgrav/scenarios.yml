@@ -57,3 +57,9 @@
   seed: 2
   visualise: trail
   log-level: INFO
+- scenario: scatter
+  until: 1.5
+  method: RK45
+  grid: 5
+  outfile: scatter_grid_5x5.png
+  seed: 2

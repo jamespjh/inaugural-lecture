@@ -2,10 +2,21 @@
 
 ## 3.1 Physics-free gravity 
 
+:::: {.two-col}
+::: {}
+{{< image-credit
+  src="assets/generated/scatter_grid_5x5.png"
+  alt="25 images of the sky" 
+  width="80%"
+>}}
+:::
+::: {}
 {{< video-credit
   src="assets/generated/power_law_convergence.mp4"
   alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
-  width="100%" >}}
+  width="80%" >}}
+:::
+::::
 
 ::: notes
 
