@@ -22,12 +22,21 @@ class PLModel(Model):
         self.G = G
         self.power = power
 
+    def _acquisition(self, N_sys, likelihoods, ICs, accelerations):
+        """Choose an order for probabilistic training scenarios.
+
+        Scaffold implementation: preserve the current sequential order until
+        acquisition math is implemented.
+        """
+        return range(N_sys)
+
     def probabilistic_train(
         self,
         N_sys,
         G_values,
         power_values,
         obs_noise=200,
+        acquisition=False,
         on_step=None,
         **kwargs,
     ):
@@ -44,6 +53,8 @@ class PLModel(Model):
             G_values: 1-D array of G grid values.
             power_values: 1-D array of power (n) grid values.
             obs_noise: standard deviation of the observation noise.
+            acquisition: when true, choose scenario order via
+                         ``_acquisition(...)``.
             on_step: optional callable invoked after each optimisation
                      iteration with the grid of likelihoods.
             **kwargs: extra keyword arguments forwarded to
@@ -83,9 +94,16 @@ class PLModel(Model):
                 (len(ks), len(ns), C, 2, N_bodies, -1)
             )
             return vector_results[:, :, :, 1, :, :]
-
-        # For each system, update p(G, n | data_1:i) on the parameter grid.
-        for i in range(N_sys):
+        if acquisition:
+            scenarios_order = self._acquisition(
+                N_sys,
+                likelihoods,
+                ICs,
+                accelerations,
+            )
+        else:
+            scenarios_order = range(N_sys)
+        for i in scenarios_order:
             accs = model(ICs[i: i + 1], G_values, power_values)
             observed = accelerations[i: i + 1].reshape((1, len(masses), -1))
 

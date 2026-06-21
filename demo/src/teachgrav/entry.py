@@ -43,6 +43,7 @@ def _train_probabilistic_model(args, factory, scenario_kwargs):
         args.n_systems,
         G_values,
         power_values,
+        acquisition=args.acquisition,
         on_step=on_step,
         **scenario_kwargs,
     )
@@ -399,6 +400,10 @@ def _validate_train_args(args):
             "--probabilistic training is currently only supported for "
             "--law power."
         )
+    if args.acquisition and (not args.train or not args.probabilistic):
+        raise ValueError(
+            "--acquisition can only be used with --train --probabilistic."
+        )
 
 
 def _resolve_output_format(args):
@@ -489,6 +494,14 @@ def parse_args(force_args=None):
         help=(
             "Use probabilistic (Bayesian grid) training "
             "instead of optimisation (used with --train)."
+        ),
+    )
+    parser.add_argument(
+        "--acquisition",
+        action="store_true",
+        help=(
+            "Use an acquisition function to choose the next training "
+            "scenario (used with --train --probabilistic)."
         ),
     )
     parser.add_argument(

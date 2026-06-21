@@ -71,6 +71,25 @@ def test_train_outfile_routes_video_output():
     assert args.outfile == "/tmp/convergence.mp4"
 
 
+def test_train_acquisition_flag_parsed():
+    args = parse_args(
+        "--train --law power --scenario scatter "
+        "--probabilistic --acquisition --outfile /tmp/posterior.csv"
+    )
+    assert args.acquisition is True
+
+
+def test_acquisition_requires_train_probabilistic():
+    with pytest.raises(
+        ValueError,
+        match="--acquisition can only be used with --train --probabilistic",
+    ):
+        parse_args(
+            "--train --law power --scenario scatter "
+            "--acquisition --outfile /tmp/out.csv"
+        )
+
+
 # ---------------------------------------------------------------------------
 # End-to-end training via execute_scenario
 # ---------------------------------------------------------------------------
@@ -153,6 +172,26 @@ def test_train_probabilistic():
         assert os.path.exists(output_path)
         with open(output_path) as fh:
             # Load as a matrix and check it has the expected shape (100, 100)
+            data = np.loadtxt(fh, delimiter=",")
+            assert data.shape == (100, 100)
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+def test_train_probabilistic_with_acquisition():
+    """--train --probabilistic --acquisition should run via scaffold path."""
+    with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as f:
+        output_path = f.name
+    try:
+        args = parse_args(
+            f"--train --law power --scenario scatter "
+            f"--outfile {output_path} "
+            "--n-systems 10 --n-pars 100,100 --probabilistic --acquisition"
+        )
+        execute_scenario(args)
+        assert os.path.exists(output_path)
+        with open(output_path) as fh:
             data = np.loadtxt(fh, delimiter=",")
             assert data.shape == (100, 100)
     finally:
