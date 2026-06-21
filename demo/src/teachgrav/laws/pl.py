@@ -1,4 +1,5 @@
 import yaml
+import numpy as host_np
 from scipy.optimize import minimize
 from .laws import Model
 from ..system import to_shaped
@@ -22,13 +23,89 @@ class PLModel(Model):
         self.G = G
         self.power = power
 
-    def _acquisition(self, N_sys, likelihoods, ICs, accelerations):
-        """Choose an order for probabilistic training scenarios.
+    def _acquisition(
+        self,
+        N_sys,
+        acquisition,
+        likelihoods_ref,
+        ICs,
+        masses,
+        immobile,
+        G_values,
+        power_values,
+    ):
+        """Yield scenario indices via weighted predictive-variance scoring.
 
-        Scaffold implementation: preserve the current sequential order until
-        acquisition math is implemented.
+        At each step, a random subset of remaining candidate scenarios is
+        scored by the posterior-weighted predictive variance of predicted
+        acceleration over the ``(G, power)`` grid. The highest-scoring
+        scenario in that subset is yielded.
         """
-        return range(N_sys)
+        np = ICs.__array_namespace__()
+        remaining = list(range(N_sys))
+        N_G = len(G_values)
+        N_power = len(power_values)
+        N_bodies = len(masses)
+
+        # Set fixed parameter grids once; flat_law will evaluate outer
+        # products.
+        self.G = G_values
+        self.power = power_values
+
+        while remaining:
+            weights = likelihoods_ref[0]
+            norm = np.sum(weights)
+            if norm > 0:
+                weights = weights / norm
+            else:
+                weights = np.ones((N_G, N_power)) / (N_G * N_power)
+
+            candidate_count = min(int(acquisition), len(remaining))
+            sampled_positions = host_np.random.choice(
+                len(remaining),
+                size=candidate_count,
+                replace=False,
+            )
+            candidates = [remaining[int(pos)] for pos in sampled_positions]
+
+            best_idx = None
+            best_score = float("-inf")
+
+            for idx in candidates:
+                flat = self.flat_law(
+                    ICs[idx: idx + 1],
+                    masses=masses,
+                    immobile=immobile,
+                )
+                # Shape: (N_G, N_power, 1, 2, N_bodies, D)
+                vector_results = flat.reshape(
+                    (N_G, N_power, 1, 2, N_bodies, -1)
+                )
+                # Predicted accelerations for this candidate, flattened per
+                # grid.
+                pred = vector_results[:, :, 0, 1, :, :].reshape(
+                    (N_G, N_power, -1)
+                )
+
+                mean_pred = np.sum(
+                    weights[:, :, np.newaxis] * pred,
+                    axis=(0, 1),
+                )
+                pred_var = np.sum(
+                    weights[:, :, np.newaxis] * (pred - mean_pred) ** 2,
+                    axis=(0, 1),
+                )
+                score = float(np.sum(pred_var))
+
+                if score > best_score:
+                    best_score = score
+                    best_idx = idx
+            logger.info(
+                f"Acquisition step: selected scenario {best_idx} "
+                f"with score {best_score} from {candidate_count} candidates"
+            )
+            yield best_idx
+            remaining.remove(best_idx)
 
     def probabilistic_train(
         self,
@@ -36,7 +113,7 @@ class PLModel(Model):
         G_values,
         power_values,
         obs_noise=200,
-        acquisition=False,
+        acquisition=None,
         on_step=None,
         **kwargs,
     ):
@@ -53,8 +130,8 @@ class PLModel(Model):
             G_values: 1-D array of G grid values.
             power_values: 1-D array of power (n) grid values.
             obs_noise: standard deviation of the observation noise.
-            acquisition: when true, choose scenario order via
-                         ``_acquisition(...)``.
+            acquisition: when not ``None``, use the acquisition function and
+                         score this many random remaining scenarios per step.
             on_step: optional callable invoked after each optimisation
                      iteration with the grid of likelihoods.
             **kwargs: extra keyword arguments forwarded to
@@ -94,12 +171,18 @@ class PLModel(Model):
                 (len(ks), len(ns), C, 2, N_bodies, -1)
             )
             return vector_results[:, :, :, 1, :, :]
-        if acquisition:
+
+        likelihoods_ref = [likelihoods]
+        if acquisition is not None:
             scenarios_order = self._acquisition(
                 N_sys,
-                likelihoods,
+                acquisition,
+                likelihoods_ref,
                 ICs,
-                accelerations,
+                masses,
+                immobile,
+                G_values,
+                power_values,
             )
         else:
             scenarios_order = range(N_sys)
@@ -128,6 +211,8 @@ class PLModel(Model):
                     "Resetting to uniform distribution.")
                 # Degenerate case: keep a valid distribution.
                 likelihoods = np.ones((N_G, N_power)) / (N_G * N_power)
+
+            likelihoods_ref[0] = likelihoods
 
             if on_step is not None:
                 on_step(likelihoods)

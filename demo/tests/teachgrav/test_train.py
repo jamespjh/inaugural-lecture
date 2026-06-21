@@ -76,7 +76,15 @@ def test_train_acquisition_flag_parsed():
         "--train --law power --scenario scatter "
         "--probabilistic --acquisition --outfile /tmp/posterior.csv"
     )
-    assert args.acquisition is True
+    assert args.acquisition == 20
+
+
+def test_train_acquisition_value_parsed():
+    args = parse_args(
+        "--train --law power --scenario scatter "
+        "--probabilistic --acquisition 7 --outfile /tmp/posterior.csv"
+    )
+    assert args.acquisition == 7
 
 
 def test_acquisition_requires_train_probabilistic():
@@ -86,7 +94,15 @@ def test_acquisition_requires_train_probabilistic():
     ):
         parse_args(
             "--train --law power --scenario scatter "
-            "--acquisition --outfile /tmp/out.csv"
+            "--acquisition 20 --outfile /tmp/out.csv"
+        )
+
+
+def test_acquisition_must_be_positive():
+    with pytest.raises(ValueError, match="--acquisition must be at least 1"):
+        parse_args(
+            "--train --law power --scenario scatter "
+            "--probabilistic --acquisition 0 --outfile /tmp/out.csv"
         )
 
 
@@ -187,7 +203,7 @@ def test_train_probabilistic_with_acquisition():
         args = parse_args(
             f"--train --law power --scenario scatter "
             f"--outfile {output_path} "
-            "--n-systems 10 --n-pars 100,100 --probabilistic --acquisition"
+            "--n-systems 10 --n-pars 100,100 --probabilistic --acquisition 3"
         )
         execute_scenario(args)
         assert os.path.exists(output_path)

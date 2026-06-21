@@ -14,7 +14,7 @@
 {{< video-credit
   src="assets/generated/power_law_convergence.mp4"
   alt="Animation showing the power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
-  width="80%" >}}
+  width="100%" >}}
 :::
 ::::
 
@@ -80,10 +80,20 @@ There's a lot to be investigated here - with my PhD student Lewis O'Donnell we'r
 
 ## 3.2.1 Probabilistic stamp collecting
 
+:::: {.two-col}
+::: {}
 {{< video-credit
   src="assets/generated/probabilistic_convergence.mp4"
   alt="Animation showing the probabilistic power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
-  width="80%" >}}
+  width="100%" >}}
+:::
+::: {}
+{{< video-credit
+src="assets/generated/acquisition_convergence.mp4"
+alt="Animation showing the acquisition function model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
+width="100%" >}}
+:::
+::::
 
 ## 3.3 FAIR and Open science
 

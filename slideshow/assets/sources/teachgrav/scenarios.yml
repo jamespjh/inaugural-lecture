@@ -64,7 +64,17 @@
   n-pars: 501,501
   visualise: surface
   outfile: probabilistic_convergence.mp4
-  n-systems: 256
+  n-systems: 128
+- scenario: scatter
+  method: euler
+  law: power
+  train: true
+  probabilistic: true
+  n-pars: 501,501
+  visualise: surface
+  acquisition: 5
+  outfile: acquisition_convergence.mp4
+  n-systems: 128
 - scenario: scatter
   until: 1.5
   method: RK45

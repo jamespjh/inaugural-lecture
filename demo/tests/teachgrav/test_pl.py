@@ -99,3 +99,36 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
         )
         scalar = scalar_flat.reshape((1, 1, 1) + system.data.shape)
         assert np.allclose(vector[i, i, 0], scalar[0, 0, 0], atol=1e-12)
+
+
+def test_pl_probabilistic_train_acquisition_pathway(monkeypatch):
+    """Integer acquisition budget should route through _acquisition."""
+    factory = ScenarioFactory(engine="numpy", seed=11)
+    model = PLModel(factory)
+    G_values = factory.engine.array([-1.0, 0.0, 1.0])
+    power_values = factory.engine.array([2.0, 3.0, 4.0])
+    N_sys = 5
+
+    chosen_order = []
+    original_acquisition = PLModel._acquisition
+
+    def recording_acquisition(self, *args, **kwargs):
+        for idx in original_acquisition(self, *args, **kwargs):
+            chosen_order.append(int(idx))
+            yield idx
+
+    monkeypatch.setattr(PLModel, "_acquisition", recording_acquisition)
+
+    posterior = model.probabilistic_train(
+        N_sys=N_sys,
+        G_values=G_values,
+        power_values=power_values,
+        acquisition=3,
+        n_bodies=3,
+    )
+    np_mod = posterior.__array_namespace__()
+
+    assert len(chosen_order) == N_sys
+    assert sorted(chosen_order) == list(range(N_sys))
+    assert posterior.shape == (len(G_values), len(power_values))
+    assert np_mod.allclose(np_mod.sum(posterior), 1.0)

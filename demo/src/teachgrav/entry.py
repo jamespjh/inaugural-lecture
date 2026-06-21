@@ -400,7 +400,11 @@ def _validate_train_args(args):
             "--probabilistic training is currently only supported for "
             "--law power."
         )
-    if args.acquisition and (not args.train or not args.probabilistic):
+    if args.acquisition is not None and args.acquisition < 1:
+        raise ValueError("--acquisition must be at least 1.")
+    if args.acquisition is not None and (
+        not args.train or not args.probabilistic
+    ):
         raise ValueError(
             "--acquisition can only be used with --train --probabilistic."
         )
@@ -498,10 +502,14 @@ def parse_args(force_args=None):
     )
     parser.add_argument(
         "--acquisition",
-        action="store_true",
+        type=int,
+        nargs="?",
+        const=20,
+        default=None,
         help=(
             "Use an acquisition function to choose the next training "
-            "scenario (used with --train --probabilistic)."
+            "scenario, evaluating only this many random candidate "
+            "scenarios at each step (used with --train --probabilistic)."
         ),
     )
     parser.add_argument(
