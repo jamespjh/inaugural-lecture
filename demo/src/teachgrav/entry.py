@@ -46,7 +46,9 @@ def _train_probabilistic_model(args, factory, scenario_kwargs):
         print(f"Probability surface plot saved to: {args.outfile}")
     else:
         np.savetxt(args.outfile, likelihoods_np, delimiter=',')
-        logger.info(f"Saved probabilistic training likelihoods to {args.outfile}")
+        logger.info(
+            f"Saved probabilistic training likelihoods to {
+                args.outfile}")
         print(f"Probabilistic training likelihoods saved to: {args.outfile}")
 
 

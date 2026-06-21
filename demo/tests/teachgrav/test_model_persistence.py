@@ -71,6 +71,7 @@ class TestGPModelPersistence:
 class TestCreateLawModelData:
     def setup_method(self):
         self.factory = ScenarioFactory('numpy')
+
     def test_gaussian_requires_model_data(self):
         """create_law('gaussian') without model_data raises ValueError."""
         with pytest.raises(ValueError, match='--model-data'):
@@ -112,5 +113,8 @@ class TestCreateLawModelData:
     def test_gravity_ignores_model_data(self):
         """create_law('gravity') should work regardless of model_data."""
         from teachgrav.laws.true_law import TrueLawModel
-        model = create_law('gravity', factory=self.factory, model_data='ignored_path')
+        model = create_law(
+            'gravity',
+            factory=self.factory,
+            model_data='ignored_path')
         assert isinstance(model, TrueLawModel)

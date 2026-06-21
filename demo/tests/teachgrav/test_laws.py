@@ -13,8 +13,6 @@ def assert_shape(value, expected_shape):
     assert infer_shape(value) == expected_shape
 
 
-
-
 # Engines that support the pure-Python for-loop gravity law.
 # ScenarioFactory handles python/numba engines transparently by building the
 # scenario with numpy internally; TrueLawModel converts data on the fly.
@@ -82,7 +80,8 @@ def test_law_vectorised(engine):
         )
         for _ in range(N_sys)
     ]
-    simple_results = factory.engine.array([law_model.law(system) for system in systems])
+    simple_results = factory.engine.array(
+        [law_model.law(system) for system in systems])
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile

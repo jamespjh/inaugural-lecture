@@ -9,7 +9,7 @@ _METHOD_ENGINE_COMBOS = [
     (m, e) for m, e in [
         ('RK45', 'numpy'),
         ('LSODA', 'numpy'),
-    #    ('Tsit5', 'jax-cpu'), TODO: JAX integration needs factory propagated, needs tidy up
+        #    ('Tsit5', 'jax-cpu'), TODO: JAX integration needs factory propagated, needs tidy up
     ] if e in ENGINES_TO_TEST
 ]
 

@@ -9,9 +9,9 @@ plt.style.use('dark_background')
 
 
 def plot_probability_surface(likelihoods, outfile,
-                              G_values=None,
-                              power_values=None,
-                              figsize=(6.4, 6.4)):
+                             G_values=None,
+                             power_values=None,
+                             figsize=(6.4, 6.4)):
     """Save a heatmap of a 2-D log-probability distribution over (G, n).
 
     Args:

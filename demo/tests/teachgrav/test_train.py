@@ -116,6 +116,7 @@ def test_train_with_seed():
         if os.path.exists(output_path):
             os.remove(output_path)
 
+
 def test_train_probabilistic():
     """--train --probabilistic should train a probabilistic model."""
     with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
@@ -127,7 +128,7 @@ def test_train_probabilistic():
         execute_scenario(args)
         assert os.path.exists(output_path)
         with open(output_path) as fh:
-        # Load as a matrix and check it has the expected shape (100, 100)
+            # Load as a matrix and check it has the expected shape (100, 100)
             data = np.loadtxt(fh, delimiter=',')
             assert data.shape == (100, 100)
     finally:

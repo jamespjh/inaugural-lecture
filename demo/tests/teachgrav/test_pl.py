@@ -68,7 +68,8 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
     """Diagonal entries of vectorised (G, power) match scalar pair calls."""
     factory = ScenarioFactory(engine='numpy', seed=7)
     masses = factory.engine.array([1.0, 1.5, 2.0])
-    system = factory.create_scenario('scatter', n_bodies=3, fixed_masses=masses)
+    system = factory.create_scenario(
+        'scatter', n_bodies=3, fixed_masses=masses)
 
     pair_G = np.array([0.2, 0.8, -1.1, 1.7])
     pair_power = np.array([1.8, 2.3, 3.0, 3.6])
@@ -79,7 +80,8 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
 
     ICs_flat = factory.engine.array([system.data.flatten()])
     vector_flat = model.flat_law(ICs_flat, system.masses, system.immobile)
-    vector = vector_flat.reshape((len(pair_G), len(pair_power), 1) + system.data.shape)
+    vector = vector_flat.reshape(
+        (len(pair_G), len(pair_power), 1) + system.data.shape)
 
     for i in range(len(pair_G)):
         scalar_model = PLModel(
@@ -87,6 +89,7 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
             G=float(pair_G[i]),
             power=float(pair_power[i]),
         )
-        scalar_flat = scalar_model.flat_law(ICs_flat, system.masses, system.immobile)
+        scalar_flat = scalar_model.flat_law(
+            ICs_flat, system.masses, system.immobile)
         scalar = scalar_flat.reshape((1, 1, 1) + system.data.shape)
         assert np.allclose(vector[i, i, 0], scalar[0, 0, 0], atol=1e-12)

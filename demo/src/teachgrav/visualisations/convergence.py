@@ -1,3 +1,4 @@
+import traceback
 import numpy as np
 from ..integrator import integrate_trajectory
 from ..laws.pl import PLModel
@@ -108,7 +109,6 @@ def convergence_video(trajectories, output, fps=20, options='trail',
 
     plt.close(fig)
 
-import traceback
 
 def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
     """Return stable checkpoint keyframes with their integrated trajectory."""
@@ -225,7 +225,6 @@ def generate_convergence_video(checkpoints, scenario, output,
     """
     scenario_kwargs = scenario_kwargs or {}
 
-
     selected = checkpoints[::checkpoint_interval]
     if not selected:
         logger.warning("No checkpoints to generate convergence video from.")
@@ -247,7 +246,13 @@ def generate_convergence_video(checkpoints, scenario, output,
         """Integrate a power-law trajectory for a single parameter pair."""
         pl_model = PLModel(factory=viz_factory, G=g_value, power=power_value)
         traj = integrate_trajectory(
-            system, method=method, factory=viz_factory, law=pl_model, model=pl_model, dt=dt, until=until)
+            system,
+            method=method,
+            factory=viz_factory,
+            law=pl_model,
+            model=pl_model,
+            dt=dt,
+            until=until)
         traj.data = np.array(traj.data)
         return traj
 
@@ -297,7 +302,12 @@ def generate_convergence_video(checkpoints, scenario, output,
     if show_true_law:
         try:
             ref_traj = integrate_trajectory(
-                system, method=method, factory=viz_factory, law='gravity', dt=dt, until=until)
+                system,
+                method=method,
+                factory=viz_factory,
+                law='gravity',
+                dt=dt,
+                until=until)
             ref_traj.data = np.array(ref_traj.data)
             ref_trajectory = ref_traj
         except Exception as exc:  # pragma: no cover
