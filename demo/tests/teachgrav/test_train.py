@@ -4,6 +4,7 @@ import os
 import tempfile
 import pytest
 import numpy as np
+from unittest.mock import patch
 
 from teachgrav.entry import parse_args, execute_scenario
 
@@ -173,6 +174,50 @@ def test_train_probabilistic_surface_png():
         execute_scenario(args)
         assert os.path.exists(output_path)
         assert os.path.getsize(output_path) > 0
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+def test_train_probabilistic_surface_mp4():
+    """--train --probabilistic with .mp4 should render surface video."""
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
+        output_path = f.name
+    try:
+        args = parse_args(
+            f"--train --law power --scenario scatter "
+            f"--outfile {output_path} "
+            "--n-systems 5 --n-pars 10,12 --probabilistic "
+            "--visualise surface --fps 2"
+        )
+        with patch("matplotlib.animation.FuncAnimation.save") as mock_save:
+            execute_scenario(args)
+            assert mock_save.called
+    finally:
+        if os.path.exists(output_path):
+            os.remove(output_path)
+
+
+def test_train_probabilistic_surface_mp4_forwards_duration_and_fps():
+    """Probabilistic .mp4 output should forward duration/fps to renderer."""
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
+        output_path = f.name
+    try:
+        args = parse_args(
+            f"--train --law power --scenario scatter "
+            f"--outfile {output_path} "
+            "--n-systems 5 --n-pars 10,12 --probabilistic "
+            "--visualise surface --fps 7 --duration 3"
+        )
+        with patch(
+            "teachgrav.visualisations.probability_surface"
+            ".probability_surface_video"
+        ) as mock_video:
+            execute_scenario(args)
+            assert mock_video.called
+            kwargs = mock_video.call_args.kwargs
+            assert kwargs["fps"] == 7
+            assert kwargs["duration"] == 3
     finally:
         if os.path.exists(output_path):
             os.remove(output_path)

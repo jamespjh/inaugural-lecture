@@ -78,6 +78,13 @@ There's a lot to be investigated here - with my PhD student Lewis O'Donnell we'r
 
 :::
 
+## 3.2.1 Probabilistic stamp collecting
+
+{{< video-credit
+  src="assets/generated/probabilistic_convergence.mp4"
+  alt="Animation showing the probabilistic power-law model's trajectory converging toward the true inverse-square law trajectory as training progresses through each optimisation step"
+  width="80%" >}}
+
 ## 3.3 FAIR and Open science
 
 * Findable

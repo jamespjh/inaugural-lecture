@@ -34,8 +34,17 @@ def _train_probabilistic_model(args, factory, scenario_kwargs):
     n_pars = [int(x) for x in args.n_pars.split(",")]
     G_values = np.linspace(-5.0, 5.0, n_pars[0])
     power_values = np.linspace(-5.0, 5.0, n_pars[1])
+    likelihood_grids = []
+
+    def on_step(grid):
+        likelihood_grids.append(to_numpy_host(grid).copy())
+
     likelihoods = model.probabilistic_train(
-        args.n_systems, G_values, power_values, **scenario_kwargs
+        args.n_systems,
+        G_values,
+        power_values,
+        on_step=on_step,
+        **scenario_kwargs,
     )
     likelihoods_np = to_numpy_host(likelihoods)
 
@@ -52,10 +61,28 @@ def _train_probabilistic_model(args, factory, scenario_kwargs):
             figsize=args.figsize,
         )
         print(f"Probability surface plot saved to: {args.outfile}")
+    elif args.format == "mp4":
+        from .visualisations.probability_surface import (
+            probability_surface_video,
+        )
+
+        if not likelihood_grids:
+            likelihood_grids = [likelihoods_np]
+        probability_surface_video(
+            likelihood_grids,
+            args.outfile,
+            G_values=G_values,
+            power_values=power_values,
+            fps=args.fps,
+            duration=args.duration,
+            figsize=args.figsize,
+        )
+        print(f"Probability surface video saved to: {args.outfile}")
     else:
         np.savetxt(args.outfile, likelihoods_np, delimiter=",")
-        logger.info(f"Saved probabilistic training likelihoods to {
-            args.outfile}")
+        logger.info(
+            f"Saved probabilistic training likelihoods to {args.outfile}"
+        )
         print(f"Probabilistic training likelihoods saved to: {args.outfile}")
 
 
@@ -367,10 +394,10 @@ def _validate_train_args(args):
         )
     if args.checkpoint_interval < 1:
         raise ValueError("--checkpoint-interval must be at least 1.")
-    if args.probabilistic and args.video:
+    if args.probabilistic and args.law != "power":
         raise ValueError(
-            "--probabilistic and convergence video output are mutually "
-            "exclusive; use --outfile with a .csv extension."
+            "--probabilistic training is currently only supported for "
+            "--law power."
         )
 
 
