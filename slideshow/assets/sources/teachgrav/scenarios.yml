@@ -64,7 +64,7 @@
   n-pars: 501,501
   visualise: surface
   outfile: probabilistic_convergence.mp4
-  n-systems: 128
+  n-systems: 48
 - scenario: scatter
   method: euler
   law: power
@@ -74,7 +74,7 @@
   visualise: surface
   acquisition: 5
   outfile: acquisition_convergence.mp4
-  n-systems: 128
+  n-systems: 48
 - scenario: scatter
   until: 1.5
   method: RK45
