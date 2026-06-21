@@ -21,7 +21,7 @@ class PLModel(Model):
         self.G = G
         self.power = power
 
-    def probabilistic_train(self, N_sys, G_values, power_values, obs_noise=0.01, on_step=None, **kwargs):
+    def probabilistic_train(self, N_sys, G_values, power_values, obs_noise=200, on_step=None, **kwargs):
         """Generate a grid of values for the parameters.
            For each observation, compute the likelihood of the
            data under the model for each point in the grid, 
@@ -48,28 +48,69 @@ class PLModel(Model):
         N_power = len(power_values)
         likelihoods = np.ones((N_G, N_power)) / (N_G * N_power)  # Uniform prior
         
-        def model(ICs, ks, ns):
-            pass
+        def model(ICs_batch, ks, ns):
             # Vectorised model that takes in a batch of parameter values
             # and returns the predicted accelerations for each set of parameters
             # and each system in the batch.
             # ICs shape: (N_sys, 2, N_bodies, D)
             # ks shape: (N_G,)
             # ns shape: (N_power,)
-            # Output shape: (N_sys, N_G, N_power, N_bodies, D)
+            # Output shape: (N_G, N_power, N_sys, N_bodies, D)
+            self.G = ks
+            self.power = ns
+            C = ICs_batch.shape[0]
+            N_bodies = len(masses)
+
+            flat = self.flat_law(
+                ICs_batch.reshape((C, -1)),
+                masses=masses,
+                immobile=immobile,
+            )
+            vector_results = flat.reshape((len(ks), len(ns), C, 2, N_bodies, -1))
+            return vector_results[:, :, :, 1, :, :]
 
 
-        # For each system
+        # For each system, update p(G, n | data_1:i) on the parameter grid.
         for i in range(N_sys):
-            accs = model(ICs[i:i+1], G_values[:, np.newaxis], power_values[np.newaxis, :])
-            # Vectorising over the grid of parameters
-            # Compute the predicted accelerations
-            # Compute the difference between the predicted and observed accelerations
-            # Compute the likelihood of the observed accelerations given the predicted accelerations and observation noise
-            # Update the grid of likelihoods
-            # Call the callback on_step with the grid of likelihoods
-        # Update self with the final parameter values (e.g., the mean of the posterior distribution)
-        # Return the final grid of likelihoods
+            accs = model(ICs[i:i+1], G_values, power_values)
+            observed = accelerations[i:i+1].reshape((1, len(masses), -1))
+
+            delta = accs - observed[np.newaxis, np.newaxis, :, :, :]
+            sse = np.sum(delta ** 2, axis=(-1, -2, -3))  # (N_G, N_power)
+
+            # Gaussian observation model up to proportionality constant.
+            # Subtract max log-likelihood for numerical stability.
+            log_step_likelihood = -0.5 * sse / (obs_noise ** 2)
+            log_step_likelihood = (
+                log_step_likelihood - np.max(log_step_likelihood)
+            )
+            step_likelihood = np.exp(log_step_likelihood)
+            likelihoods = likelihoods * step_likelihood
+
+            norm = np.sum(likelihoods)
+            if norm > 0:
+                likelihoods = likelihoods / norm
+            else:
+                logger.warning("Degenerate likelihoods encountered during probabilistic training. "
+                               "Resetting to uniform distribution.")
+                # Degenerate case: keep a valid distribution.
+                likelihoods = np.ones((N_G, N_power)) / (N_G * N_power)
+
+            if on_step is not None:
+                on_step(likelihoods)
+            G_grid = G_values[:, np.newaxis]
+            power_grid = power_values[np.newaxis, :]
+            G_mean = float(np.sum(likelihoods * G_grid))
+            power_mean = float(np.sum(likelihoods * power_grid))
+            logger.debug(f"Step {i+1}/{N_sys}: Posterior mean parameters: G={G_mean}, power={power_mean}")
+
+        # Set model parameters to posterior means for downstream use.
+        G_grid = G_values[:, np.newaxis]
+        power_grid = power_values[np.newaxis, :]
+        self.G = float(np.sum(likelihoods * G_grid))
+        self.power = float(np.sum(likelihoods * power_grid))
+        logger.info(f"Probabilistic training complete. Posterior mean parameters: G={self.G}, power={self.power}")
+        # Return the final posterior grid over parameter values.
         return likelihoods
 
     def train(self, N_sys, on_step=None, **kwargs):
@@ -173,12 +214,6 @@ class PLModel(Model):
         # Avoid division by zero, but will make no contribution
         # since we will zero out self-interactions next
         # Pairwise accelerations due to gravity
-        print("Shapes of ingredients after broadcasting:")
-        print(f"  G: {G[:,np.newaxis, np.newaxis, np.newaxis, np.newaxis, np.newaxis].shape}")
-        print(f"  masses: {masses[np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis].shape}")
-        print(f"  displacements: {displacements[np.newaxis, np.newaxis, :,:,:,:].shape}")
-        print(f"  safe_distances: {safe_distances[np.newaxis, np.newaxis, :,:,:,:].shape}")
-        print(f"  power: {power[np.newaxis,:, np.newaxis, np.newaxis, np.newaxis, np.newaxis].shape}")
         accelerations = (-1.0 * G[:,np.newaxis, np.newaxis, np.newaxis, np.newaxis, np.newaxis] * \
             masses[np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis] * \
             displacements[np.newaxis, np.newaxis, :,:,:,:] / 
