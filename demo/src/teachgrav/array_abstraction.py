@@ -6,8 +6,8 @@ This module re-exports the public symbols that the rest of the codebase
 imports from here so that existing code continues to work unchanged.
 """
 
-from .engines import create_engine          # noqa: F401
-from .engines.base import to_numpy_host     # noqa: F401
+from .engines import create_engine  # noqa: F401
+from .engines.base import to_numpy_host  # noqa: F401
 
 
 def move_to_device(value, target):
@@ -20,48 +20,51 @@ def move_to_device(value, target):
     Returns:
         Value moved when supported; otherwise returned unchanged.
     """
-    if target not in {'cpu', 'gpu'}:
+    if target not in {"cpu", "gpu"}:
         raise ValueError("target must be 'cpu' or 'gpu'")
 
-    namespace_fn = getattr(value, '__array_namespace__', None)
+    namespace_fn = getattr(value, "__array_namespace__", None)
     if namespace_fn is None:
         return value
 
     namespace = namespace_fn()
-    ns_name = getattr(namespace, '__name__', '')
+    ns_name = getattr(namespace, "__name__", "")
 
-    if ns_name == 'numpy':
+    if ns_name == "numpy":
         return value
 
-    if ns_name == 'torch':
-        if target == 'cpu' and hasattr(value, 'cpu'):
+    if ns_name == "torch":
+        if target == "cpu" and hasattr(value, "cpu"):
             return value.cpu()
-        if target == 'gpu' and hasattr(value, 'to'):
+        if target == "gpu" and hasattr(value, "to"):
             import torch
+
             if torch.cuda.is_available():
-                return value.to('cuda')
+                return value.to("cuda")
             has_mps = (
-                hasattr(torch.backends, 'mps') and
-                torch.backends.mps.is_available()
+                hasattr(torch.backends, "mps")
+                and torch.backends.mps.is_available()
             )
             if has_mps:
-                return value.to('mps')
+                return value.to("mps")
         return value
 
-    if ns_name.startswith('jax') and hasattr(value, 'to_device'):
+    if ns_name.startswith("jax") and hasattr(value, "to_device"):
         import jax
+
         devices = jax.devices(target)
         if devices:
             return value.to_device(devices[0])
         return value
 
-    if ns_name.startswith('cupy'):
+    if ns_name.startswith("cupy"):
         try:
             import importlib
-            cupy = importlib.import_module('cupy')
+
+            cupy = importlib.import_module("cupy")
         except ImportError:
             return value
-        if target == 'cpu':
+        if target == "cpu":
             return cupy.asnumpy(value)
         return cupy.asarray(value)
 

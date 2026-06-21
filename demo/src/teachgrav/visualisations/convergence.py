@@ -13,8 +13,14 @@ import matplotlib.pyplot as plt
 logger = logging.getLogger("Teachgrav")
 
 
-def convergence_video(trajectories, output, fps=20, options='trail',
-                      ref_trajectory=None, figsize=(6.4, 7.2)):
+def convergence_video(
+    trajectories,
+    output,
+    fps=20,
+    options="trail",
+    ref_trajectory=None,
+    figsize=(6.4, 7.2),
+):
     """Create a video showing trajectory convergence across training steps.
 
     Each frame shows the full trail of the simulated trajectory produced by
@@ -63,15 +69,16 @@ def convergence_video(trajectories, output, fps=20, options='trail',
     # Lines for the fitted-law trajectory.
     fitted_lines = []
     for _ in range(num_bodies):
-        line, = ax.plot([], [], color='lemonchiffon', alpha=0.9)
+        (line,) = ax.plot([], [], color="lemonchiffon", alpha=0.9)
         fitted_lines.append(line)
 
     # Lines for the reference trajectory (optional).
     ref_lines = []
     if ref_trajectory is not None:
         for _ in range(num_bodies):
-            line, = ax.plot([], [], color='dodgerblue',
-                            alpha=0.7, linestyle='--')
+            (line,) = ax.plot(
+                [], [], color="dodgerblue", alpha=0.7, linestyle="--"
+            )
             ref_lines.append(line)
 
     all_lines = fitted_lines + ref_lines
@@ -98,14 +105,17 @@ def convergence_video(trajectories, output, fps=20, options='trail',
         return all_lines
 
     ani = FuncAnimation(
-        fig, update, init_func=init,
+        fig,
+        update,
+        init_func=init,
         frames=len(trajectories),
         interval=int(1000 / fps),
-        blit=False)
+        blit=False,
+    )
 
     _save_or_show_animation(
-        ani, output, fps,
-        log_msg=f"Convergence video written to {output}")
+        ani, output, fps, log_msg=f"Convergence video written to {output}"
+    )
 
     plt.close(fig)
 
@@ -119,7 +129,7 @@ def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
             f"G={ckpt['G']:.4f}, power={ckpt['power']:.4f}…"
         )
         try:
-            traj = integrate_power_trajectory(ckpt['G'], ckpt['power'])
+            traj = integrate_power_trajectory(ckpt["G"], ckpt["power"])
         except Exception as exc:  # pragma: no cover
             logger.debug(traceback.format_exc())
             logger.debug(
@@ -131,31 +141,35 @@ def generate_stable_keyframes(checkpoints, integrate_power_trajectory):
         if not np.isfinite(traj.data).all():
             logger.debug(
                 f"Skipping unstable checkpoint G={ckpt['G']:.4f}, "
-                f"power={ckpt['power']:.4f} (non-finite trajectory).")
+                f"power={ckpt['power']:.4f} (non-finite trajectory)."
+            )
             continue
-        stable_keyframes.append({
-            'G': float(ckpt['G']),
-            'power': float(ckpt['power']),
-            'trajectory': traj,
-        })
+        stable_keyframes.append(
+            {
+                "G": float(ckpt["G"]),
+                "power": float(ckpt["power"]),
+                "trajectory": traj,
+            }
+        )
     return stable_keyframes
 
 
-def generate_upsampled_trajectories(stable_keyframes, target_frames,
-                                    integrate_power_trajectory):
+def generate_upsampled_trajectories(
+    stable_keyframes, target_frames, integrate_power_trajectory
+):
     """Build upsampled trajectories via checkpoint interpolation."""
     keyframe_count = len(stable_keyframes)
     keyframe_positions = np.arange(keyframe_count, dtype=float)
     schedule_positions = np.linspace(0, keyframe_count - 1, target_frames)
-    keyframe_g = np.array([k['G'] for k in stable_keyframes], dtype=float)
+    keyframe_g = np.array([k["G"] for k in stable_keyframes], dtype=float)
     keyframe_power = np.array(
-        [k['power'] for k in stable_keyframes],
+        [k["power"] for k in stable_keyframes],
         dtype=float,
     )
-    scheduled_g = np.interp(schedule_positions, keyframe_positions,
-                            keyframe_g)
-    scheduled_power = np.interp(schedule_positions, keyframe_positions,
-                                keyframe_power)
+    scheduled_g = np.interp(schedule_positions, keyframe_positions, keyframe_g)
+    scheduled_power = np.interp(
+        schedule_positions, keyframe_positions, keyframe_power
+    )
     scheduled_g[0] = keyframe_g[0]
     scheduled_g[-1] = keyframe_g[-1]
     scheduled_power[0] = keyframe_power[0]
@@ -163,7 +177,8 @@ def generate_upsampled_trajectories(stable_keyframes, target_frames,
 
     logger.info(
         f"Upsampling convergence frames from {keyframe_count} "
-        f"to {target_frames} by parameter interpolation.")
+        f"to {target_frames} by parameter interpolation."
+    )
 
     trajectories = []
     for g_value, power_value in zip(scheduled_g, scheduled_power):
@@ -188,17 +203,21 @@ def generate_upsampled_trajectories(stable_keyframes, target_frames,
     return trajectories
 
 
-def generate_convergence_video(checkpoints, scenario, output,
-                               checkpoint_interval=1,
-                               show_true_law=False,
-                               seed=None,
-                               method='euler',
-                               dt=0.01,
-                               until=10.0,
-                               duration=30,
-                               fps=20,
-                               scenario_kwargs=None,
-                               figsize=(6.4, 7.2)):
+def generate_convergence_video(
+    checkpoints,
+    scenario,
+    output,
+    checkpoint_interval=1,
+    show_true_law=False,
+    seed=None,
+    method="euler",
+    dt=0.01,
+    until=10.0,
+    duration=30,
+    fps=20,
+    scenario_kwargs=None,
+    figsize=(6.4, 7.2),
+):
     """Generate a convergence video from power-law training checkpoints.
 
     For each checkpoint, simulate the scatter scenario using given integration
@@ -234,12 +253,13 @@ def generate_convergence_video(checkpoints, scenario, output,
 
     logger.info(
         f"Generating convergence video from {len(selected)} checkpoints "
-        f"(interval={checkpoint_interval}), target frames={target_frames}…")
+        f"(interval={checkpoint_interval}), target frames={target_frames}…"
+    )
 
     # Use a fixed seed for the visualisation scenario so all frames show the
     # same initial conditions and only the law changes.
     viz_seed = seed if seed is not None else 42
-    viz_factory = ScenarioFactory('numpy', seed=viz_seed)
+    viz_factory = ScenarioFactory("numpy", seed=viz_seed)
     system = viz_factory.create_scenario(scenario, **scenario_kwargs)
 
     def integrate_power_trajectory(g_value, power_value):
@@ -252,23 +272,27 @@ def generate_convergence_video(checkpoints, scenario, output,
             law=pl_model,
             model=pl_model,
             dt=dt,
-            until=until)
+            until=until,
+        )
         traj.data = np.array(traj.data)
         return traj
 
     stable_keyframes = generate_stable_keyframes(
-        selected, integrate_power_trajectory)
+        selected, integrate_power_trajectory
+    )
 
     if not stable_keyframes:
         logger.warning(
             "All checkpoint trajectories were numerically unstable; "
-            "convergence video not generated.")
+            "convergence video not generated."
+        )
         return
 
     keyframe_count = len(stable_keyframes)
     logger.info(
-        f"Using {keyframe_count} stable keyframes for frame scheduling.")
-    stable_trajectories = [k['trajectory'] for k in stable_keyframes]
+        f"Using {keyframe_count} stable keyframes for frame scheduling."
+    )
+    stable_trajectories = [k["trajectory"] for k in stable_keyframes]
 
     trajectories = []
     if keyframe_count >= target_frames:
@@ -287,16 +311,19 @@ def generate_convergence_video(checkpoints, scenario, output,
         logger.warning(
             "All scheduled convergence trajectories were numerically "
             "unstable; "
-            "convergence video not generated.")
+            "convergence video not generated."
+        )
         return
 
     if len(trajectories) < target_frames:
         logger.warning(
             f"Generated {len(trajectories)} convergence frames, below "
-            f"target {target_frames} due to unstable integrations.")
+            f"target {target_frames} due to unstable integrations."
+        )
 
     logger.info(
-        f"Rendering convergence video with {len(trajectories)} frames.")
+        f"Rendering convergence video with {len(trajectories)} frames."
+    )
 
     ref_trajectory = None
     if show_true_law:
@@ -305,9 +332,10 @@ def generate_convergence_video(checkpoints, scenario, output,
                 system,
                 method=method,
                 factory=viz_factory,
-                law='gravity',
+                law="gravity",
                 dt=dt,
-                until=until)
+                until=until,
+            )
             ref_traj.data = np.array(ref_traj.data)
             ref_trajectory = ref_traj
         except Exception as exc:  # pragma: no cover
@@ -321,5 +349,6 @@ def generate_convergence_video(checkpoints, scenario, output,
         output=output,
         fps=fps,
         ref_trajectory=ref_trajectory,
-        figsize=figsize)
+        figsize=figsize,
+    )
     print(f"Convergence video saved to: {output}")

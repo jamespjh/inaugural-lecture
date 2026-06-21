@@ -9,11 +9,12 @@ def numba_seed(seed):
 
 @numba.njit
 def numba_python_matrix(size):
-    return numba.typed.List([
-        numba.typed.List([
-            np.random.random()
-            for _ in range(size[0])])
-        for _ in range(size[1])])
+    return numba.typed.List(
+        [
+            numba.typed.List([np.random.random() for _ in range(size[0])])
+            for _ in range(size[1])
+        ]
+    )
 
 
 def to_numba_typed_list(data):

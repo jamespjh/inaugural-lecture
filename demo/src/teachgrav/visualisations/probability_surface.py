@@ -5,13 +5,12 @@ import numpy as np
 
 logger = logging.getLogger("Teachgrav")
 
-plt.style.use('dark_background')
+plt.style.use("dark_background")
 
 
-def plot_probability_surface(likelihoods, outfile,
-                             G_values=None,
-                             power_values=None,
-                             figsize=(6.4, 6.4)):
+def plot_probability_surface(
+    likelihoods, outfile, G_values=None, power_values=None, figsize=(6.4, 6.4)
+):
     """Save a heatmap of a 2-D log-probability distribution over (G, n).
 
     Args:
@@ -38,12 +37,12 @@ def plot_probability_surface(likelihoods, outfile,
 
     fig, ax = plt.subplots(figsize=figsize)
     img = ax.pcolormesh(
-        power_values, G_values, log_likelihoods,
-        cmap='inferno', shading='auto')
-    fig.colorbar(img, ax=ax, label='Log posterior probability')
-    ax.set_xlabel('Power (n)')
-    ax.set_ylabel('G')
-    ax.set_title('Log posterior probability over (G, n)')
+        power_values, G_values, log_likelihoods, cmap="inferno", shading="auto"
+    )
+    fig.colorbar(img, ax=ax, label="Log posterior probability")
+    ax.set_xlabel("Power (n)")
+    ax.set_ylabel("G")
+    ax.set_title("Log posterior probability over (G, n)")
 
     fig.tight_layout()
     fig.savefig(outfile, dpi=150)

@@ -17,14 +17,15 @@ def test_pl_train(engine):
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("n_bodies", [2, 3, 10])
 def test_pl_predict(n_bodies):
-    factory = ScenarioFactory('numpy')
+    factory = ScenarioFactory("numpy")
     model = PLModel(factory)
     truth = TrueLawModel(factory)
     masses = [1.0] * n_bodies
     model.train(256, n_bodies=n_bodies, fixed_masses=masses)
 
-    scenario = factory.create_scenario('scatter', n_bodies=n_bodies,
-                                       fixed_masses=masses)
+    scenario = factory.create_scenario(
+        "scatter", n_bodies=n_bodies, fixed_masses=masses
+    )
     pl_res = model.law(scenario)
     res = truth.law(scenario)
     print("PL result:\n", pl_res)
@@ -43,7 +44,7 @@ def test_pl_law_vectorised(engine):
     # Test that the law can be called multiple times over an array of states
     systems = [
         factory.create_scenario(
-            'scatter',
+            "scatter",
             n_bodies=N_bodies,
             fixed_masses=masses,
         )
@@ -52,7 +53,8 @@ def test_pl_law_vectorised(engine):
     model = PLModel(factory)
     model.train(256, n_bodies=N_bodies, fixed_masses=masses)
     simple_results = factory.engine.array(
-        [model.law(system) for system in systems])
+        [model.law(system) for system in systems]
+    )
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
@@ -61,15 +63,17 @@ def test_pl_law_vectorised(engine):
     vector_results = results.reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
-        simple_results, vector_results, atol=1e-6)
+        simple_results, vector_results, atol=1e-6
+    )
 
 
 def test_pl_flat_law_vectorised_matches_scalar_pairs():
     """Diagonal entries of vectorised (G, power) match scalar pair calls."""
-    factory = ScenarioFactory(engine='numpy', seed=7)
+    factory = ScenarioFactory(engine="numpy", seed=7)
     masses = factory.engine.array([1.0, 1.5, 2.0])
     system = factory.create_scenario(
-        'scatter', n_bodies=3, fixed_masses=masses)
+        "scatter", n_bodies=3, fixed_masses=masses
+    )
 
     pair_G = np.array([0.2, 0.8, -1.1, 1.7])
     pair_power = np.array([1.8, 2.3, 3.0, 3.6])
@@ -81,7 +85,8 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
     ICs_flat = factory.engine.array([system.data.flatten()])
     vector_flat = model.flat_law(ICs_flat, system.masses, system.immobile)
     vector = vector_flat.reshape(
-        (len(pair_G), len(pair_power), 1) + system.data.shape)
+        (len(pair_G), len(pair_power), 1) + system.data.shape
+    )
 
     for i in range(len(pair_G)):
         scalar_model = PLModel(
@@ -90,6 +95,7 @@ def test_pl_flat_law_vectorised_matches_scalar_pairs():
             power=float(pair_power[i]),
         )
         scalar_flat = scalar_model.flat_law(
-            ICs_flat, system.masses, system.immobile)
+            ICs_flat, system.masses, system.immobile
+        )
         scalar = scalar_flat.reshape((1, 1, 1) + system.data.shape)
         assert np.allclose(vector[i, i, 0], scalar[0, 0, 0], atol=1e-12)

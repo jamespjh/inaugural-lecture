@@ -7,6 +7,7 @@ class MlxBaseEngine(BaseEngine):
 
     def _setup(self):
         import mlx.core as mx
+
         self._configure_device(mx)
         self.np = mx
 

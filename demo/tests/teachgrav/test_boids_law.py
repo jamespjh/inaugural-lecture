@@ -11,7 +11,7 @@ from engines import ENGINES_TO_TEST
 def test_boids_law_output_shape_single(engine):
     """Law returns an array with the same shape as system.data."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
-    system = eng_factory.create_scenario('boids', n_boids=5)
+    system = eng_factory.create_scenario("boids", n_boids=5)
     model = BoidsLawModel()
     delta = model.law(system)
     assert delta.shape == system.data.shape
@@ -21,7 +21,7 @@ def test_boids_law_output_shape_single(engine):
 def test_boids_law_output_shape_many(engine):
     """Law handles a larger flock correctly."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
-    system = eng_factory.create_scenario('boids', n_boids=20)
+    system = eng_factory.create_scenario("boids", n_boids=20)
     model = BoidsLawModel()
     delta = model.law(system)
     assert delta.shape == (2, 20, 2)
@@ -31,7 +31,7 @@ def test_boids_law_output_shape_many(engine):
 def test_boids_dposition_equals_velocity(engine):
     """Derivative of position is velocity."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
-    system = eng_factory.create_scenario('boids', n_boids=5)
+    system = eng_factory.create_scenario("boids", n_boids=5)
     model = BoidsLawModel()
     delta = model.law(system)
     # delta[0] is d(position)/dt, which should equal velocity
@@ -43,7 +43,7 @@ def test_boids_dposition_equals_velocity(engine):
 def test_boids_immobile_mask_zeroes_derivatives(engine):
     """Immobile boids have zero derivatives."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
-    system = eng_factory.create_scenario('boids', n_boids=4)
+    system = eng_factory.create_scenario("boids", n_boids=4)
     arr = eng_factory.engine
     # Mark the first boid as immobile
     system.immobile = arr.array([True, False, False, False])
@@ -139,7 +139,7 @@ def test_boids_alignment_matches_velocities(engine):
 def test_boids_various_flock_sizes(engine, n_boids):
     """Boids law works for a range of flock sizes."""
     eng_factory = ScenarioFactory(engine=engine, seed=42)
-    system = eng_factory.create_scenario('boids', n_boids=n_boids)
+    system = eng_factory.create_scenario("boids", n_boids=n_boids)
     model = BoidsLawModel()
     delta = model.law(system)
     assert delta.shape == (2, n_boids, 2)

@@ -12,7 +12,7 @@ class System:
         self.masses = masses  # shape (N,) for N bodies
         if immobile is not None:
             self.immobile = immobile
-        elif hasattr(self.data, '__array_namespace__'):
+        elif hasattr(self.data, "__array_namespace__"):
             np = self.data.__array_namespace__()
             self.immobile = np.zeros_like(self.masses).astype(np.bool_)
         else:
@@ -51,9 +51,9 @@ class System:
 
     def to_cpu(self):
         """Update the system with data moved to CPU."""
-        self.data = move_to_device(self.data, 'cpu')
-        self.masses = move_to_device(self.masses, 'cpu')
-        self.immobile = move_to_device(self.immobile, 'cpu')
+        self.data = move_to_device(self.data, "cpu")
+        self.masses = move_to_device(self.masses, "cpu")
+        self.immobile = move_to_device(self.immobile, "cpu")
 
     def to_engine(self, engine):
         """Return a new System with all arrays converted to *engine*.
@@ -65,6 +65,7 @@ class System:
         (e.g. JAX) while preserving exact values.
         """
         from .engines.base import to_numpy_host
+
         return System(
             engine.array(to_numpy_host(self.data)),
             masses=engine.array(to_numpy_host(self.masses)),
@@ -73,13 +74,13 @@ class System:
 
     def to_gpu(self):
         """Update the system with data moved to GPU."""
-        self.data = move_to_device(self.data, 'gpu')
-        self.masses = move_to_device(self.masses, 'gpu')
-        self.immobile = move_to_device(self.immobile, 'gpu')
+        self.data = move_to_device(self.data, "gpu")
+        self.masses = move_to_device(self.masses, "gpu")
+        self.immobile = move_to_device(self.immobile, "gpu")
 
 
 class Change:
-    """ Represents the change in positions and velocities for a system."""
+    """Represents the change in positions and velocities for a system."""
 
     def __init__(self, data):
         self.data = data  # shape (2, N, D) for N bodies
@@ -97,8 +98,7 @@ class Trajectory:
     def append(self, data):
         """Append a new system state to the trajectory."""
         ar = data.__array_namespace__()  # Get the array namespace
-        self.data = ar.concatenate([self.data, data[None, :]],
-                                   axis=0)
+        self.data = ar.concatenate([self.data, data[None, :]], axis=0)
 
     def __len__(self):
         return self.data.shape[0]
@@ -109,23 +109,28 @@ class Trajectory:
     def velocities(self):
         return self.data[:, 1]
 
-    def write(self, stream, format='csv'):
+    def write(self, stream, format="csv"):
         """Write the trajectory data to a stream in the specified format."""
-        if format == 'csv':
+        if format == "csv":
             import numpy as np
-            np.savetxt(stream, fmt='%10.5f', X=np.array(self.data.reshape(
-                len(self), -1)), delimiter=',')
+
+            np.savetxt(
+                stream,
+                fmt="%10.5f",
+                X=np.array(self.data.reshape(len(self), -1)),
+                delimiter=",",
+            )
         else:
             # TODO:: Write to HDF5
             raise ValueError(f"Unsupported format: {format}")
+
 
 # Helper functions for working with system data, reshaping and restacking
 
 
 def to_shaped(data, num_vec, num_bodies):
     """Reshape the flat data into a shaped format."""
-    data = data.reshape(
-        (num_vec, 2, num_bodies, -1))  # shape (C, 2, N, D)
+    data = data.reshape((num_vec, 2, num_bodies, -1))  # shape (C, 2, N, D)
     return data
 
 

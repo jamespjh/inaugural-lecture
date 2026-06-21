@@ -11,6 +11,7 @@ from teachgrav.visualisations.visualize import _equal_aspect_limits
 from teachgrav.visualisations.visualize import grid_plot
 
 from teachgrav.scenarios import ScenarioFactory
+
 factory = ScenarioFactory()
 
 
@@ -67,39 +68,49 @@ def test_equal_aspect_limits_buffer():
 def test_axes_equal_aspect_ratio():
     """axes() should scale x/y spans proportionally to the figure size."""
     import matplotlib
-    matplotlib.use('Agg')
+
+    matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from teachgrav.visualisations.visualize import axes
     from teachgrav.system import System, Trajectory
 
-    data = np.array([
-        [[[0.0, 0.0], [10.0, 0.0]],    # positions at step 0
-         [[0.0, 0.0], [0.0, 0.0]]],    # velocities at step 0
-        [[[0.0, 1.0], [10.0, 2.0]],    # positions at step 1
-         [[0.0, 0.0], [0.0, 0.0]]],    # velocities at step 1
-    ])
+    data = np.array(
+        [
+            [
+                [[0.0, 0.0], [10.0, 0.0]],  # positions at step 0
+                [[0.0, 0.0], [0.0, 0.0]],
+            ],  # velocities at step 0
+            [
+                [[0.0, 1.0], [10.0, 2.0]],  # positions at step 1
+                [[0.0, 0.0], [0.0, 0.0]],
+            ],  # velocities at step 1
+        ]
+    )
     masses = np.array([1.0, 1.0])
     system = System(data[0], masses)
     traj = Trajectory(system)
     traj.data = data
 
     figsize = (6.4, 3.6)
-    fig, ax, _ = axes(traj, options='dot', figsize=figsize)
+    fig, ax, _ = axes(traj, options="dot", figsize=figsize)
     x_span = ax.get_xlim()[1] - ax.get_xlim()[0]
     y_span = ax.get_ylim()[1] - ax.get_ylim()[0]
     expected_aspect = figsize[0] / figsize[1]
     actual_aspect = x_span / y_span
     assert np.isclose(actual_aspect, expected_aspect, rtol=1e-6), (
         f"x/y span ratio ({actual_aspect:.4f}) != figure aspect "
-        f"({expected_aspect:.4f}): pixel density is not equal on both axes")
+        f"({expected_aspect:.4f}): pixel density is not equal on both axes"
+    )
     plt.close(fig)
 
 
 def test_visualize():
     from teachgrav.integrator import integrate_trajectory
-    system = factory.create_scenario('moon')
+
+    system = factory.create_scenario("moon")
     trajectory = integrate_trajectory(
-        system, factory=factory, method='euler', dt=0.01, until=1.0)
+        system, factory=factory, method="euler", dt=0.01, until=1.0
+    )
     # Just test that it runs without error and creates a file
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -123,36 +134,38 @@ def test_marker_sizes_from_masses_log_linear_mapping():
 
 
 def test_marker_sizes_from_masses_rejects_non_positive():
-    with pytest.raises(ValueError, match='strictly positive'):
+    with pytest.raises(ValueError, match="strictly positive"):
         marker_sizes_from_masses(np.array([1.0, 0.0, 10.0]), 720.0)
 
 
 def test_visualize_passes_fps_to_animate():
     from teachgrav.integrator import integrate_trajectory
 
-    system = factory.create_scenario('moon')
+    system = factory.create_scenario("moon")
     trajectory = integrate_trajectory(
-        system, factory=factory, method='euler', dt=0.01, until=1.0)
+        system, factory=factory, method="euler", dt=0.01, until=1.0
+    )
 
-    with patch('teachgrav.visualisations.visualize.animate') as mock_animate:
+    with patch("teachgrav.visualisations.visualize.animate") as mock_animate:
         visualize(
             trajectory,
-            output='out.mp4',
-            mode='video',
-            options='trail',
+            output="out.mp4",
+            mode="video",
+            options="trail",
             duration=2,
             fps=11,
             figsize=(8.0, 4.0),
         )
 
     assert mock_animate.call_count == 1
-    assert mock_animate.call_args.kwargs['fps'] == 11
-    assert mock_animate.call_args.kwargs['figsize'] == (8.0, 4.0)
+    assert mock_animate.call_args.kwargs["fps"] == 11
+    assert mock_animate.call_args.kwargs["figsize"] == (8.0, 4.0)
 
 
 # ---------------------------------------------------------------------------
 # Tests for grid_plot
 # ---------------------------------------------------------------------------
+
 
 def _make_fake_trajectory(n_bodies=2, n_steps=5):
     """Return a minimal fake Trajectory for testing grid_plot."""
@@ -173,9 +186,9 @@ def _make_fake_trajectory(n_bodies=2, n_steps=5):
 def test_grid_plot_saves_png(tmp_path):
     """grid_plot should write a PNG file to the given output path."""
     grid_size = 2
-    trajectories = [_make_fake_trajectory() for _ in range(grid_size ** 2)]
+    trajectories = [_make_fake_trajectory() for _ in range(grid_size**2)]
     output = str(tmp_path / "grid.png")
-    grid_plot(trajectories, grid_size, output=output, options='trail')
+    grid_plot(trajectories, grid_size, output=output, options="trail")
     assert os.path.exists(output)
     assert os.path.getsize(output) > 0
 
@@ -183,9 +196,9 @@ def test_grid_plot_saves_png(tmp_path):
 def test_grid_plot_dot_option(tmp_path):
     """grid_plot should work with options='dot' without raising."""
     grid_size = 2
-    trajectories = [_make_fake_trajectory() for _ in range(grid_size ** 2)]
+    trajectories = [_make_fake_trajectory() for _ in range(grid_size**2)]
     output = str(tmp_path / "grid_dot.png")
-    grid_plot(trajectories, grid_size, output=output, options='dot')
+    grid_plot(trajectories, grid_size, output=output, options="dot")
     assert os.path.exists(output)
 
 
@@ -193,21 +206,21 @@ def test_grid_plot_invalid_option():
     """grid_plot should raise ValueError for unknown options."""
     trajectories = [_make_fake_trajectory() for _ in range(4)]
     with pytest.raises(ValueError, match="Unknown grid_plot option"):
-        grid_plot(trajectories, 2, output=None, options='invalid')
+        grid_plot(trajectories, 2, output=None, options="invalid")
 
 
 def test_grid_plot_1x1(tmp_path):
     """grid_plot should work with a single cell (grid_size=1)."""
     trajectories = [_make_fake_trajectory()]
     output = str(tmp_path / "grid_1x1.png")
-    grid_plot(trajectories, 1, output=output, options='trail')
+    grid_plot(trajectories, 1, output=output, options="trail")
     assert os.path.exists(output)
 
 
 def test_grid_plot_3x3(tmp_path):
     """grid_plot should handle a 3x3 grid (9 trajectories)."""
     grid_size = 3
-    trajectories = [_make_fake_trajectory() for _ in range(grid_size ** 2)]
+    trajectories = [_make_fake_trajectory() for _ in range(grid_size**2)]
     output = str(tmp_path / "grid_3x3.png")
     grid_plot(trajectories, grid_size, output=output)
     assert os.path.exists(output)

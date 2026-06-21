@@ -16,8 +16,12 @@ class SunScenario(Scenario):
         earth_velocity = [0.0, 1.0]
 
         return System(
-            self.engine.array([[sun_position, earth_position],
-                               [sun_velocity, earth_velocity]]),
+            self.engine.array(
+                [
+                    [sun_position, earth_position],
+                    [sun_velocity, earth_velocity],
+                ]
+            ),
             masses=self.engine.array([sun_mass, earth_mass]),
             # Sun is immobile, i.e. fixed at the origin
             immobile=self.engine.array([True, False]),

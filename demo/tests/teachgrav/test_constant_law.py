@@ -1,13 +1,12 @@
 from teachgrav.laws.constant_law import ConstantLawModel
 from teachgrav.scenarios import ScenarioFactory
 
-
 factory = ScenarioFactory()
 
 
 def test_constant_law_derivative_single_body():
     system = factory.create_scenario(
-        'single',
+        "single",
         position=[2.0, -1.0],
         velocity=[0.5, -0.25],
         mass=1.0,
@@ -22,7 +21,7 @@ def test_constant_law_derivative_single_body():
 
 
 def test_constant_law_respects_immobile_mask():
-    system = factory.create_scenario('moon')
+    system = factory.create_scenario("moon")
     np = system.data.__array_namespace__()
     system.immobile = np.array([True, False])
 

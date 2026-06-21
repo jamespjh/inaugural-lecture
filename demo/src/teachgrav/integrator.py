@@ -3,11 +3,10 @@ from .system import System, Trajectory, Change
 
 import logging
 
-
 logger = logging.getLogger("Teachgrav")
 
-diffrax_methods = ['Tsit5', 'Dopri5', 'Kvaerno5']
-scipy_methods = ['RK45', 'LSODA']
+diffrax_methods = ["Tsit5", "Dopri5", "Kvaerno5"]
+scipy_methods = ["RK45", "LSODA"]
 
 
 def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
@@ -15,8 +14,10 @@ def solve_numpy(method, t1, _, y0, saveat, masses, immobile, model):
 
     def fun(_, y):
         return model.flat_law(y, masses, immobile)
-    solve = solve_ivp(fun, (0, t1), y0, method=method,
-                      t_eval=saveat, rtol=1e-6)
+
+    solve = solve_ivp(
+        fun, (0, t1), y0, method=method, t_eval=saveat, rtol=1e-6
+    )
     return solve.y.T
 
 
@@ -24,8 +25,7 @@ def integrate_trajectory(
     system: System,
     method: str,
     factory,
-    law: str = 'gravity',
-
+    law: str = "gravity",
     dt: float = 0.01,
     until: float = 10,
     model_data: str | None = None,
@@ -52,7 +52,7 @@ def integrate_trajectory(
     steps = int(until / dt)
     trajectory = Trajectory(system)
 
-    if method == 'euler':
+    if method == "euler":
         for step in range(0, steps):
             logger.info(f"Integrating step {step * dt:.2f}/{until:.2f}")
             system = system + Change(model.law(system) * dt)
@@ -64,12 +64,29 @@ def integrate_trajectory(
 
         if method in diffrax_methods:
             from .jax_integrator import solve_diffrax
-            res = solve_diffrax(method, law, until, dt, y0, np.arange(
-                0, dt * steps + dt, dt), system.masses, system.immobile)
+
+            res = solve_diffrax(
+                method,
+                law,
+                until,
+                dt,
+                y0,
+                np.arange(0, dt * steps + dt, dt),
+                system.masses,
+                system.immobile,
+            )
 
         elif method in scipy_methods:
-            res = solve_numpy(method, until, dt, y0, np.arange(
-                0, dt * steps + dt, dt), system.masses, system.immobile, model)
+            res = solve_numpy(
+                method,
+                until,
+                dt,
+                y0,
+                np.arange(0, dt * steps + dt, dt),
+                system.masses,
+                system.immobile,
+                model,
+            )
 
         else:
             raise ValueError(f"Unknown integration method: {method}")

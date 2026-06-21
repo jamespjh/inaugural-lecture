@@ -5,6 +5,7 @@ from teachgrav.scenarios import ScenarioFactory
 from teachgrav.engines.python_engine import infer_shape
 from teachgrav.engine_support import get_available_engines
 from engines import ENGINES_TO_TEST
+
 logger = logging.getLogger(__name__)
 
 
@@ -17,14 +18,14 @@ def assert_shape(value, expected_shape):
 # ScenarioFactory handles python/numba engines transparently by building the
 # scenario with numpy internally; TrueLawModel converts data on the fly.
 ENGINES_WITH_PYTHON_LAW = ENGINES_TO_TEST + [
-    e for e in ['python', 'numba'] if e in get_available_engines()
+    e for e in ["python", "numba"] if e in get_available_engines()
 ]
 
 
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law(engine):
     sys_factory = ScenarioFactory(engine=engine)
-    system = sys_factory.create_scenario('moon')
+    system = sys_factory.create_scenario("moon")
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
     # 2 bodies, 4 derivatives (dx/dt, dy/dt, dvx/dt, dvy/dt)
@@ -34,7 +35,7 @@ def test_law(engine):
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law_immobile(engine):
     sys_factory = ScenarioFactory(engine=engine)
-    system = sys_factory.create_scenario('sun')
+    system = sys_factory.create_scenario("sun")
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
     logger.info(f"Derivatives:\n{derivatives}")
@@ -50,7 +51,7 @@ def test_law_immobile(engine):
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law_scatter(engine):
     sys_factory = ScenarioFactory(engine=engine)
-    system = sys_factory.create_scenario('scatter', n_bodies=5)
+    system = sys_factory.create_scenario("scatter", n_bodies=5)
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
     assert_shape(derivatives, (2, 5, 2))
@@ -59,7 +60,7 @@ def test_law_scatter(engine):
 @pytest.mark.parametrize("engine", ENGINES_WITH_PYTHON_LAW)
 def test_law_scatter_3D(engine):
     sys_factory = ScenarioFactory(engine=engine)
-    system = sys_factory.create_scenario('scatter', n_bodies=5, dimensions=3)
+    system = sys_factory.create_scenario("scatter", n_bodies=5, dimensions=3)
     law_model = TrueLawModel(factory=sys_factory)
     derivatives = law_model.law(system)
     assert_shape(derivatives, (2, 5, 3))
@@ -74,14 +75,15 @@ def test_law_vectorised(engine):
     # Test that the law can be called multiple times over an array of states
     systems = [
         factory.create_scenario(
-            'scatter',
+            "scatter",
             n_bodies=N_bodies,
             fixed_masses=[1.0, 1.0, 1.0],
         )
         for _ in range(N_sys)
     ]
     simple_results = factory.engine.array(
-        [law_model.law(system) for system in systems])
+        [law_model.law(system) for system in systems]
+    )
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
@@ -90,4 +92,5 @@ def test_law_vectorised(engine):
     vector_results = results.reshape((N_sys, 2, N_bodies, -1))
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
-        simple_results, vector_results, atol=1e-6)
+        simple_results, vector_results, atol=1e-6
+    )

@@ -23,11 +23,11 @@ class Model:
     def add_vectorising_dimension_if_needed(self, input_array, target_ndim=2):
         """Add a vectorising dimension to the ICs."""
         if infer_ndim(input_array) == 0:
-            if hasattr(input_array, 'reshape'):
+            if hasattr(input_array, "reshape"):
                 return input_array.reshape(1)
             return input_array
         if infer_ndim(input_array) == 1 and target_ndim > 1:
-            if hasattr(input_array, 'reshape'):
+            if hasattr(input_array, "reshape"):
                 return input_array.reshape(1, -1)
             return [input_array]
         else:
@@ -47,19 +47,24 @@ def create_law(law_name: str, factory, model_data: str | None = None):
         Model instance for the selected law
     """
     import logging
+
     logger = logging.getLogger("Teachgrav")
 
-    if law_name == 'gravity':
+    if law_name == "gravity":
         from .true_law import TrueLawModel
+
         return TrueLawModel(factory=factory)
-    elif law_name == 'boids':
+    elif law_name == "boids":
         from .boids_law import BoidsLawModel
+
         return BoidsLawModel(factory=factory)
-    elif law_name == 'constant':
+    elif law_name == "constant":
         from .constant_law import ConstantLawModel
+
         return ConstantLawModel(factory=factory)
-    elif law_name == 'gaussian':
+    elif law_name == "gaussian":
         from .gp import GPModel
+
         if model_data is None:
             raise ValueError(
                 "Law 'gaussian' requires a trained model file. "
@@ -73,8 +78,9 @@ def create_law(law_name: str, factory, model_data: str | None = None):
             )
         logger.info(f"Loading Gaussian Process model from {model_data}")
         return GPModel.load(model_data, factory=factory)
-    elif law_name == 'power':
+    elif law_name == "power":
         from .pl import PLModel
+
         if model_data is None:
             raise ValueError(
                 "Law 'power' requires a trained model file. "

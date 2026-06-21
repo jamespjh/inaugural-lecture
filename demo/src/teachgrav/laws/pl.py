@@ -1,10 +1,11 @@
 import yaml
 from scipy.optimize import minimize
 from .laws import Model
-from ..system import to_shaped, restack_va
+from ..system import to_shaped
 from ..array_abstraction import to_numpy_host
 
 import logging
+
 logger = logging.getLogger("Teachgrav")
 
 # Fit a power-law model to the data
@@ -22,13 +23,14 @@ class PLModel(Model):
         self.power = power
 
     def probabilistic_train(
-            self,
-            N_sys,
-            G_values,
-            power_values,
-            obs_noise=200,
-            on_step=None,
-            **kwargs):
+        self,
+        N_sys,
+        G_values,
+        power_values,
+        obs_noise=200,
+        on_step=None,
+        **kwargs,
+    ):
         """Generate a grid of values for the parameters.
            For each observation, compute the likelihood of the
            data under the model for each point in the grid,
@@ -46,19 +48,22 @@ class PLModel(Model):
                      iteration with the grid of likelihoods.
             **kwargs: extra keyword arguments forwarded to
                       ``factory.create_training_data``."""
-        ICs, accelerations, masses, immobile = \
+        ICs, accelerations, masses, immobile = (
             self.factory.create_training_data(N_sys, **kwargs)
+        )
 
         logger.info("Training Probabilistic Power Law model...")
         np = ICs.__array_namespace__()
         N_G = len(G_values)
         N_power = len(power_values)
-        likelihoods = np.ones((N_G, N_power)) / \
-            (N_G * N_power)  # Uniform prior
+        likelihoods = np.ones((N_G, N_power)) / (
+            N_G * N_power
+        )  # Uniform prior
 
         def model(ICs_batch, ks, ns):
             # Vectorised model that takes in a batch of parameter values
-            # and returns the predicted accelerations for each set of parameters
+            # and returns the predicted accelerations for
+            # each set of parameters
             # and each system in the batch.
             # ICs shape: (N_sys, 2, N_bodies, D)
             # ks shape: (N_G,)
@@ -75,22 +80,23 @@ class PLModel(Model):
                 immobile=immobile,
             )
             vector_results = flat.reshape(
-                (len(ks), len(ns), C, 2, N_bodies, -1))
+                (len(ks), len(ns), C, 2, N_bodies, -1)
+            )
             return vector_results[:, :, :, 1, :, :]
 
         # For each system, update p(G, n | data_1:i) on the parameter grid.
         for i in range(N_sys):
-            accs = model(ICs[i:i + 1], G_values, power_values)
-            observed = accelerations[i:i + 1].reshape((1, len(masses), -1))
+            accs = model(ICs[i: i + 1], G_values, power_values)
+            observed = accelerations[i: i + 1].reshape((1, len(masses), -1))
 
             delta = accs - observed[np.newaxis, np.newaxis, :, :, :]
-            sse = np.sum(delta ** 2, axis=(-1, -2, -3))  # (N_G, N_power)
+            sse = np.sum(delta**2, axis=(-1, -2, -3))  # (N_G, N_power)
 
             # Gaussian observation model up to proportionality constant.
             # Subtract max log-likelihood for numerical stability.
-            log_step_likelihood = -0.5 * sse / (obs_noise ** 2)
-            log_step_likelihood = (
-                log_step_likelihood - np.max(log_step_likelihood)
+            log_step_likelihood = -0.5 * sse / (obs_noise**2)
+            log_step_likelihood = log_step_likelihood - np.max(
+                log_step_likelihood
             )
             step_likelihood = np.exp(log_step_likelihood)
             likelihoods = likelihoods * step_likelihood
@@ -100,7 +106,7 @@ class PLModel(Model):
                 likelihoods = likelihoods / norm
             else:
                 logger.warning(
-                    "Degenerate likelihoods encountered during probabilistic training. "
+                    "Degenerate likelihoods encountered. "
                     "Resetting to uniform distribution.")
                 # Degenerate case: keep a valid distribution.
                 likelihoods = np.ones((N_G, N_power)) / (N_G * N_power)
@@ -112,8 +118,9 @@ class PLModel(Model):
             G_mean = float(np.sum(likelihoods * G_grid))
             power_mean = float(np.sum(likelihoods * power_grid))
             logger.debug(
-                f"Step {
-                    i + 1}/{N_sys}: Posterior mean parameters: G={G_mean}, power={power_mean}")
+                f"Step {i + 1}/{N_sys}: "
+                f"Posterior mean parameters: G={G_mean}, "
+                f"power={power_mean}")
 
         # Set model parameters to posterior means for downstream use.
         G_grid = G_values[:, np.newaxis]
@@ -123,7 +130,8 @@ class PLModel(Model):
         logger.info(
             f"Probabilistic training complete. Posterior mean parameters: G={
                 self.G}, power={
-                self.power}")
+                self.power}"
+        )
         # Return the final posterior grid over parameter values.
         return likelihoods
 
@@ -141,8 +149,9 @@ class PLModel(Model):
             list of checkpoint dicts recorded at each optimisation step,
             e.g. ``[{'G': 0.5, 'power': 3.0}, ...]``.
         """
-        ICs, accelerations, masses, immobile = \
+        ICs, accelerations, masses, immobile = (
             self.factory.create_training_data(N_sys, **kwargs)
+        )
         target_acc = to_numpy_host(accelerations)
 
         logger.info("Training Power Law model...")
@@ -163,44 +172,49 @@ class PLModel(Model):
             pred = model(ICs, k, n)
             pred = to_numpy_host(pred)
             delta = pred - target_acc
-            return float(to_numpy_host(delta ** 2).sum())
+            return float(to_numpy_host(delta**2).sum())
 
         def callback(xk):
-            params = {'G': float(xk[0]), 'power': float(xk[1])}
+            params = {"G": float(xk[0]), "power": float(xk[1])}
             checkpoints.append(params)
             if on_step is not None:
                 on_step(params)
 
         res = minimize(
-            objective, x0=[
-                self.G, self.power], bounds=[
-                (-5.0, 5.0), (-5.0, 5.0)],
-            callback=callback)
+            objective,
+            x0=[self.G, self.power],
+            bounds=[(-5.0, 5.0), (-5.0, 5.0)],
+            callback=callback,
+        )
         logger.info(f"Optimization result: {res}")
         logger.debug(f"Optimizer message: {res.message}")
         pars = res.x
         self.G = float(pars[0])
         self.power = float(pars[1])
 
-        logger.info(f"Trained Power Law model with parameters:"
-                    f"{self.G}, {self.power}")
+        logger.info(
+            f"Trained Power Law model with parameters:"
+            f"{self.G}, {self.power}"
+        )
 
         return checkpoints
 
     def save(self, path):
         """Save model parameters to a YAML file."""
-        with open(path, 'w') as f:
-            yaml.safe_dump({'G': float(self.G), 'power': float(self.power)}, f)
+        with open(path, "w") as f:
+            yaml.safe_dump({"G": float(self.G), "power": float(self.power)}, f)
         logger.info(f"Saved Power Law model parameters to {path}")
 
     @classmethod
     def load(cls, path, factory=None):
         """Load model parameters from a YAML file."""
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             params = yaml.safe_load(f)
-        model = cls(factory=factory, G=params['G'], power=params['power'])
-        logger.info(f"Loaded Power Law model parameters from {path}: "
-                    f"G={model.G}, power={model.power}")
+        model = cls(factory=factory, G=params["G"], power=params["power"])
+        logger.info(
+            f"Loaded Power Law model parameters from {path}: "
+            f"G={model.G}, power={model.power}"
+        )
         return model
 
     def flat_law(self, data, masses, immobile):
@@ -210,11 +224,11 @@ class PLModel(Model):
         num_vec = data_flat.shape[0]
         data = to_shaped(data_flat, num_vec, num_bodies=len(immobile))
         G = self.add_vectorising_dimension_if_needed(
-            self.factory.engine.array(
-                self.G), target_ndim=1)  # shape N_G
+            self.factory.engine.array(self.G), target_ndim=1
+        )  # shape N_G
         power = self.add_vectorising_dimension_if_needed(
-            self.factory.engine.array(
-                self.power), target_ndim=1)  # shape N_power
+            self.factory.engine.array(self.power), target_ndim=1
+        )  # shape N_power
         np = data.__array_namespace__()
         dpositions = data[:, 1, :, :]  # Derivative of position is velocity
         # Each body experiences a gravitational force from
@@ -225,42 +239,42 @@ class PLModel(Model):
         # on each body
         positions = data[:, 0, :, :]  # shape (C, N, D)
         # Pairwise position differences: shape (C, N, N, D)
-        displacements = positions[:, :, np.newaxis, :] - \
-            positions[:, np.newaxis, :, :]
+        displacements = (
+            positions[:, :, np.newaxis, :] - positions[:, np.newaxis, :, :]
+        )
         distances = np.linalg.norm(displacements, axis=-1, keepdims=True)
         safe_distances = np.where(distances == 0, 1.0, distances)
         # Avoid division by zero, but will make no contribution
         # since we will zero out self-interactions next
         # Pairwise accelerations due to gravity
-        accelerations = (-1.0 * G[:,
-                                  np.newaxis,
-                                  np.newaxis,
-                                  np.newaxis,
-                                  np.newaxis,
-                                  np.newaxis] * masses[np.newaxis,
-                         np.newaxis,
-                         np.newaxis,
-                         np.newaxis,
-                         :,
-                         np.newaxis] * displacements[np.newaxis,
-                                                     np.newaxis,
-                                                     :,
-                                                     :,
-                                                     :,
-                                                     :] / (safe_distances[np.newaxis,
-                                                                          np.newaxis,
-                                                                          :,
-                                                                          :,
-                                                                          :,
-                                                                          :] ** (power[np.newaxis,
-                                                                                       :,
-                                                                                       np.newaxis,
-                                                                                       np.newaxis,
-                                                                                       np.newaxis,
-                                                                                       np.newaxis] + 1)))
+        accelerations = (
+            -1.0
+            * G[:, np.newaxis, np.newaxis, np.newaxis, np.newaxis, np.newaxis]
+            * masses[
+                np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis
+            ]
+            * displacements[np.newaxis, np.newaxis, :, :, :, :]
+            / (
+                safe_distances[np.newaxis, np.newaxis, :, :, :, :]
+                ** (
+                    power[
+                        np.newaxis,
+                        :,
+                        np.newaxis,
+                        np.newaxis,
+                        np.newaxis,
+                        np.newaxis,
+                    ]
+                    + 1
+                )
+            )
+        )
         # Clear self-interactions
         accelerations = np.where(
-            distances[np.newaxis, np.newaxis, :, :, :, :] > 0, accelerations, 0.0)
+            distances[np.newaxis, np.newaxis, :, :, :, :] > 0,
+            accelerations,
+            0.0,
+        )
         # Sum accelerations from all other bodies
         # shape (N_G, N_power, C, N, D)
         dvelocities = np.sum(accelerations, axis=4)
@@ -268,14 +282,16 @@ class PLModel(Model):
         # Replicate dpositions identically for each paramter value, so we can
         # stack it with dvelocities
         dpositions = np.broadcast_to(
-            dpositions, [len(G), len(power)] + list(dpositions.shape))
+            dpositions, [len(G), len(power)] + list(dpositions.shape)
+        )
         # shape N_G, N_p, C, 2, N, D)
         delta = np.stack([dpositions, dvelocities], axis=3)
         # Mask out the derivatives for immobile bodies
         # 1 where mobile, 0 where immobile
         mask = (~immobile).astype(delta.dtype)
-        mask = mask[np.newaxis, np.newaxis,
-                    np.newaxis, np.newaxis, :, np.newaxis]
+        mask = mask[
+            np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis
+        ]
         delta = delta * mask  # Zero out derivatives for immobile bodies
 
         # Shape (2 (pos, vel), N, D (x y z), )

@@ -14,7 +14,11 @@ class MoonScenario(Scenario):
         moon_velocity = [0.0, 1.0]
 
         return System(
-            self.engine.array([[earth_position, moon_position],
-                               [earth_velocity, moon_velocity]]),
+            self.engine.array(
+                [
+                    [earth_position, moon_position],
+                    [earth_velocity, moon_velocity],
+                ]
+            ),
             masses=self.engine.array([earth_mass, moon_mass]),
         )

@@ -4,18 +4,18 @@ Engine subpackage: one class per array-backend engine.
 Use :func:`create_engine` to obtain an engine instance by name.
 """
 
-from .base import BaseEngine, to_numpy_host          # noqa: F401
-from .numpy_engine import NumpyEngine                # noqa: F401
-from .python_engine import PythonEngine              # noqa: F401
-from .numba_engine import NumbaEngine                # noqa: F401
-from .cupy_engine import CupyEngine                  # noqa: F401
-from .jax_engine import (                            # noqa: F401
+from .base import BaseEngine, to_numpy_host  # noqa: F401
+from .numpy_engine import NumpyEngine  # noqa: F401
+from .python_engine import PythonEngine  # noqa: F401
+from .numba_engine import NumbaEngine  # noqa: F401
+from .cupy_engine import CupyEngine  # noqa: F401
+from .jax_engine import (  # noqa: F401
     JaxCpuEngine,
     JaxGpuEngine,
     JaxMetalEngine,
 )
 from .mlx_engine import MlxCpuEngine, MlxGpuEngine  # noqa: F401
-from .torch_engine import (                          # noqa: F401
+from .torch_engine import (  # noqa: F401
     TorchCpuEngine,
     TorchGpuEngine,
     TorchMpsEngine,
@@ -33,7 +33,7 @@ def engine_name_to_class_name(name):
         engine_name_to_class_name('jax-cpu')   # -> 'JaxCpuEngine'
         engine_name_to_class_name('torch-mps') # -> 'TorchMpsEngine'
     """
-    return ''.join(part.capitalize() for part in name.split('-')) + 'Engine'
+    return "".join(part.capitalize() for part in name.split("-")) + "Engine"
 
 
 def create_engine(name, seed=None):
@@ -53,7 +53,8 @@ def create_engine(name, seed=None):
     """
     if name not in valid_engines:
         raise ValueError(
-            f"Unknown engine '{name}'. Valid engines are: {valid_engines}.")
+            f"Unknown engine '{name}'. Valid engines are: {valid_engines}."
+        )
     class_name = engine_name_to_class_name(name)
     cls = globals()[class_name]
     return cls(seed=seed)

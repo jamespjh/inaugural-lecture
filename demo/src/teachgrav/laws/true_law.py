@@ -40,10 +40,12 @@ class TrueLawModel(PLModel):
             immobile = to_numpy_host(system.immobile).tolist()
             if self._uses_numba_engine():
                 result = _numba_gravity_flat_law(
-                    self.G, data, masses, immobile)
+                    self.G, data, masses, immobile
+                )
             else:
                 result = _python_gravity_flat_law(
-                    self.G, data, masses, immobile)
+                    self.G, data, masses, immobile
+                )
             return np.array(result).reshape(numpy_data.shape)
         return super().law(system)
 
@@ -67,9 +69,11 @@ class TrueLawModel(PLModel):
             py_immobile = [bool(x) for x in self._to_py_list(immobile)]
             if self._uses_numba_engine():
                 result = _numba_gravity_flat_law(
-                    self.G, py_data, py_masses, py_immobile)
+                    self.G, py_data, py_masses, py_immobile
+                )
             else:
                 result = _python_gravity_flat_law(
-                    self.G, py_data, py_masses, py_immobile)
+                    self.G, py_data, py_masses, py_immobile
+                )
             return np.array(result)
         return super().flat_law(data, masses, immobile)

@@ -18,8 +18,10 @@ class Timer:
 
     def timeit_cu(self, fn, *args):
         from cupyx.profiler import benchmark
+
         res = benchmark(
-            fn, n_repeat=self.repeat, n_warmup=self.warmup, args=args)
+            fn, n_repeat=self.repeat, n_warmup=self.warmup, args=args
+        )
         cpu = res.cpu_times.mean()
         gpu = res.gpu_times.mean()
         # Return the maximum of CPU and GPU time as the benchmark result
@@ -32,6 +34,7 @@ class Timer:
             res = fn(*args)
             jax.block_until_ready(res)
             return res
+
         return self.timeit(ffn, *args)
 
     def timeit_mps(self, fn, *args):
@@ -41,6 +44,7 @@ class Timer:
             res = fn(*args)
             torch.mps.synchronize()
             return res
+
         return self.timeit(ffn, *args)
 
     def timeit_torch_cuda(self, fn, *args):
@@ -50,16 +54,17 @@ class Timer:
             res = fn(*args)
             torch.cuda.synchronize()
             return res
+
         return self.timeit(ffn, *args)
 
     def timeit_engine(self, fn, engine=None, *args):
-        if engine == 'cupy':
+        if engine == "cupy":
             return self.timeit_cu(fn, *args)
-        if engine == 'torch-gpu':
+        if engine == "torch-gpu":
             return self.timeit_torch_cuda(fn, *args)
         if engine in jax_engines:
             return self.timeit_jax(fn, *args)
-        if engine == 'torch-mps':
+        if engine == "torch-mps":
             return self.timeit_mps(fn, *args)
         else:
             return self.timeit(fn, *args)

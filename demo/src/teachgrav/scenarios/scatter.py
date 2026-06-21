@@ -24,14 +24,17 @@ class ScatterScenario(Scenario):
             if len(fixed_masses) != n_bodies:
                 raise ValueError(
                     f"Length of fixed_masses ({len(fixed_masses)}) must "
-                    f"match n_bodies ({n_bodies}).")
+                    f"match n_bodies ({n_bodies})."
+                )
             masses = self.engine.array(fixed_masses)
         else:
             masses = self.engine.random_array((n_bodies,), min_mass, max_mass)
         positions = self.engine.random_array(
-            (n_bodies, dimensions), -space_radius, space_radius)
+            (n_bodies, dimensions), -space_radius, space_radius
+        )
         velocities = self.engine.random_array(
-            (n_bodies, dimensions), -max_speed, max_speed)
+            (n_bodies, dimensions), -max_speed, max_speed
+        )
         # Reset the velocities so there is zero net momentum
         momenta = masses[:, None] * velocities
         total_momentum = momenta.sum(axis=0)

@@ -27,7 +27,7 @@ def _python_gravity_flat_law(G, data, masses, immobile):
         the state: [d_positions, d_velocities] in the same layout as
         *data*.
     """
-    N = len(masses)            # number of bodies
+    N = len(masses)  # number of bodies
     D = len(data) // (2 * N)  # number of spatial dimensions (e.g. 2 or 3)
 
     # ------------------------------------------------------------------ #
@@ -35,13 +35,9 @@ def _python_gravity_flat_law(G, data, masses, immobile):
     # Layout: [pos_body0_dim0, pos_body0_dim1, …, pos_bodyN_dimD-1,
     #          vel_body0_dim0, vel_body0_dim1, …, vel_bodyN_dimD-1]
     # ------------------------------------------------------------------ #
-    positions = [
-        [data[i * D + d] for d in range(D)]
-        for i in range(N)
-    ]
+    positions = [[data[i * D + d] for d in range(D)] for i in range(N)]
     velocities = [
-        [data[N * D + i * D + d] for d in range(D)]
-        for i in range(N)
+        [data[N * D + i * D + d] for d in range(D)] for i in range(N)
     ]
 
     # The time-derivative of position is simply the velocity (kinematics).
@@ -53,15 +49,14 @@ def _python_gravity_flat_law(G, data, masses, immobile):
     # ------------------------------------------------------------------ #
     # Compute the gravitational acceleration on each body.
     # ------------------------------------------------------------------ #
-    for i in range(N):      # body i is the one being accelerated
+    for i in range(N):  # body i is the one being accelerated
         for j in range(N):  # body j exerts the gravitational force
             if i == j:
-                continue    # a body does not attract itself
+                continue  # a body does not attract itself
 
             # Vector pointing from body i toward body j.
             displacement = [
-                positions[j][d] - positions[i][d]
-                for d in range(D)
+                positions[j][d] - positions[i][d] for d in range(D)
             ]
 
             # Euclidean distance between the two bodies.
@@ -76,7 +71,7 @@ def _python_gravity_flat_law(G, data, masses, immobile):
             #   a += G * M_j * displacement / distance^3
             for d in range(D):
                 d_velocities[i][d] += (
-                    G * masses[j] * displacement[d] / distance ** 3
+                    G * masses[j] * displacement[d] / distance**3
                 )
 
     # ------------------------------------------------------------------ #

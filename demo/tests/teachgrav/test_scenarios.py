@@ -8,28 +8,28 @@ factory = ScenarioFactory()
 
 
 def test_create_scenario_moon():
-    system = factory.create_scenario('moon')
+    system = factory.create_scenario("moon")
     assert len(system.positions()) == 2
     assert len(system.velocities()) == 2
     assert len(system.masses) == 2
 
 
 def test_create_scenario_scatter():
-    system = factory.create_scenario('scatter', n_bodies=10)
+    system = factory.create_scenario("scatter", n_bodies=10)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
 
 
 def test_create_scenario_scatter_3D():
-    system = factory.create_scenario('scatter', n_bodies=10, dimensions=3)
+    system = factory.create_scenario("scatter", n_bodies=10, dimensions=3)
     assert len(system.positions()) == 10
     assert len(system.velocities()) == 10
     assert len(system.masses) == 10
 
 
 def test_scenario_sun():
-    system = factory.create_scenario('sun')
+    system = factory.create_scenario("sun")
     assert len(system.positions()) == 2
     assert len(system.velocities()) == 2
     assert len(system.masses) == 2
@@ -39,7 +39,7 @@ def test_scenario_sun():
 
 def test_create_scenario_single_preserves_initial_state():
     system = factory.create_scenario(
-        'single',
+        "single",
         position=[2.0, -1.0],
         velocity=[0.5, -0.25],
         mass=3.0,
@@ -59,8 +59,8 @@ def test_same_seed_produces_same_scatter(engine):
     """Same seed should produce identical scatter scenarios across engines."""
     f1 = ScenarioFactory(engine=engine, seed=42)
     f2 = ScenarioFactory(engine=engine, seed=42)
-    s1 = f1.create_scenario('scatter', n_bodies=5)
-    s2 = f2.create_scenario('scatter', n_bodies=5)
+    s1 = f1.create_scenario("scatter", n_bodies=5)
+    s2 = f2.create_scenario("scatter", n_bodies=5)
     np = s1.positions().__array_namespace__()
     assert np.allclose(s1.positions(), s2.positions())
     assert np.allclose(s1.velocities(), s2.velocities())
@@ -72,8 +72,8 @@ def test_different_seeds_produce_different_scatter(engine):
     """Different seeds should produce different scatter."""
     f1 = ScenarioFactory(engine=engine, seed=1)
     f2 = ScenarioFactory(engine=engine, seed=2)
-    s1 = f1.create_scenario('scatter', n_bodies=5)
-    s2 = f2.create_scenario('scatter', n_bodies=5)
+    s1 = f1.create_scenario("scatter", n_bodies=5)
+    s2 = f2.create_scenario("scatter", n_bodies=5)
     np = s1.positions().__array_namespace__()
     assert not np.allclose(s1.positions(), s2.positions())
     assert not np.allclose(s1.velocities(), s2.velocities())
@@ -84,11 +84,10 @@ def test_different_seeds_produce_different_scatter(engine):
 def test_engine_consistent_seed_matches_numpy(engine):
     """With engine_consistent_seed=True, same seed yields identical scatter
     as the numpy engine regardless of which engine is requested."""
-    f_numpy = ScenarioFactory(engine='numpy', seed=42)
-    f_other = ScenarioFactory(engine=engine, seed=42,
-                              via_numpy=True)
-    s_numpy = f_numpy.create_scenario('scatter', n_bodies=5)
-    s_other = f_other.create_scenario('scatter', n_bodies=5)
+    f_numpy = ScenarioFactory(engine="numpy", seed=42)
+    f_other = ScenarioFactory(engine=engine, seed=42, via_numpy=True)
+    s_numpy = f_numpy.create_scenario("scatter", n_bodies=5)
+    s_other = f_other.create_scenario("scatter", n_bodies=5)
     assert np.allclose(
         to_numpy_host(s_numpy.positions()),
         to_numpy_host(s_other.positions()),

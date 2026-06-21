@@ -7,18 +7,19 @@ from engines import ENGINES_TO_TEST
 
 
 def test_gp_train():
-    factory = ScenarioFactory('numpy')
+    factory = ScenarioFactory("numpy")
     model = GPModel(factory)
     model.train(256, n_bodies=3)
 
 
 def test_gp_predict():
-    factory = ScenarioFactory('numpy')
+    factory = ScenarioFactory("numpy")
     model = GPModel(factory)
     model.train(256, n_bodies=2, fixed_masses=[1.0, 1.0])
 
-    scenario = factory.create_scenario('scatter', n_bodies=2,
-                                       fixed_masses=[1.0, 1.0])
+    scenario = factory.create_scenario(
+        "scatter", n_bodies=2, fixed_masses=[1.0, 1.0]
+    )
     gp_res = model.law(scenario)
     res = TrueLawModel(factory).law(scenario)
     print("GP result:\n", gp_res)
@@ -37,7 +38,7 @@ def test_gp_law_vectorised(engine):
     # Test that the law can be called multiple times over an array of states
     systems = [
         factory.create_scenario(
-            'scatter',
+            "scatter",
             n_bodies=N_bodies,
             fixed_masses=masses,
         )
@@ -46,7 +47,8 @@ def test_gp_law_vectorised(engine):
     model = GPModel(factory)
     model.train(256, n_bodies=N_bodies, fixed_masses=masses)
     simple_results = factory.engine.array(
-        [model.law(system) for system in systems])
+        [model.law(system) for system in systems]
+    )
     ICs = factory.engine.array([system.data.flatten() for system in systems])
     masses = systems[0].masses
     immobile = systems[0].immobile
@@ -57,14 +59,16 @@ def test_gp_law_vectorised(engine):
     print("Simple results:\n", simple_results)
     assert simple_results.shape == vector_results.shape
     assert vector_results.__array_namespace__().allclose(
-        simple_results, vector_results, atol=1e-6)
+        simple_results, vector_results, atol=1e-6
+    )
 
 
 @pytest.mark.flaky(reruns=2)
 def test_normalise_denormalise():
     from teachgrav.laws.gp import GPModel
     from teachgrav.scenarios import ScenarioFactory
-    factory = ScenarioFactory('numpy')
+
+    factory = ScenarioFactory("numpy")
     model = GPModel(factory)
 
     X = factory.engine.random_array((10, 5))

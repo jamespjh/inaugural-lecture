@@ -29,6 +29,7 @@ class ConstantLawModel(Model):
 
         # Reshape to (C, 2, N, D)
         from ..system import to_shaped
+
         data_shaped = to_shaped(data_flat, num_vec, len(masses))
 
         # Extract velocity component
@@ -40,6 +41,7 @@ class ConstantLawModel(Model):
 
         # Restack into (C, 2, N, D) format
         from ..system import restack_va
+
         delta = restack_va(dpositions, dvelocities)
 
         # Apply immobile mask (immobile bodies have zero derivatives)

@@ -17,11 +17,11 @@ logger = logging.getLogger("Teachgrav")
 
 # Scenarios that generate random initial conditions and are
 # therefore suitable for use as training data for fitted laws.
-STOCHASTIC_SCENARIOS = ['scatter']
+STOCHASTIC_SCENARIOS = ["scatter"]
 
 # Known scenario names – used for validation error messages and argument
 # parser choices.  Update this list when adding a new scenario module.
-KNOWN_SCENARIOS = ['moon', 'sun', 'scatter', 'single', 'boids']
+KNOWN_SCENARIOS = ["moon", "sun", "scatter", "single", "boids"]
 
 
 def _load_scenario_class(name: str):
@@ -51,7 +51,7 @@ def _load_scenario_class(name: str):
 
 
 class ScenarioFactory:
-    def __init__(self, engine='numpy', seed=None, via_numpy=True):
+    def __init__(self, engine="numpy", seed=None, via_numpy=True):
         self._engine_name = engine
         self._seed = seed
         self.via_numpy = via_numpy
@@ -73,9 +73,8 @@ class ScenarioFactory:
         """
         cls = _load_scenario_class(name)
 
-        if (self.via_numpy
-                and self._engine_name != 'numpy'):
-            numpy_engine = ArrayAbstraction('numpy', seed=self._seed)
+        if self.via_numpy and self._engine_name != "numpy":
+            numpy_engine = ArrayAbstraction("numpy", seed=self._seed)
             system = cls(numpy_engine).create(**kwargs)
             return system.to_engine(self.engine)
 
@@ -83,15 +82,18 @@ class ScenarioFactory:
 
     def create_training_data(self, N_sys, **kwargs):
         """Create training data for learned models."""
-        scenarios = [self.create_scenario('scatter', **kwargs)
-                     for _ in range(N_sys)]
+        scenarios = [
+            self.create_scenario("scatter", **kwargs) for _ in range(N_sys)
+        ]
 
-        ICs = self.engine.array([system.data.flatten()
-                                 for system in scenarios])
+        ICs = self.engine.array(
+            [system.data.flatten() for system in scenarios]
+        )
         flatICs = ICs.reshape((N_sys, -1))
         masses = scenarios[0].masses
         immobile = scenarios[0].immobile
         from teachgrav.laws.true_law import TrueLawModel
+
         results = TrueLawModel(self).flat_law(flatICs, masses, immobile)
 
         vector_results = to_shaped(results, N_sys, len(masses))

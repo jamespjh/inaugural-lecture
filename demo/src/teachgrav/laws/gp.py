@@ -6,17 +6,19 @@ from ..system import restack_va, to_shaped
 from ..array_abstraction import to_numpy_host
 
 import logging
+
 logger = logging.getLogger("Teachgrav")
 
 
 class GPModel(Model):
     def __init__(self, factory, **kwargs):
         self.factory = factory
-        self.kernel = 1 * Matern(length_scale=1.0,
-                                 length_scale_bounds=(1e-2, 1e2))
+        self.kernel = 1 * Matern(
+            length_scale=1.0, length_scale_bounds=(1e-2, 1e2)
+        )
         self.gaussian_process = GaussianProcessRegressor(
-            kernel=self.kernel,
-            n_restarts_optimizer=9)
+            kernel=self.kernel, n_restarts_optimizer=9
+        )
 
     def normaliseX(self, X):
         """Normalise the data to have zero mean and unit variance."""
@@ -47,8 +49,9 @@ class GPModel(Model):
     def train(self, N_sys, **kwargs):
         """Train a GP model on random scatters for a given set of args."""
         # Placeholder implementation, replace with actual GP training code
-        ICs, accelerations, masses, immobile = \
+        ICs, accelerations, masses, immobile = (
             self.factory.create_training_data(N_sys, **kwargs)
+        )
         norm_y = self.normaliseY(accelerations)
         norm_ICs = self.normaliseX(ICs)
         norm_y = to_numpy_host(norm_y)
@@ -56,18 +59,21 @@ class GPModel(Model):
 
         logger.info("Training GP model...")
         self.gaussian_process.fit(norm_ICs, norm_y)
-        logger.info(f"Trained GP model with kernel: "
-                    f"{self.gaussian_process.kernel_}")
+        logger.info(
+            f"Trained GP model with kernel: "
+            f"{self.gaussian_process.kernel_}"
+        )
 
     def save(self, path):
         """Save the GP model to a joblib file (sklearn-compatible format)."""
         import numpy as np
+
         state = {
-            'gaussian_process': self.gaussian_process,
-            'X_mean': np.asarray(self.X_mean),
-            'X_std': np.asarray(self.X_std),
-            'Y_mean': np.asarray(self.Y_mean),
-            'Y_std': np.asarray(self.Y_std),
+            "gaussian_process": self.gaussian_process,
+            "X_mean": np.asarray(self.X_mean),
+            "X_std": np.asarray(self.X_std),
+            "Y_mean": np.asarray(self.Y_mean),
+            "Y_std": np.asarray(self.Y_std),
         }
         joblib.dump(state, path)
         logger.info(f"Saved GP model to {path}")
@@ -77,11 +83,11 @@ class GPModel(Model):
         """Load a GP model from a joblib file."""
         state = joblib.load(path)
         model = cls(factory=factory)
-        model.gaussian_process = state['gaussian_process']
-        model.X_mean = state['X_mean']
-        model.X_std = state['X_std']
-        model.Y_mean = state['Y_mean']
-        model.Y_std = state['Y_std']
+        model.gaussian_process = state["gaussian_process"]
+        model.X_mean = state["X_mean"]
+        model.X_std = state["X_std"]
+        model.Y_mean = state["Y_mean"]
+        model.Y_std = state["Y_std"]
         logger.info(f"Loaded GP model from {path}")
         return model
 
@@ -93,10 +99,11 @@ class GPModel(Model):
         means = self.gaussian_process.predict(pred_in)
         acc = self.factory.engine.array(means)  # Accelerations
         acc = self.denormaliseY(acc)
-        velocities = to_shaped(
-            ICs, ICs.shape[0], len(masses))[
-            :, 1, :, :].reshape(
-            acc.shape)  # Velocities
+        velocities = to_shaped(ICs, ICs.shape[0], len(masses))[
+            :, 1, :, :
+        ].reshape(
+            acc.shape
+        )  # Velocities
         # Shape N_sys, 2, N_bodies * D
         derivatives = restack_va(velocities, acc)
         return derivatives.flatten()

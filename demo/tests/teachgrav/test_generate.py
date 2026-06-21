@@ -6,7 +6,6 @@ import pytest
 from teachgrav import generate
 from teachgrav.visualisations.visualize import figsize_from_aspect
 
-
 FIXTURES_DIR = Path(__file__).resolve().parents[1] / "fixtures"
 
 
@@ -44,8 +43,11 @@ def test_run_batch_calls_parse_args_for_each_config():
 def test_generate_figures_uses_single_fixture_file():
     yaml_file = FIXTURES_DIR / "generate_single.yaml"
 
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse_args, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_execute:
+    with patch(
+        "teachgrav.generate.entry.parse_args"
+    ) as mock_parse_args, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_execute:
         mock_parse_args.return_value = "parsed"
         generate.generate_figures(str(yaml_file))
 
@@ -59,8 +61,11 @@ def test_generate_figures_uses_single_fixture_file():
 def test_generate_figures_uses_multiple_fixture_file():
     yaml_file = FIXTURES_DIR / "generate_multiple.yaml"
 
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse_args, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_execute:
+    with patch(
+        "teachgrav.generate.entry.parse_args"
+    ) as mock_parse_args, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_execute:
         mock_parse_args.side_effect = ["first", "second"]
         generate.generate_figures(str(yaml_file))
 
@@ -81,22 +86,20 @@ def test_generate_figures_invalid_yaml_structure_raises():
     yaml_file = FIXTURES_DIR / "generate_invalid.yaml"
 
     with pytest.raises(
-            ValueError,
-            match="YAML root must be a list of invocation dictionaries"):
+        ValueError, match="YAML root must be a list of invocation dictionaries"
+    ):
         generate.generate_figures(str(yaml_file))
 
 
 def test_run_batch_rejects_non_dict_entries():
     with pytest.raises(
-            ValueError,
-            match="Each YAML entry must be a dictionary"):
+        ValueError, match="Each YAML entry must be a dictionary"
+    ):
         generate.run_batch(["not-a-dict"])
 
 
 def test_run_batch_rejects_underscore_keys():
-    with pytest.raises(
-            ValueError,
-            match="YAML keys must use '-' separators"):
+    with pytest.raises(ValueError, match="YAML keys must use '-' separators"):
         generate.run_batch([{"log_level": "INFO"}])
 
 
@@ -104,8 +107,11 @@ def test_generate_figures_train_scenario():
     """Test YAML-driven power law convergence training scenario."""
     yaml_file = FIXTURES_DIR / "generate_train.yaml"
 
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse_args, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_execute:
+    with patch(
+        "teachgrav.generate.entry.parse_args"
+    ) as mock_parse_args, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_execute:
         mock_parse_args.return_value = "parsed_train_args"
         generate.generate_figures(str(yaml_file))
 
@@ -124,6 +130,7 @@ def test_generate_figures_train_scenario():
 # ---------------------------------------------------------------------------
 # Tests for benchmark helper functions and run_benchmark
 # ---------------------------------------------------------------------------
+
 
 def test_parse_range_notation_integers():
     result = generate._parse_range_notation("[1:5:1]")
@@ -167,9 +174,9 @@ def test_expand_config_arrays_expands_range_notation():
 
 def test_run_benchmark_warns_viz_options():
     configs = [{"scenario": "moon", "visualise": "dot"}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              return_value=0.1):
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.1
+    ):
         mock_parse.return_value = _make_mock_args()
         with pytest.warns(UserWarning, match="visualise.*ignored"):
             generate.run_benchmark(configs)
@@ -177,9 +184,9 @@ def test_run_benchmark_warns_viz_options():
 
 def test_run_benchmark_single_no_sweep(capsys):
     configs = [{"scenario": "moon"}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              return_value=0.042):
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.042
+    ):
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs)
 
@@ -190,9 +197,10 @@ def test_run_benchmark_single_no_sweep(capsys):
 
 def test_run_benchmark_single_one_param(capsys):
     configs = [{"scenario": "moon", "method": ["euler", "RK45"]}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              side_effect=[0.001, 0.002]):
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario",
+        side_effect=[0.001, 0.002],
+    ):
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs)
 
@@ -205,13 +213,18 @@ def test_run_benchmark_single_one_param(capsys):
 
 
 def test_run_benchmark_single_two_params(capsys):
-    configs = [{"scenario": "scatter", "method": ["euler", "RK45"],
-                "n-bodies": [2, 4]}]
+    configs = [
+        {
+            "scenario": "scatter",
+            "method": ["euler", "RK45"],
+            "n-bodies": [2, 4],
+        }
+    ]
     times = [0.01, 0.02, 0.03, 0.04]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              side_effect=times):
-        mock_parse.return_value = _make_mock_args(scenario='scatter')
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", side_effect=times
+    ):
+        mock_parse.return_value = _make_mock_args(scenario="scatter")
         generate.run_benchmark(configs)
 
     out = capsys.readouterr().out
@@ -226,14 +239,18 @@ def test_run_benchmark_single_two_params(capsys):
 
 
 def test_run_benchmark_warns_more_than_two_params(capsys):
-    configs = [{"scenario": "scatter",
-                "method": ["euler"],
-                "n-bodies": [2],
-                "engine": ["numpy"]}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              return_value=0.1):
-        mock_parse.return_value = _make_mock_args(scenario='scatter')
+    configs = [
+        {
+            "scenario": "scatter",
+            "method": ["euler"],
+            "n-bodies": [2],
+            "engine": ["numpy"],
+        }
+    ]
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.1
+    ):
+        mock_parse.return_value = _make_mock_args(scenario="scatter")
         with pytest.warns(UserWarning, match="More than two array parameters"):
             generate.run_benchmark(configs)
 
@@ -241,11 +258,12 @@ def test_run_benchmark_warns_more_than_two_params(capsys):
 def test_run_benchmark_multiple_scenarios(capsys):
     yaml_file = FIXTURES_DIR / "benchmark_multi.yaml"
     times = [0.1, 0.2, 0.3, 0.4]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              side_effect=times):
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", side_effect=times
+    ):
         mock_parse.return_value = _make_mock_args()
         import yaml as _yaml
+
         with open(str(yaml_file)) as f:
             configs = _yaml.safe_load(f)
         generate.run_benchmark(configs)
@@ -272,8 +290,9 @@ def test_generate_figures_benchmark_mode_calls_run_benchmark():
 def test_generate_figures_benchmark_output_file():
     yaml_file = FIXTURES_DIR / "benchmark_single.yaml"
     with patch("teachgrav.generate.run_benchmark") as mock_bench:
-        generate.generate_figures(str(yaml_file), benchmark=True,
-                                  output="/tmp/out.csv")
+        generate.generate_figures(
+            str(yaml_file), benchmark=True, output="/tmp/out.csv"
+        )
     _, output_arg = mock_bench.call_args.args
     assert output_arg == "/tmp/out.csv"
 
@@ -282,20 +301,23 @@ def test_generate_figures_warns_non_csv_output():
     yaml_file = FIXTURES_DIR / "benchmark_single.yaml"
     with patch("teachgrav.generate.run_benchmark"):
         with pytest.warns(UserWarning, match=".csv extension"):
-            generate.generate_figures(str(yaml_file), benchmark=True,
-                                      output="/tmp/out.txt")
+            generate.generate_figures(
+                str(yaml_file), benchmark=True, output="/tmp/out.txt"
+            )
 
 
 def test_generate_figures_figure_output_no_warning():
     """--output pointing to a .png should not warn about .csv extension."""
     yaml_file = FIXTURES_DIR / "benchmark_single.yaml"
     import warnings as _warnings
+
     with patch("teachgrav.generate.run_benchmark"):
         with _warnings.catch_warnings(record=True) as caught:
             _warnings.simplefilter("always")
-            generate.generate_figures(str(yaml_file), benchmark=True,
-                                      output="/tmp/out.png")
-    csv_warnings = [w for w in caught if '.csv extension' in str(w.message)]
+            generate.generate_figures(
+                str(yaml_file), benchmark=True, output="/tmp/out.png"
+            )
+    csv_warnings = [w for w in caught if ".csv extension" in str(w.message)]
     assert csv_warnings == []
 
 
@@ -303,15 +325,19 @@ def test_generate_figures_figure_output_no_warning():
 # Tests for _is_figure_output
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("path,expected", [
-    ("out.png", True),
-    ("out.svg", True),
-    ("out.pdf", True),
-    ("out.PNG", True),   # case-insensitive
-    ("out.csv", False),
-    ("", False),
-    (None, False),
-])
+
+@pytest.mark.parametrize(
+    "path,expected",
+    [
+        ("out.png", True),
+        ("out.svg", True),
+        ("out.pdf", True),
+        ("out.PNG", True),  # case-insensitive
+        ("out.csv", False),
+        ("", False),
+        (None, False),
+    ],
+)
 def test_is_figure_output(path, expected):
     assert generate._is_figure_output(path) is expected
 
@@ -320,19 +346,23 @@ def test_is_figure_output(path, expected):
 # Tests for figure output routing in benchmark functions
 # ---------------------------------------------------------------------------
 
+
 def test_run_single_scenario_benchmark_routes_to_figure(tmp_path):
     """_run_single_scenario_benchmark calls _plot_benchmark_figure for .png."""
     output = str(tmp_path / "out.png")
-    config = {'scenario': 'moon', 'benchmark': True}
-    with patch("teachgrav.generate._plot_benchmark_figure") as mock_plot, \
-        patch("teachgrav.generate.entry.benchmark_scenario",
-              return_value=0.001):
+    config = {"scenario": "moon", "benchmark": True}
+    with patch(
+        "teachgrav.generate._plot_benchmark_figure"
+    ) as mock_plot, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.001
+    ):
         generate._run_single_scenario_benchmark(config, output)
     assert mock_plot.call_count == 1
     _, _, called_output = mock_plot.call_args.args
     assert called_output == output
-    assert mock_plot.call_args.kwargs['figsize'] == figsize_from_aspect(
-        'column')
+    assert mock_plot.call_args.kwargs["figsize"] == figsize_from_aspect(
+        "column"
+    )
 
 
 def test_write_benchmark_csv_does_not_write_file_for_figure(tmp_path):
@@ -349,15 +379,16 @@ def test_write_benchmark_csv_does_not_write_file_for_figure(tmp_path):
 # Tests for run_benchmark outfile auto-detection
 # ---------------------------------------------------------------------------
 
+
 def test_run_benchmark_uses_config_outfile_as_figure(tmp_path):
     """run_benchmark picks up outfile from config and routes to figure."""
     output_path = str(tmp_path / "bench.png")
-    configs = [{"scenario": "moon", "outfile": output_path,
-                "n-bodies": [2, 4]}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.benchmark_scenario",
-                  return_value=0.1), \
-            patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
+    configs = [
+        {"scenario": "moon", "outfile": output_path, "n-bodies": [2, 4]}
+    ]
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.1
+    ), patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs)
     mock_plot.assert_called_once()
@@ -370,10 +401,9 @@ def test_run_benchmark_explicit_output_overrides_config_outfile(tmp_path):
     config_outfile = str(tmp_path / "config.png")
     explicit_outfile = str(tmp_path / "explicit.png")
     configs = [{"scenario": "moon", "outfile": config_outfile}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.benchmark_scenario",
-                  return_value=0.1), \
-            patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.1
+    ), patch("teachgrav.generate._plot_benchmark_figure") as mock_plot:
         mock_parse.return_value = _make_mock_args()
         generate.run_benchmark(configs, output=explicit_outfile)
     _, _, saved_path = mock_plot.call_args.args
@@ -383,18 +413,21 @@ def test_run_benchmark_explicit_output_overrides_config_outfile(tmp_path):
 def test_run_benchmark_outfile_not_warned_for_figure():
     """outfile in config should not trigger 'ignored' warning."""
     configs = [{"scenario": "moon", "outfile": "bench.png"}]
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.benchmark_scenario",
-                  return_value=0.1), \
-            patch("teachgrav.generate._plot_benchmark_figure"):
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.benchmark_scenario", return_value=0.1
+    ), patch("teachgrav.generate._plot_benchmark_figure"):
         mock_parse.return_value = _make_mock_args()
         import warnings as _warnings
+
         with _warnings.catch_warnings(record=True) as caught:
             _warnings.simplefilter("always")
             generate.run_benchmark(configs)
-    outfile_warnings = [w for w in caught
-                        if 'outfile' in str(w.message).lower()
-                        and 'ignored' in str(w.message).lower()]
+    outfile_warnings = [
+        w
+        for w in caught
+        if "outfile" in str(w.message).lower()
+        and "ignored" in str(w.message).lower()
+    ]
     assert outfile_warnings == []
 
 
@@ -402,12 +435,15 @@ def test_run_benchmark_outfile_not_warned_for_figure():
 # Tests for generate_figures auto-routing benchmark: true configs
 # ---------------------------------------------------------------------------
 
+
 def test_generate_figures_auto_routes_benchmark_configs():
     """benchmark: true in YAML routes to run_benchmark."""
     yaml_file = FIXTURES_DIR / "generate_mixed_benchmark.yaml"
-    with patch("teachgrav.generate.run_benchmark") as mock_bench, \
-            patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+    with patch("teachgrav.generate.run_benchmark") as mock_bench, patch(
+        "teachgrav.generate.entry.parse_args"
+    ) as mock_parse, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_exec:
         mock_parse.return_value = "parsed"
         generate.generate_figures(str(yaml_file))
     # Only the sun scenario goes to simulation
@@ -417,27 +453,29 @@ def test_generate_figures_auto_routes_benchmark_configs():
     mock_bench.assert_called_once()
     configs_arg = mock_bench.call_args.args[0]
     assert len(configs_arg) == 1
-    assert configs_arg[0]['scenario'] == 'scatter'
+    assert configs_arg[0]["scenario"] == "scatter"
 
 
 def test_generate_figures_benchmark_only_yaml():
     """A YAML with only benchmark: true configs calls run_benchmark."""
     yaml_file = FIXTURES_DIR / "generate_benchmark_only.yaml"
-    with patch("teachgrav.generate.run_benchmark") as mock_bench, \
-            patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+    with patch("teachgrav.generate.run_benchmark") as mock_bench, patch(
+        "teachgrav.generate.entry.parse_args"
+    ) as mock_parse, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_exec:
         generate.generate_figures(str(yaml_file))
     mock_parse.assert_not_called()
     mock_exec.assert_not_called()
     mock_bench.assert_called_once()
 
 
-def test_generate_figures_expands_non_benchmark_arrays_with_outfile_template(
-):
+def test_generate_figures_expands_non_benchmark_arrays_with_outfile_template():
     yaml_file = FIXTURES_DIR / "generate_templated.yaml"
 
-    with patch("teachgrav.generate.entry.parse_args") as mock_parse, \
-            patch("teachgrav.generate.entry.execute_scenario") as mock_exec:
+    with patch("teachgrav.generate.entry.parse_args") as mock_parse, patch(
+        "teachgrav.generate.entry.execute_scenario"
+    ) as mock_exec:
         mock_parse.side_effect = ["args0", "args1"]
         generate.generate_figures(str(yaml_file))
 
@@ -473,13 +511,15 @@ def test_expand_non_benchmark_config_cartesian_product():
 # Helper
 # ---------------------------------------------------------------------------
 
-def _make_mock_args(scenario='moon'):
+
+def _make_mock_args(scenario="moon"):
     from unittest.mock import MagicMock
+
     args = MagicMock()
     args.scenario = scenario
-    args.method = 'euler'
-    args.engine = 'numpy'
-    args.law = 'gravity'
+    args.method = "euler"
+    args.engine = "numpy"
+    args.law = "gravity"
     args.n_bodies = None
     args.seed = None
     args.benchmark = True

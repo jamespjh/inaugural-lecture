@@ -7,6 +7,7 @@ class JaxBaseEngine(BaseEngine):
     def _setup(self):
         import jax.numpy as jnp
         import jax.random as jrandom
+
         self.np = jnp
         self.random = jrandom
         self.jax_device = self._pick_device()
@@ -19,11 +20,13 @@ class JaxBaseEngine(BaseEngine):
 
     def array(self, data):
         import jax
+
         res = self.np.array(data)
         return jax.device_put(res, self.jax_device)
 
     def random_array(self, shape, min=0.0, max=1.0):
         import jax
+
         self.key, subkey = self.random.split(self.key)
         res = self.random.uniform(subkey, shape, minval=min, maxval=max)
         return jax.device_put(res, self.jax_device)
@@ -34,6 +37,7 @@ class JaxCpuEngine(JaxBaseEngine):
 
     def _pick_device(self):
         import jax
+
         return jax.devices("cpu")[0]
 
 
@@ -42,6 +46,7 @@ class JaxGpuEngine(JaxBaseEngine):
 
     def _pick_device(self):
         import jax
+
         return jax.devices("gpu")[0]
 
 
@@ -50,4 +55,5 @@ class JaxMetalEngine(JaxBaseEngine):
 
     def _pick_device(self):
         import jax
+
         return jax.devices("METAL")[0]

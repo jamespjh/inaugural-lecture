@@ -7,120 +7,122 @@ def test_parse_model_data_arg():
     # model-data accepted alongside a fitted law when not training
     # (validation of missing model_data is only applied in simulation mode,
     # so we pass a dummy path to avoid the ValueError)
-    args = parse_args('--law power --model-data /tmp/model.yaml')
-    assert args.model_data == '/tmp/model.yaml'
-    assert args.law == 'power'
+    args = parse_args("--law power --model-data /tmp/model.yaml")
+    assert args.model_data == "/tmp/model.yaml"
+    assert args.law == "power"
 
 
 def test_default_model_data_is_none():
-    args = parse_args(' ')
+    args = parse_args(" ")
     assert args.model_data is None
 
 
 def test_fitted_law_without_model_data_raises():
-    with pytest.raises(ValueError, match='pre-trained model file'):
-        parse_args('--law power')
+    with pytest.raises(ValueError, match="pre-trained model file"):
+        parse_args("--law power")
 
 
 def test_fitted_law_gaussian_without_model_data_raises():
-    with pytest.raises(ValueError, match='pre-trained model file'):
-        parse_args('--law gaussian')
+    with pytest.raises(ValueError, match="pre-trained model file"):
+        parse_args("--law gaussian")
 
 
 def test_parse_args():
     args = parse_args(
-        '--scenario scatter --method Tsit5 --outfile output.mp4 ' +
-        '--visualise dot')
-    assert args.scenario == 'scatter'
-    assert args.method == 'Tsit5'
-    assert args.outfile == 'output.mp4'
-    assert args.visualise == 'dot'
+        "--scenario scatter --method Tsit5 --outfile output.mp4 "
+        + "--visualise dot"
+    )
+    assert args.scenario == "scatter"
+    assert args.method == "Tsit5"
+    assert args.outfile == "output.mp4"
+    assert args.visualise == "dot"
     assert args.video
-    assert args.format == 'mp4'
+    assert args.format == "mp4"
 
 
 def test_default_args():
     args = parse_args(" ")
-    assert args.scenario == 'moon'
-    assert args.method == 'euler'
+    assert args.scenario == "moon"
+    assert args.method == "euler"
     assert args.outfile is None
     assert args.visualise is None
     assert not args.video
     assert args.duration == 30
-    assert args.format == 'csv'
+    assert args.format == "csv"
 
 
 def test_duration_with_video_args():
-    args = parse_args('--duration 45 --outfile output.mp4')
+    args = parse_args("--duration 45 --outfile output.mp4")
     assert args.video
     assert args.duration == 45
 
 
 def test_duration_without_video_raises():
     with pytest.raises(
-            ValueError,
-            match='Option --duration can only be used with video output'):
-        parse_args('--duration 45')
+        ValueError,
+        match="Option --duration can only be used with video output",
+    ):
+        parse_args("--duration 45")
 
 
 def test_parse_args_law_option():
-    args = parse_args('--law constant')
-    assert args.law == 'constant'
+    args = parse_args("--law constant")
+    assert args.law == "constant"
 
 
 def test_n_bodies_scatter():
-    args = parse_args('--scenario scatter --n-bodies 6')
+    args = parse_args("--scenario scatter --n-bodies 6")
     assert args.n_bodies == 6
 
 
 def test_n_bodies_default_is_none():
-    args = parse_args('--scenario scatter')
+    args = parse_args("--scenario scatter")
     assert args.n_bodies is None
 
 
-@pytest.mark.parametrize('scenario', ['moon', 'sun', 'single'])
+@pytest.mark.parametrize("scenario", ["moon", "sun", "single"])
 def test_n_bodies_non_scatter_raises(scenario):
     with pytest.raises(
-            ValueError,
-            match="Option --n-bodies can only be used with the scatter"):
-        parse_args(f'--scenario {scenario} --n-bodies 5')
+        ValueError, match="Option --n-bodies can only be used with the scatter"
+    ):
+        parse_args(f"--scenario {scenario} --n-bodies 5")
 
 
 def test_parse_args_seed_option():
-    args = parse_args('--seed 42')
+    args = parse_args("--seed 42")
     assert args.seed == 42
 
 
 def test_parse_args_seed_default_is_none():
-    args = parse_args(' ')
+    args = parse_args(" ")
     assert args.seed is None
 
 
 def test_engine_consistent_seed_default_is_true():
-    args = parse_args(' ')
+    args = parse_args(" ")
     assert args.engine_consistent_seed is True
 
 
 def test_no_engine_consistent_seed():
-    args = parse_args('--no-engine-consistent-seed')
+    args = parse_args("--no-engine-consistent-seed")
     assert args.engine_consistent_seed is False
 
 
 def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     class Args:
-        log_level = 'WARNING'
+        log_level = "WARNING"
         log_file = None
-        engine = 'numpy'
-        scenario = 'single'
+        engine = "numpy"
+        scenario = "single"
         benchmark = True
         benchmark_solve = False
-        method = 'euler'
-        law = 'constant'
+        method = "euler"
+        law = "constant"
         visualise = None
         outfile = None
         video = False
         duration = 30
-        format = 'csv'
+        format = "csv"
         train = False
         n_bodies = None
         seed = None
@@ -129,104 +131,110 @@ def test_benchmark_mode_passes_law_and_timing(monkeypatch):
     captured = {}
 
     def fake_benchmark(fn, *args):
-        captured['arg_count'] = len(args)
-        captured['args'] = args
+        captured["arg_count"] = len(args)
+        captured["args"] = args
         fn()
         return 0.1
 
-    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    monkeypatch.setattr("teachgrav.entry.benchmark_engine", fake_benchmark)
     execute_scenario(Args())
-    assert captured['arg_count'] == 1
-    assert captured['args'][0] == 'numpy'
+    assert captured["arg_count"] == 1
+    assert captured["args"][0] == "numpy"
 
 
 def test_benchmark_mode_runs_single_law_step_not_full_solve(monkeypatch):
     """Benchmark should call model.law() once, not the full solver."""
+
     class Args:
-        log_level = 'WARNING'
+        log_level = "WARNING"
         log_file = None
-        engine = 'numpy'
-        scenario = 'single'
+        engine = "numpy"
+        scenario = "single"
         benchmark = True
         benchmark_solve = False
-        method = 'euler'
-        law = 'gravity'
+        method = "euler"
+        law = "gravity"
         visualise = None
         outfile = None
         video = False
         duration = 30
-        format = 'csv'
+        format = "csv"
         train = False
         n_bodies = None
         seed = None
         engine_consistent_seed = True
 
-    law_call_count = {'count': 0}
-    solve_call_count = {'count': 0}
+    law_call_count = {"count": 0}
+    solve_call_count = {"count": 0}
 
     from teachgrav.laws import laws as laws_module
+
     original_create_law = laws_module.create_law
 
     def tracking_create_law(law_name, factory=None, model_data=None):
-        model = original_create_law(law_name, factory=factory,
-                                    model_data=model_data)
+        model = original_create_law(
+            law_name, factory=factory, model_data=model_data
+        )
         original_law = model.law
 
         def tracking_law(system):
-            law_call_count['count'] += 1
+            law_call_count["count"] += 1
             return original_law(system)
 
         model.law = tracking_law
         return model
 
-    monkeypatch.setattr('teachgrav.entry.create_law', tracking_create_law)
+    monkeypatch.setattr("teachgrav.entry.create_law", tracking_create_law)
 
     def tracking_solve(*a, **kw):
-        solve_call_count['count'] += 1
+        solve_call_count["count"] += 1
 
-    monkeypatch.setattr('teachgrav.entry.solve', tracking_solve)
+    monkeypatch.setattr("teachgrav.entry.solve", tracking_solve)
 
     def fake_benchmark(fn, *args):
         fn()
         return 0.1
 
-    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    monkeypatch.setattr("teachgrav.entry.benchmark_engine", fake_benchmark)
     execute_scenario(Args())
 
-    assert law_call_count['count'] == 1, \
-        "Expected exactly one call to model.law() in benchmark mode"
-    assert solve_call_count['count'] == 0, \
-        "Expected no calls to solve() in benchmark mode"
+    assert (
+        law_call_count["count"] == 1
+    ), "Expected exactly one call to model.law() in benchmark mode"
+    assert (
+        solve_call_count["count"] == 0
+    ), "Expected no calls to solve() in benchmark mode"
 
 
 def test_benchmark_solve_parse_args():
-    args = parse_args('--benchmark-solve')
+    args = parse_args("--benchmark-solve")
     assert args.benchmark_solve is True
     assert args.benchmark is False
 
 
 def test_benchmark_and_benchmark_solve_together_raises():
     with pytest.raises(ValueError, match="cannot be used together"):
-        parse_args('--benchmark --benchmark-solve')
+        parse_args("--benchmark --benchmark-solve")
 
 
 def test_benchmark_solve_calls_solve_not_law(monkeypatch):
     """--benchmark-solve should call solve() once, not model.law()."""
+
     class Args:
-        log_level = 'WARNING'
+        log_level = "WARNING"
         log_file = None
-        engine = 'numpy'
-        scenario = 'single'
+        engine = "numpy"
+        scenario = "single"
         benchmark = False
         benchmark_solve = True
-        method = 'euler'
-        law = 'gravity'
+        method = "euler"
+        law = "gravity"
         model_data = None
         visualise = None
         outfile = None
         video = False
         duration = 30
-        format = 'csv'
+        format = "csv"
         train = False
         n_bodies = None
         seed = None
@@ -234,42 +242,44 @@ def test_benchmark_solve_calls_solve_not_law(monkeypatch):
         dt = 0.01
         until = 0.05
 
-    solve_call_count = {'count': 0}
+    solve_call_count = {"count": 0}
 
     def tracking_solve(*a, **kw):
-        solve_call_count['count'] += 1
+        solve_call_count["count"] += 1
         return object()
 
-    monkeypatch.setattr('teachgrav.entry.solve', tracking_solve)
+    monkeypatch.setattr("teachgrav.entry.solve", tracking_solve)
 
     def fake_benchmark(fn, engine, *args):
         fn()
         return 0.1
 
-    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    monkeypatch.setattr("teachgrav.entry.benchmark_engine", fake_benchmark)
     execute_scenario(Args())
 
-    assert solve_call_count['count'] == 1, \
-        "Expected exactly one call to solve() in benchmark-solve mode"
+    assert (
+        solve_call_count["count"] == 1
+    ), "Expected exactly one call to solve() in benchmark-solve mode"
 
 
 def test_benchmark_solve_respects_until(monkeypatch):
     """--benchmark-solve should pass --until to solve()."""
+
     class Args:
-        log_level = 'WARNING'
+        log_level = "WARNING"
         log_file = None
-        engine = 'numpy'
-        scenario = 'single'
+        engine = "numpy"
+        scenario = "single"
         benchmark = False
         benchmark_solve = True
-        method = 'euler'
-        law = 'gravity'
+        method = "euler"
+        law = "gravity"
         model_data = None
         visualise = None
         outfile = None
         video = False
         duration = 30
-        format = 'csv'
+        format = "csv"
         train = False
         n_bodies = None
         seed = None
@@ -279,75 +289,87 @@ def test_benchmark_solve_respects_until(monkeypatch):
 
     captured = {}
 
-    def tracking_solve(system, method, law, factory=None, dt=0.01,
-                       until=10.0, model_data=None):
-        captured['until'] = until
-        captured['dt'] = dt
+    def tracking_solve(
+        system, method, law, factory=None, dt=0.01, until=10.0, model_data=None
+    ):
+        captured["until"] = until
+        captured["dt"] = dt
         return object()
 
-    monkeypatch.setattr('teachgrav.entry.solve', tracking_solve)
+    monkeypatch.setattr("teachgrav.entry.solve", tracking_solve)
 
     def fake_benchmark(fn, engine, *args):
         fn()
         return 0.1
 
-    monkeypatch.setattr('teachgrav.entry.benchmark_engine', fake_benchmark)
+    monkeypatch.setattr("teachgrav.entry.benchmark_engine", fake_benchmark)
     execute_scenario(Args())
 
-    assert captured['until'] == 0.05, \
-        "Expected solve() to receive until=0.05 from Args"
+    assert (
+        captured["until"] == 0.05
+    ), "Expected solve() to receive until=0.05 from Args"
 
 
 # ---------------------------------------------------------------------------
 # Tests for --grid flag
 # ---------------------------------------------------------------------------
 
+
 def test_parse_args_grid_option():
-    args = parse_args('--scenario scatter --grid 5 --outfile grid.png')
+    args = parse_args("--scenario scatter --grid 5 --outfile grid.png")
     assert args.grid == 5
 
 
 def test_parse_args_grid_default_is_none():
-    args = parse_args(' ')
+    args = parse_args(" ")
     assert args.grid is None
 
 
 def test_grid_zero_raises():
     with pytest.raises((ValueError, SystemExit)):
-        parse_args('--scenario scatter --grid 0 --outfile grid.png')
+        parse_args("--scenario scatter --grid 0 --outfile grid.png")
 
 
 def test_grid_negative_raises():
     with pytest.raises((ValueError, SystemExit)):
-        parse_args('--scenario scatter --grid -1 --outfile grid.png')
+        parse_args("--scenario scatter --grid -1 --outfile grid.png")
 
 
 def test_execute_scenario_grid_calls_grid_plot(monkeypatch):
     """execute_scenario should call grid_plot when --grid is set."""
     captured = {}
 
-    def fake_solve(system, method, law='gravity', factory=None,
-                   dt=0.01, until=10.0, model_data=None):
+    def fake_solve(
+        system,
+        method,
+        law="gravity",
+        factory=None,
+        dt=0.01,
+        until=10.0,
+        model_data=None,
+    ):
         class FakeTraj:
             pass
+
         return FakeTraj()
 
-    def fake_grid_plot(trajectories, grid_size, output, options='trail'):
-        captured['grid_size'] = grid_size
-        captured['n_trajectories'] = len(trajectories)
-        captured['output'] = output
-        captured['options'] = options
+    def fake_grid_plot(trajectories, grid_size, output, options="trail"):
+        captured["grid_size"] = grid_size
+        captured["n_trajectories"] = len(trajectories)
+        captured["output"] = output
+        captured["options"] = options
 
-    monkeypatch.setattr('teachgrav.entry.solve', fake_solve)
-    monkeypatch.setattr('teachgrav.entry.grid_plot', fake_grid_plot)
+    monkeypatch.setattr("teachgrav.entry.solve", fake_solve)
+    monkeypatch.setattr("teachgrav.entry.grid_plot", fake_grid_plot)
 
     args = parse_args(
-        '--scenario scatter --grid 3 --outfile /tmp/grid.png --seed 1')
+        "--scenario scatter --grid 3 --outfile /tmp/grid.png --seed 1"
+    )
     execute_scenario(args)
 
-    assert captured['grid_size'] == 3
-    assert captured['n_trajectories'] == 9
-    assert captured['output'] == '/tmp/grid.png'
+    assert captured["grid_size"] == 3
+    assert captured["n_trajectories"] == 9
+    assert captured["output"] == "/tmp/grid.png"
 
 
 def test_execute_scenario_grid_uses_visualise_option(monkeypatch):
@@ -357,17 +379,19 @@ def test_execute_scenario_grid_uses_visualise_option(monkeypatch):
     def fake_solve(*a, **kw):
         class FakeTraj:
             pass
+
         return FakeTraj()
 
-    def fake_grid_plot(trajectories, grid_size, output, options='trail'):
-        captured['options'] = options
+    def fake_grid_plot(trajectories, grid_size, output, options="trail"):
+        captured["options"] = options
 
-    monkeypatch.setattr('teachgrav.entry.solve', fake_solve)
-    monkeypatch.setattr('teachgrav.entry.grid_plot', fake_grid_plot)
+    monkeypatch.setattr("teachgrav.entry.solve", fake_solve)
+    monkeypatch.setattr("teachgrav.entry.grid_plot", fake_grid_plot)
 
     args = parse_args(
-        '--scenario scatter --grid 2 --outfile /tmp/g.png '
-        '--visualise dot --seed 1')
+        "--scenario scatter --grid 2 --outfile /tmp/g.png "
+        "--visualise dot --seed 1"
+    )
     execute_scenario(args)
 
-    assert captured['options'] == 'dot'
+    assert captured["options"] == "dot"

@@ -4,19 +4,20 @@ from teachgrav.system import System, Trajectory
 from teachgrav.array_abstraction import ArrayAbstraction
 import pytest
 
-ar = ArrayAbstraction('numpy')
+ar = ArrayAbstraction("numpy")
 np = ar.np
 
 
-fixture_system = System(ar.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]),
-                        masses=ar.array([1, 1]))
+fixture_system = System(
+    ar.array([[[0, 0], [1, 0]], [[0, 0], [0, 1]]]), masses=ar.array([1, 1])
+)
 
 
 def test_system():
     system = fixture_system
     assert system.positions().shape == (2, 2)  # 2 bodies, 2D positions
     assert system.velocities().shape == (2, 2)  # 2 bodies, 2D velocities
-    assert system.masses.shape == (2,)       # 2 bodies
+    assert system.masses.shape == (2,)  # 2 bodies
 
 
 def test_trajectory():
@@ -30,7 +31,7 @@ def test_trajectory():
     assert trajectory.positions().shape == (3, 2, 2)
     # 101 time steps, 2 bodies, 2D velocities
     assert trajectory.velocities().shape == (3, 2, 2)
-    assert trajectory.masses.shape == (2,)          # 2 bodies
+    assert trajectory.masses.shape == (2,)  # 2 bodies
 
 
 def test_update():
@@ -50,23 +51,26 @@ def test_trajectory_write_csv():
     for _ in range(10):
         trajectory.append(system.data)  # Append the initial state again
     import io
+
     stream = io.StringIO()
-    trajectory.write(stream, format='csv')
+    trajectory.write(stream, format="csv")
     csv_output = stream.getvalue()
     # Check that the output has the expected
     # number of lines (header + 11 lines)
-    assert len(csv_output.strip().split('\n')) == 11
+    assert len(csv_output.strip().split("\n")) == 11
     # Check that the first line corresponds
     # to the initial positions
-    first_line = csv_output.strip().split('\n')[0]
-    expected_first_line = ('0.00000,   0.00000,   1.00000,   0.00000,' +
-                           '   0.00000,   0.00000,   0.00000,   1.00000')
+    first_line = csv_output.strip().split("\n")[0]
+    expected_first_line = (
+        "0.00000,   0.00000,   1.00000,   0.00000,"
+        + "   0.00000,   0.00000,   0.00000,   1.00000"
+    )
     assert first_line == expected_first_line
 
 
 @pytest.mark.parametrize("engine", ENGINES_TO_TEST)
 def test_array_python_engine_converts_ndarray_to_nested_lists(engine):
-    py_ar = ArrayAbstraction('python')
+    py_ar = ArrayAbstraction("python")
     t_ar = ArrayAbstraction(engine)
 
     src = t_ar.array([[1.0, 2.0], [3.0, 4.0]])
@@ -81,7 +85,7 @@ def test_array_python_engine_converts_ndarray_to_nested_lists(engine):
 def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):
     t_ar = ArrayAbstraction(engine)
     pytest.importorskip("numba")
-    numba_ar = ArrayAbstraction('numba')
+    numba_ar = ArrayAbstraction("numba")
     src = t_ar.array([[1.0, 2.0], [3.0, 4.0]])
 
     out = numba_ar.array(src)
@@ -96,12 +100,11 @@ def test_array_numba_engine_converts_ndarray_to_typed_lists(engine):
 
 def test_system_to_engine_preserves_values():
     """System.to_engine converts all arrays to the target engine."""
-    src_engine = ArrayAbstraction('numpy')
-    tgt_engine = ArrayAbstraction('numpy', seed=0)
+    src_engine = ArrayAbstraction("numpy")
+    tgt_engine = ArrayAbstraction("numpy", seed=0)
 
     src = System(
-        src_engine.array([[[1.0, 2.0], [3.0, 4.0]],
-                          [[0.1, 0.2], [0.3, 0.4]]]),
+        src_engine.array([[[1.0, 2.0], [3.0, 4.0]], [[0.1, 0.2], [0.3, 0.4]]]),
         masses=src_engine.array([1.5, 2.5]),
     )
     dst = src.to_engine(tgt_engine)
