@@ -154,8 +154,8 @@ class PLModel(Model):
         data_flat = self.add_vectorising_dimension_if_needed(data)
         num_vec = data_flat.shape[0]
         data = to_shaped(data_flat, num_vec, num_bodies=len(immobile))
-        G = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.G))
-        power = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.power)) # shape N_power
+        G = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.G), target_ndim=1)  # shape N_G
+        power = self.add_vectorising_dimension_if_needed(self.factory.engine.array(self.power), target_ndim=1)  # shape N_power
         np = data.__array_namespace__()
         dpositions = data[:, 1, :, :]  # Derivative of position is velocity
         # Each body experiences a gravitational force from
@@ -173,6 +173,12 @@ class PLModel(Model):
         # Avoid division by zero, but will make no contribution
         # since we will zero out self-interactions next
         # Pairwise accelerations due to gravity
+        print("Shapes of ingredients after broadcasting:")
+        print(f"  G: {G[:,np.newaxis, np.newaxis, np.newaxis, np.newaxis, np.newaxis].shape}")
+        print(f"  masses: {masses[np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis].shape}")
+        print(f"  displacements: {displacements[np.newaxis, np.newaxis, :,:,:,:].shape}")
+        print(f"  safe_distances: {safe_distances[np.newaxis, np.newaxis, :,:,:,:].shape}")
+        print(f"  power: {power[np.newaxis,:, np.newaxis, np.newaxis, np.newaxis, np.newaxis].shape}")
         accelerations = (-1.0 * G[:,np.newaxis, np.newaxis, np.newaxis, np.newaxis, np.newaxis] * \
             masses[np.newaxis, np.newaxis, np.newaxis, np.newaxis, :, np.newaxis] * \
             displacements[np.newaxis, np.newaxis, :,:,:,:] / 
