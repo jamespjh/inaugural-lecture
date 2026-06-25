@@ -18,6 +18,12 @@ People
 
 :::
 
+# Video link
+
+A video of this talk being delivered live is available:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/5hb1u1QllfA?si=gknKkIRjXWWzMVUD" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 {{< include part1.qmd >}}
 
 {{< include part2.qmd >}}
