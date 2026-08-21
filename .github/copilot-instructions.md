@@ -29,8 +29,12 @@ Run commands from `demo/` unless task explicitly targets docs/slides only.
 
 ## Virtual environments
 
+When running locally on this laptop in VS Code (not for GitHub `@copilot` tag runs):
+
 Test discovery and running can fail if the sandbox venv is not activated. Always ensure the venv is active before running tests or the demo entry point.
 If that fails, explicitly find the executable for pytest or similar in the venv and run it directly, for example `./venv/bin/pytest`.
+Use the existing repository virtual environment at `demo/venv` for all demo code tasks when running locally.
+Do not create additional virtual environments (for example a new root `.venv`) unless the user explicitly asks for that.
 
 ## Slide Generation
 1. Fill in here
