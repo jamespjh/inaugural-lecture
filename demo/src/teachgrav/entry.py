@@ -180,7 +180,8 @@ def execute_scenario(args):
         scenario_kwargs["n_bodies"] = args.n_bodies
 
     if args.benchmark or args.benchmark_solve:
-        benchmark_scenario(args)
+        res = benchmark_scenario(args)
+        print(f"Benchmark result: {res:.6f} seconds")
         return
 
     if args.grid is not None:

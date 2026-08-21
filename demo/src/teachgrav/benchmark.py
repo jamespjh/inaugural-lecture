@@ -1,5 +1,6 @@
 import time
 from .engine_support import jax_engines
+from .engine_support import mlx_engines
 
 
 class Timer:
@@ -47,6 +48,17 @@ class Timer:
 
         return self.timeit(ffn, *args)
 
+    def timeit_mlx(self, fn, *args):
+        import mlx.core as mx
+
+        def ffn(*args):
+            res = fn(*args)
+            mx.eval(res)
+            mx.synchronize()
+            return res
+
+        return self.timeit(ffn, *args)
+
     def timeit_torch_cuda(self, fn, *args):
         import torch
 
@@ -64,6 +76,8 @@ class Timer:
             return self.timeit_torch_cuda(fn, *args)
         if engine in jax_engines:
             return self.timeit_jax(fn, *args)
+        if engine in mlx_engines:
+            return self.timeit_mlx(fn, *args)
         if engine == "torch-mps":
             return self.timeit_mps(fn, *args)
         else:
