@@ -1,7 +1,7 @@
-python -m venv venv
-source venv/bin/activate
+uv venv
+source .venv/bin/activate
 brew/dnf install ffmpeg
-pip install -e .
-pip install -e '[dev]'
+uv pip install -e .
+uv pip install -e '.[dev]'
 py.test
 flake8
